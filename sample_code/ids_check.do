@@ -60,4 +60,4 @@ lab var diff "Differences"
 lab var tot "Total Compared"
 lab var percent "Percent Difference"
 
-export excel serial submissiondate `idvar' `enumvar' `keyvar' diff tot percent `keepvars' using "C:/users/rsandino/Desktop/upgp.xlsx", first(varl) sheet("ID Duplicates") replace
+export excel serial submissiondate `idvar' `enumvar' `keyvar' diff tot percent `keepvars' using "C:/users/rsandino/Desktop/upgp.xlsx", first(varl) sheet("ID Duplicates") sheetreplace
