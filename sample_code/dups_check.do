@@ -43,7 +43,7 @@ program dupscheck
 
 	order serial `date' `id' `enum' variable label value `keepvars' 
 
-	export excel serial `date' `id' `enum' variable label value `keepvars' using "C:/users/rsandino/Desktop/upgp.xlsx", first(var) sheet("Duplicates") sheetreplace
+	export excel serial `date' `id' `enum' variable label value `keepvars' using "`outfile'", first(var) sheet("Duplicates") sheetreplace
 
 } //end qui
 end 

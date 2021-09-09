@@ -82,5 +82,3 @@ end
  
 use "C:/users/Rsandino/Desktop/HFCs Exercise/05_data/02_survey/survey_data.dta", clear 
 idscheck , id(id) enum(enumid) key(key) date(submissiondate) keepvars(consent) outfile("C:/users/rsandino/Desktop/upgp.xlsx")
-
-loc outfile "C:/users/rsandino/Desktop/upgp.xlsx"
