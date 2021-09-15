@@ -4,16 +4,16 @@ clear all
 
 program dupscheck
 
-	syntax varlist, id(varname) enum(varname) date(varname) outfile(string) [KEEPvars(varlist)]
+	syntax varlist, id(varname) enum(varname) datevar(varname) outfile(string) [KEEPvars(varlist)]
 
 	qui {
 
 	lab val `id'
 	tostring `id' `enum', replace
 
-	gen subdate = dofc(`date'), after(`date')
-	drop `date'
-	g `date' = string(subdate, "%td")
+	gen subdate = dofc(`datevar'), after(`datevar')
+	drop `datevar'
+	g `datevar' = string(subdate, "%td")
 	drop subdate 
 
 
@@ -41,9 +41,9 @@ program dupscheck
 
 	drop `varlist'
 
-	order serial `date' `id' `enum' variable label value `keepvars' 
+	order serial `datevar' `id' `enum' variable label value `keepvars' 
 
-	export excel serial `date' `id' `enum' variable label value `keepvars' using "`outfile'", first(var) sheet("Duplicates") sheetreplace
+	export excel serial `datevar' `id' `enum' variable label value `keepvars' using "`outfile'", first(var) sheet("Duplicates") sheetreplace
 
 } //end qui
 end 

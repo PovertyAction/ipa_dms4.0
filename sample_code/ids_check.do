@@ -6,16 +6,16 @@ clear all
 
 program idscheck // will rename, just didn't want to override existing ipacheckids on my computer
 
-	syntax, id(varname) enum(varname) date(varname) key(varname) outfile(string) [KEEPvars(varlist) dupfile(string)]
+	syntax, id(varname) enum(varname) datevar(varname) key(varname) outfile(string) [KEEPvars(varlist) dupfile(string)]
 
 	qui {
 	* variable formatting
 	lab val `id'
 	tostring `id' `enum', replace
 
-	gen subdate = dofc(`date'), after(`date')
-	drop `date'
-	g `date' = string(subdate, "%td")
+	gen subdate = dofc(`datevar'), after(`datevar')
+	drop `datevar'
+	g `datevar' = string(subdate, "%td")
 	drop subdate 
 
 
@@ -27,14 +27,14 @@ program idscheck // will rename, just didn't want to override existing ipachecki
 	else {
 
 
-	bysort `id' (`date') : gen serial = _n
+	bysort `id' (`datevar') : gen serial = _n
 	drop dups 
 
 	* save duplicates dta
 	if !mi("`dupfile'") save "`dupfile'", replace
 
 
-	ds `id' `date' `key' serial, not 
+	ds `id' `datevar' `key' serial, not 
 	loc compvars `r(varlist)'
 	gen total_compared = `: word count `compvars''
 
@@ -68,8 +68,8 @@ program idscheck // will rename, just didn't want to override existing ipachecki
 	lab var total_compared "Total Compared"
 	lab var percent_difference "Percent Difference"
 
-	frame put serial `date' `id' `enum' `key' differences total_compared percent_difference `keepvars', into(subset)
-	frame change subset
+	frame put serial `datevar' `id' `enum' `key' differences total_compared percent_difference `keepvars', into(frm_subset)
+	frame change frm_subset
 
 	export excel using "`outfile'", first(varl) sheet("ID Duplicates") sheetreplace
 	tostring *, replace
