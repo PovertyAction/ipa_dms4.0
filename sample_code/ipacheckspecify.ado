@@ -1,6 +1,6 @@
 *! version 4.0.0 Innovations for Poverty Action 27jul2020
 
-program ipacheckspecify, rclass
+program ipacheckspecify, rclass sortpreserve
 	
 	* This program collates and list all other values specified.
 	version 17
@@ -15,22 +15,18 @@ program ipacheckspecify, rclass
         	ENUMerator(varname) 
         	DATEvar(varname) 
 			[KEEPvars(varlist)] 
-			[SHEETMODify SHEETREPlace NOLabel];	
+			[SHEETMODify SHEETREPlace NOLabel]
+		;	
 	#d cr
 
-
 	* save dataset in memory into a tempfile. Restore at the end of program
-	
-	tempfile tmf_data
-	save "`tmf_data'"
 
 	* create frame for choice_list
 
 	#d;
 	frames create 	 frm_choice_list
 		   str32 	 (variable vartype choice_label) 
-		   str80     value 
-		   str80 	 label 
+		   str80     (value label)
 		   double    (frequency percentage)
 		   ;
 	#d cr	
@@ -289,10 +285,30 @@ program ipacheckspecify, rclass
 
 		compress
 
+
+		* change date to %td before export
+
+		* check that datevar if in %td format. Convert to %tc if td & show error if not datetime format
+		if lower("`:format `datevar''") == "%tc"	{
+			gen _datevar = dofc(`datevar'), after(`datevar')
+			format %td _datevar
+
+			drop `datevar'
+			ren _datevar `datevar'
+		}
+		else if lower("`:format `datevar''") != "%td" {
+			disp as err "variable `datevar is not a date or datetime variable'"
+			if `=_N' > 5 loc limit = `=_N'
+			else 		 loc limit = 5
+			list _datevar in 1/`limit'
+
+		}
+	
+
 		order `datevar' `id' `enumvar' parent parent_label parent_value child child_label child_value 
 
 
-		export excel using "`outfile'", sheet("other specify") replace first(var)
+		export excel using "`outfile'", sheet("other specify") replace first(var) `nolabel'
 
 		frames frm_choice_list {
 
@@ -300,11 +316,8 @@ program ipacheckspecify, rclass
 
 		}
 
-		disp "  Found {cmd:`=_N'} total specified values."
+		disp "Found {cmd:`=_N'} total specified values."
 		return scalar nspecify = `=_N'
-
-		* restor data
-		use "`tmf_data'", clear
 
 	}
 
