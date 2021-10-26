@@ -1,4 +1,4 @@
-* check for duplicate values
+
 program ipacheckdups
 
 	syntax varlist, id(varname) enum(varname) datevar(varname) outfile(string) [KEEPvars(varlist)]
@@ -46,34 +46,4 @@ program ipacheckdups
 	export excel serial `datevar' `id' `enum' variable label value `keepvars' using "`outfile'", first(var) sheet("Duplicates") sheetreplace
 
 } //end qui
-end 
-
- 
-mata:
-void colformats(string scalar filename, string scalar sheet, string vector varsofinterest, string scalar excelformat) 
-{
-
-	class xl scalar b
-	real scalar endrow, index 
-
-	b = xl()
-	b.load_book(filename)
-	b.set_sheet(sheet)
-
-	b.set_mode("open")
-
-	endrow = st_nobs() + 1
-
-
-	for (i=1; i<=cols(varsofinterest); i++) {
-		index = st_varindex(varsofinterest[i])
-		b.set_number_format((2, endrow), index, excelformat)		
-	} 
-
-
-	b.close_book()
-}
-
-
-colformats("C:/users/rsandino/Desktop/upgp.xlsx", "Duplicates", "submissiondate", "date")
 end 
