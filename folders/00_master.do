@@ -30,7 +30,6 @@ else global cwd "`c(pwd)'"
 
 	loc bc 0 // turn to 1 if back check data do files should be run
 	loc checks 0 // turn to 1 if you want to run high-frequency and back checks
-	loc download 0 // turn to 1 if you want to download the data using surveycto_api
 
 *B. Install user-written commands
 
@@ -40,44 +39,21 @@ else global cwd "`c(pwd)'"
 		qui{
 			capture which ipacheck
 			if _rc == 111 & `checks' == 1 {
-				dis as err "Install ipacheck to run checks."
+				noi dis as err "Install ipacheck to run checks."
 				error 111
 			}
 	
 		*install bcstats, from("https://raw.githubusercontent.com/PovertyAction/bcstats/master/ado")	replace			
 			capture which ipabcstats
-			if _rc == 111 & `bc' == 1 {
-				dis as err "Install bcstats to run back checks."
-			}
-
-			capture which surveycto_api {
-			if _rc == 111 & `download' == 1 {
-				dis as err "Install surveycto_api to import data."
-			}
-			}	
+				if _rc == 111 & `bc' == 1 {
+					noi dis as err "Install bcstats to run back checks."
+					error 111
+				}
 
 		}
 
 
-*C. Download data using surveycto_api
 
-	if `download' {
-		*set locals of server settings
-		local user ""
-		local server ""
-		local formid  ""
-		local mediavars
-		local url "https://`server'.surveycto.com/api/v1/forms/data/wide/csv"
-
-		nois di _newline "Downloading form data:"
-
-		surveycto_api `formid', ///
-		server(`server') user(`user') ///
-		csvpath("../05_data/02_survey/`formid'_WIDE.csv") ///
-		mediapath("../06_media") media(`mediavars') replace
-
-	}
-	
 *****************************
 * Import Globals
 *****************************

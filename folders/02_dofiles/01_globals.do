@@ -12,7 +12,7 @@
 * project backup folder
 gl dir_backup ""
 
-* gl Directories: DO NOT EDIT
+* gl Directories:
 
 gl dir_xls				"$cwd/01_instruments/03_xls"
 gl dir_do				"$cwd/02_dofiles" 
@@ -32,19 +32,24 @@ gl prepsurveydata		"$dir_survey/"
 gl masterdata			"$dir_master/"
 gl hfcout				"$dir_out/hfc_outputs.xlsx"
 gl trackout 			"dir_track_out/hfc_tracking.xlsx"
+gl textout				"$dir_out/text_audits.xlsx"
 
 gl surveyid				""
 gl enumid				""
 gl datevar 				""
+gl versionvar			formdef_version
+gl target				""
 gl keepvars				""
 gl textaudit			""
 gl comments				""
+
+* values to recode
+gl dontknow ""
+gl refuse	""
+gl na 		""
 
 * variables to change to string
 gl strvars 		""
 
 * variables to destring
 gl numvars 		""
-
-* import globals from hfc_inputs -- adjust filename if hfc_inputs file renamed
-if $checks ipacheckimport using "$dir_inp/hfc_inputs.xlsm"

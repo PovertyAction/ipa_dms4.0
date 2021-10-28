@@ -1,16 +1,16 @@
 *! version 3.0.0 Innovations for Poverty Action 30oct2018
 
 /*
-Non-globals: 
- versionvar - ipatrackversions
- progreport variables/options (target, & targetrate, keepmaster, and keepsurvey, sortby)
- importantvars - incomplete/missing 
- target
- dupvars
- childvars parentvars
-
-  text audit infil: group name and exclude 
+Commands with inputs:
+progreport: settings and specifications
+ipacheckcomplete: importantvars
+ipacheckdups: dupvars
+ipacheckspecify: child and parent vars 
+ipacheckoutliers: vars and specifications
+ipachecktextaudit: group name and exclude
+ 
  what about sheetreplace/nolabel?
+
 */
 
 
@@ -34,28 +34,26 @@ use "${prepsurveydata}", clear
 
 ipatracksummary using "${trackout}", ///
   submit(${datevar}) ///
-  target()   
+  target(${target})   
 
 
 /* <========== Track 2. Track surveys completed against planned ==========> */
-
-if ${run_progreport} {        
+       
 progreport, ///
     master("${mastersurveydata}") /// 
     survey("${prepsurveydata}") /// 
     id(${surveyid}) /// 
     sortby() /// 
     keepmaster() /// 
-    keepsurvey() ///
+    keepsurvey("${keepvars}") ///
     filename("${trackout}") /// 
-    target() ///
+    target(${target}) ///
 	surveyok
-}
 
 
  /* <======== Track 3. Track form versions used by submission date ========> */
       
-ipatrackversions formdef_version, /// 
+ipatrackversions ${versionvar}, /// 
   id(${surveyid}) ///
   enumerator(${enumid}) ///
   submit(${datevar}) ///
@@ -71,13 +69,14 @@ ipatrackversions formdef_version, ///
 /* <=========== HFC 1. Check that all interviews were completed ===========> */
 
 
-  ipacheckcomplete ${importantvars}, ///
+  ipacheckcomplete _all, ///
+    importantvars()
     id(${surveyid}) ///
     enumerator(${enumid}) ///
     date(${datevar}) ///
     keepvars("${keepvars}") ///
     saving("${hfcout}") ///
-    sheetreplace ${nolabel}
+    sheetreplace // nolabel
 } 
 
 
@@ -89,7 +88,7 @@ ipatrackversions formdef_version, ///
     submit(${datevar}) ///
     keepvars(${keepvars}) ///
     saving("${hfcout}") ///
-    sheetreplace ${nolabel}
+    sheetreplace // nolabel
 
 
 
@@ -103,12 +102,11 @@ ipatrackversions formdef_version, ///
     submit(${datevar}) ///
     keepvars(${keepvars}) ///
     saving("${hfcout}") ///
-    sheetreplace ${nolabel}
+    sheetreplace // nolabel
 
 
 /* <============= HFC 11. Check for outliers in unconstrained =============> */
 
-if ${run_outliers} {
   ipacheckoutliers ${outliervars}, id(${surveyid}) ///
     enumerator(${enumid}) ///
     submit(${datevar}) ///
@@ -117,8 +115,7 @@ if ${run_outliers} {
     ignore(${ignore11}) ///
     saving("${hfcout}") ///
     sctodb("${server}") ///
-    sheetreplace ${nolabel} ${sd}
-}
+    sheetreplace ${sd} // nolabel 
 
 
 /* <============= HFC 12. Check for and output field comments =============> */
@@ -131,7 +128,7 @@ if !mi("${comments}") {
     submit(${datevar}) ///
     keepvars(${keepvars}) ///
     saving("${hfcout}") ///
-    sheetreplace ${nolabel}
+    sheetreplace // nolabel
 }
 
 
@@ -139,8 +136,8 @@ if !mi("${comments}") {
 
 if !mi("${textaudit}") {
   ipachecktextaudit ${textaudit} using "${infile}",  ///
-    saving("${textauditdb}")  ///
-    media("${sctomedia}") ///
+    saving("${textout}")  ///
+    media("${dir_media}") ///
     enumerator(${enumid}) ///
     keepvars(${keepvars})
 }
