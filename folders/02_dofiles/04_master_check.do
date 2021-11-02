@@ -1,18 +1,5 @@
 *! version 3.0.0 Innovations for Poverty Action 30oct2018
 
-/*
-Commands with inputs:
-progreport: settings and specifications
-ipacheckcomplete: importantvars
-ipacheckdups: dupvars
-ipacheckspecify: child and parent vars 
-ipacheckoutliers: vars and specifications
-ipachecktextaudit: group name and exclude
- 
- what about sheetreplace/nolabel?
-
-*/
-
 
 
 /* =============================================================== 
@@ -43,8 +30,8 @@ progreport, ///
     master("${mastersurveydata}") /// 
     survey("${prepsurveydata}") /// 
     id(${surveyid}) /// 
-    sortby() /// 
-    keepmaster() /// 
+    sortby(${sortby}) /// 
+    keepmaster(${keepmaster}) /// 
     keepsurvey("${keepvars}") ///
     filename("${trackout}") /// 
     target(${target}) ///
@@ -70,7 +57,7 @@ ipatrackversions ${versionvar}, ///
 
 
   ipacheckcomplete _all, ///
-    importantvars()
+    importantvars(${impvars})
     id(${surveyid}) ///
     enumerator(${enumid}) ///
     date(${datevar}) ///
@@ -95,27 +82,26 @@ ipatrackversions ${versionvar}, ///
 /* <================== HFC 9. Check specify other values ==================> */
 
 
-  ipacheckspecify ${childvars}, ///
-    parentvars(${parentvars}) ///
-    id(${surveyid}) ///
+  ipacheckspecify using "${hfcin}", /// 
+    id(${surveyid})
     enumerator(${enumid}) ///
     submit(${datevar}) ///
     keepvars(${keepvars}) ///
-    saving("${hfcout}") ///
-    sheetreplace // nolabel
+    outfile("${hfcout}") ///
+    sheetreplace // nolabel 
+
 
 
 /* <============= HFC 11. Check for outliers in unconstrained =============> */
 
-  ipacheckoutliers ${outliervars}, id(${surveyid}) ///
+
+  ipacheckoutliers using "${hfcin}", ///
+    sheetname("outliers") ///
+    id(${surveyid}) ///
     enumerator(${enumid}) ///
-    submit(${datevar}) ///
-    multiplier(${multiplier11}) ///
-    keepvars(${keepvars}) ///
-    ignore(${ignore11}) ///
-    saving("${hfcout}") ///
-    sctodb("${server}") ///
-    sheetreplace ${sd} // nolabel 
+    datevar(${datevar}) ///
+    outfile("${hfcout}") ///
+    sheetreplace // nolabel
 
 
 /* <============= HFC 12. Check for and output field comments =============> */
@@ -133,7 +119,7 @@ if !mi("${comments}") {
 
 
 /* <=============== HFC 13. Output summaries for text audits ==============> */
-
+/*
 if !mi("${textaudit}") {
   ipachecktextaudit ${textaudit} using "${infile}",  ///
     saving("${textout}")  ///

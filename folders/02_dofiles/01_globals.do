@@ -33,6 +33,7 @@ gl masterdata			"$dir_master/"
 gl hfcout				"$dir_out/hfc_outputs.xlsx"
 gl trackout 			"dir_track_out/hfc_tracking.xlsx"
 gl textout				"$dir_out/text_audits.xlsx"
+gl hfcin				"$dir_inp/hfc_inputs.xlsx"
 
 gl surveyid				""
 gl enumid				""
@@ -53,3 +54,16 @@ gl strvars 		""
 
 * variables to destring
 gl numvars 		""
+
+
+* progreport specifications
+gl sortby ""
+gl keepmaster ""
+
+* important variables
+gl impvars ""
+
+* variables for duplicates
+gl dupvars ""
+
+
