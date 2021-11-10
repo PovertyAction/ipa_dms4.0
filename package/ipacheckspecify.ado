@@ -44,8 +44,8 @@ program ipacheckspecify, rclass sortpreserve
 		}
 
 		* using, (childvars, parentvars,keepvars): are mutually exclusive
-		if !mi("`using'") & (!mi("`childvars'") | !mi("`parentvars'") | !mi("`keepvars'")) {
-			disp as err `"using() and options childvars(), parentvars() & keepvars() are mutually exclusive"'
+		if !mi("`using'") & (!mi("`childvars'") | !mi("`parentvars'")) {
+			disp as err `"using() and options childvars() & parentvars() are mutually exclusive"'
 			ex 198
 		}
 
@@ -66,7 +66,7 @@ program ipacheckspecify, rclass sortpreserve
 			drop if missing(child) & missing(parent)
 
 			* keep vars
-			levelsof keep, loc(keepvars) clean
+			levelsof keep, loc(keepvars_inp) clean
 			if "`keepvars'" ~= "" unab keepvars: `keepvars'
 
 			* get child and parent vars
@@ -90,6 +90,9 @@ program ipacheckspecify, rclass sortpreserve
 				
 			* change to main data
 			restore, preserve
+
+			* expand keepvars
+			if !mi("`keepvars'`keepvars_inp'") unab keepvars: `keepvars' `keepvars_inp'
 
 
 			*** create output ***
