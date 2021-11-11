@@ -11,6 +11,7 @@ program ipacheckoutliers, rclass sortpreserve
         	OUTFile(string)
         	[OUTSheet(string)]  
 			id(varname) 
+			[keepvars(varlist)]
         	ENUMerator(varname) 
         	DATEvar(varname) 
 			[SHEETMODify SHEETREPlace NOLabel]
@@ -40,14 +41,13 @@ program ipacheckoutliers, rclass sortpreserve
 		}
 
 		* save keep variables in local and drop
-		levelsof keep, clean loc(keepvars)
+		levelsof keep, clean loc(keepvars_inp)
 
 		* save a list of variables
 		levelsof variable, clean loc (vars)
 
 		* save byvars 
 		levelsof by, clean loc (byvars)
-
 
 		keep variable by combine method multiplier
 
@@ -79,13 +79,31 @@ program ipacheckoutliers, rclass sortpreserve
 
 		* use original data
 		restore, preserve 
+		
+		* check keepvars
+		if !missing("`keepvars'`keepvars_inp'") {
+			unab keepvars: `keepvars' `keepvars_inp' 
+			loc keepvars: list uniq keepvars
+		}
+
 
 		* expand and replace vars in input sheet
 		forval i = 1/`cnt' {
+
 			frames frm_inputs: loc vars`i' = variable[`i']
 			unab vars`i': `vars`i''
 			frames frm_inputs: replace variable = "`vars`i''" in `i'
+
+			* check that the variable specified is not also a keep var
+			if "`keepvars'" ~= "" {
+				loc viol: list vars`i' in keepvars
+				if `viol' {
+					disp as err "Variables in varlist and keepvars are mutually exclusive. `vars`i'' is in both"
+					ex 198
+				}
+			}
 		}
+
 
 		* rename and reshape outlier vars
 		loc i 1
@@ -94,6 +112,7 @@ program ipacheckoutliers, rclass sortpreserve
 			cap confirm numeric var `var'
 			if _rc == 7 {
 				disp as err "Variable `var' must be a numeric variable"
+				ex 7
 			}
 
 			ren `var' ovvalue_`i'
