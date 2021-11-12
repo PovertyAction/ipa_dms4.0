@@ -16,9 +16,6 @@ set more off
 pause on
 
 
-* this line adds standard boilerplate headings
-ipadoheader, version(17.0)
-
 * check that the file has been run and return to main folder
 if "$cwd" ~= "" cd "$cwd"
 else global cwd "`c(pwd)'" 
@@ -29,7 +26,7 @@ else global cwd "`c(pwd)'"
 *A. Globals
 
 	loc bc 0 // turn to 1 if back check data do files should be run
-	loc checks 0 // turn to 1 if you want to run high-frequency and back checks
+	loc checks 1 // turn to 1 if you want to run high-frequency and back checks
 
 *B. Install user-written commands
 
@@ -58,7 +55,7 @@ else global cwd "`c(pwd)'"
 * Import Globals
 *****************************
 
-	qui do "$dir_do/01_globals.do"
+	qui do "02_dofiles/01_globals.do"
 
 *****************************
 * 	01. Run do files		*
@@ -80,7 +77,7 @@ else global cwd "`c(pwd)'"
 	**	OUTPUTS: 			
 	*/
 	
-	qui do "$dir_do/01_import.do"
+*	qui do "$dir_do/01_import.do"
 
 		
 **B. Import back check SurveyCTO csv file into dta and add value/variable labels (not done)
@@ -114,7 +111,7 @@ else global cwd "`c(pwd)'"
 	**	OUTPUTS: 
 	*/
 
-	if `bc' do "$dir_do/03_prep_bc.do"
+*	if `bc' do "$dir_do/03_prep_bc.do"
 
 	
 **E. Run high-frequency checks and back checks

@@ -1,12 +1,15 @@
 
 program ipacheckids 
 
-	syntax, id(varname) enum(varname) datevar(varname) key(varname) outfile(string) [KEEPvars(varlist) dupfile(string)]
+	syntax, id(varname) enumerator(varname) datevar(varname) key(varname) outfile(string) [KEEPvars(varlist) dupfile(string)]
+
 
 	qui {
+	
+
 	* variable formatting
 	lab val `id'
-	tostring `id' `enum', replace
+	tostring `id' `enumerator', replace
 
 	gen subdate = dofc(`datevar'), after(`datevar')
 	drop `datevar'
@@ -54,7 +57,6 @@ program ipacheckids
 	gen percent_difference = differences / total_compared
 	format percent %8.4f
 	drop *_c
-
 	foreach var of varlist * {
 		lab var `var' ""
 	}
@@ -63,11 +65,16 @@ program ipacheckids
 	lab var total_compared "Total Compared"
 	lab var percent_difference "Percent Difference"
 
-	frame put serial `datevar' `id' `enum' `key' differences total_compared percent_difference `keepvars', into(frm_subset)
+	cap frame drop frm_subset
+	frame put serial `datevar' `id' `enumerator' `key' differences total_compared percent_difference `keepvars', into(frm_subset)
 	frame change frm_subset
 
 	export excel using "`outfile'", first(varl) sheet("ID Duplicates") sheetreplace
-	tostring *, replace
+	mata: colwidths("`outfile'", "ID Duplicates")
+	mata: colformats("`outfile'", "ID Duplicates", "percent_difference", "percent_d2")	
+	frame change default
+	frame drop frm_subset
+	*tostring *, replace
 } // end else 
 
 

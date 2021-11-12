@@ -1,12 +1,11 @@
-
 program ipacheckdups
 
-	syntax varlist, id(varname) enum(varname) datevar(varname) outfile(string) [KEEPvars(varlist)]
+	syntax varlist, id(varname) enumerator(varname) datevar(varname) outfile(string) [KEEPvars(varlist)]
 
 	qui {
 
 	lab val `id'
-	tostring `id' `enum', replace
+	tostring `id' `enumerator', replace
 
 	gen double date_new = dofc(`datevar')
 	drop `datevar'
@@ -41,9 +40,9 @@ program ipacheckdups
 
 	drop `varlist'
 
-	order serial `datevar' `id' `enum' variable label value `keepvars' 
+	order serial `datevar' `id' `enumerator' variable label value `keepvars' 
 
-	export excel serial `datevar' `id' `enum' variable label value `keepvars' using "`outfile'", first(var) sheet("Duplicates") sheetreplace
-
+	export excel serial `datevar' `id' `enumerator' variable label value `keepvars' using "`outfile'", first(var) sheet("Duplicates") sheetreplace
+			mata: colwidths("`outfile'", "Duplicates")
 } //end qui
 end 

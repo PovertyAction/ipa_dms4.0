@@ -27,7 +27,7 @@ ipatracksummary using "${trackout}", ///
 /* <========== Track 2. Track surveys completed against planned ==========> */
        
 progreport, ///
-    master("${mastersurveydata}") /// 
+    master("${masterdata}") /// 
     survey("${prepsurveydata}") /// 
     id(${surveyid}) /// 
     sortby(${sortby}) /// 
@@ -101,7 +101,7 @@ ipatrackversions ${versionvar}, ///
     enumerator(${enumid}) ///
     datevar(${datevar}) ///
     outfile("${hfcout}") ///
-    sheetreplace // nolabel
+    sheetreplace keepvars(${keepvars} // nolabel
 
 
 /* <============= HFC 12. Check for and output field comments =============> */

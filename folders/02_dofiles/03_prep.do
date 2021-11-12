@@ -46,10 +46,12 @@ if !mi("${na}") recode `numeric' (${na} = .n)
 * create new variables, drop temp vars, etc.
 
 
+ipacheckids, id(${surveyid}) enumerator(${enumid}) ///
+datevar(${datevar}) key(${key}) outfile("${hfcout}") ///
 
 
 
-
+// resolve duplicates here
 
 
 * save and rename
