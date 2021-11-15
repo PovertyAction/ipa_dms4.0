@@ -8,7 +8,7 @@ program ipacheckids
 	
 	frame change default
 	* variable formatting
-	lab val `id'
+	*cap lab val `id'
 	tostring `id' `enumerator', replace
 
 	gen subdate = dofc(`datevar'), after(`datevar')
