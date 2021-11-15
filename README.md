@@ -3,10 +3,10 @@
 
 ## Installation
 ```stata
-* userwrittencommand can be installed from github
+* ipacheck can be installed from github
 
-net install userwrittencommand, all replace ///
-	from("https://raw.githubusercontent.com/PovertyAction/Template-user-written-command/master")
+net install ipacheck, all replace from("https://raw.githubusercontent.com/PovertyAction/ipa_dms4.0/master/package")
+mata mata mlib index
 ```
 
 ## Syntax
