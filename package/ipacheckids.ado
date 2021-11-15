@@ -38,11 +38,11 @@ program ipacheckids
 	* use this value to find the first row for each ID
 	gen `index' = _n 
 	bysort `id' : egen `min' = min(`index')
-	gen `max' = cond(`index' == min, ., `index')
+	gen `max' = cond(`index' == `min', ., `index')
 			
 	forval j = 2/`=_N' { 
-		loc minval = min[`j']
-		loc maxval = max[`j']
+		loc minval = `min'[`j']
+		loc maxval = `max'[`j']
 
 		foreach var in `compvars' { // compare all variables
 			if `j' == 2 gen `var'_c = .
