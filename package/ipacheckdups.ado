@@ -3,7 +3,7 @@ program ipacheckdups
 	syntax varlist, id(varname) enumerator(varname) datevar(varname) outfile(string) [KEEPvars(varlist)]
 
 	qui {
-
+	frame change default
 	lab val `id'
 	tostring `id' `enumerator', replace
 

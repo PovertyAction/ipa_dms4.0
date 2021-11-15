@@ -32,7 +32,9 @@ else global cwd "`c(pwd)'"
 
 	*
 **B. Add user written programs
-		*install ipacheck, from("https://raw.githubusercontent.com/PovertyAction/high-frequency-checks/master/ado")	replace
+		*net install ipacheck, all replace from("https://raw.githubusercontent.com/PovertyAction/ipa_dms4.0/master/package")
+		*mata mata mlib index
+
 		qui{
 			capture which ipacheck
 			if _rc == 111 & `checks' == 1 {

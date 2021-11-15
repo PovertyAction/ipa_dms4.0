@@ -65,13 +65,18 @@ program ipacheckids
 	lab var total_compared "Total Compared"
 	lab var percent_difference "Percent Difference"
 
-	cap frame drop frm_subset
+	cap confirm frame frm_subset
+	if !_rc {
+		frame drop frm_subset
+	}
+
 	frame put serial `datevar' `id' `enumerator' `key' differences total_compared percent_difference `keepvars', into(frm_subset)
 	frame change frm_subset
 
 	export excel using "`outfile'", first(varl) sheet("ID Duplicates") sheetreplace
 	mata: colwidths("`outfile'", "ID Duplicates")
 	mata: colformats("`outfile'", "ID Duplicates", "percent_difference", "percent_d2")	
+
 	frame change default
 	frame drop frm_subset
 	*tostring *, replace

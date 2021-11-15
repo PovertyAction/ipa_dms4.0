@@ -45,7 +45,6 @@ if !mi("${na}") recode `numeric' (${na} = .n)
 * restructure/relabel repeat groups vars
 * create new variables, drop temp vars, etc.
 
-
 ipacheckids, id(${surveyid}) enumerator(${enumid}) ///
 datevar(${datevar}) key(${key}) outfile("${hfcout}") ///
 
