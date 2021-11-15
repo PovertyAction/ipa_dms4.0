@@ -6,7 +6,7 @@ program ipacheckids
 
 	qui {
 	
-
+	frame change default
 	* variable formatting
 	lab val `id'
 	tostring `id' `enumerator', replace
@@ -67,6 +67,7 @@ program ipacheckids
 
 	cap confirm frame frm_subset
 	if !_rc {
+
 		frame drop frm_subset
 	}
 
