@@ -44,7 +44,7 @@ if !mi("${na}") recode `numeric' (${na} = .n)
 * change duration variable to minutes/hours
 * restructure/relabel repeat groups vars
 * create new variables, drop temp vars, etc.
-
+set trace on
 ipacheckids, id(${surveyid}) enumerator(${enumid}) ///
 datevar(${datevar}) key(${key}) outfile("${hfcout}") ///
 

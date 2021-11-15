@@ -6,15 +6,14 @@ program ipacheckids
 
 	qui {
 	
+	tempvar subdate serial index min max 
 	frame change default
-	* variable formatting
-	*cap lab val `id'
 	tostring `id' `enumerator', replace
 
-	gen subdate = dofc(`datevar'), after(`datevar')
+	gen `subdate' = dofc(`datevar'), after(`datevar')
 	drop `datevar'
-	g `datevar' = string(subdate, "%td")
-	drop subdate 
+	g `datevar' = string(`subdate', "%td")
+	drop `subdate' 
 
 
 	* creates only duplicates dataset
@@ -25,21 +24,21 @@ program ipacheckids
 	else {
 
 
-	bysort `id' (`datevar') : gen serial = _n
+	bysort `id' (`datevar') : gen `serial' = _n
 	drop dups 
 
 	* save duplicates dta
 	if !mi("`dupfile'") save "`dupfile'", replace
 
 
-	ds `id' `datevar' `key' serial, not 
+	ds `id' `datevar' `key' `serial', not 
 	loc compvars `r(varlist)'
 	gen total_compared = `: word count `compvars''
 
 	* use this value to find the first row for each ID
-	gen index = _n 
-	bysort `id' : egen min = min(index)
-	gen max = cond(index == min, ., index)
+	gen `index' = _n 
+	bysort `id' : egen `min' = min(`index')
+	gen `max' = cond(`index' == min, ., `index')
 			
 	forval j = 2/`=_N' { 
 		loc minval = min[`j']
@@ -71,7 +70,7 @@ program ipacheckids
 		frame drop frm_subset
 	}
 
-	frame put serial `datevar' `id' `enumerator' `key' differences total_compared percent_difference `keepvars', into(frm_subset)
+	frame put `serial' `datevar' `id' `enumerator' `key' differences total_compared percent_difference `keepvars', into(frm_subset)
 	frame change frm_subset
 
 	export excel using "`outfile'", first(varl) sheet("ID Duplicates") sheetreplace
