@@ -65,7 +65,7 @@ program ipacheckmissing, rclass sortpreserve
 				str32  	variable 
 				str80 	label 
 				double  (number_missing percent_missing number_unique) 
-				byte    important_var
+				str3    important_var
 			;
 		#d cr
 
@@ -101,7 +101,7 @@ program ipacheckmissing, rclass sortpreserve
 							(`missing_cnt') 		///
 							(`missing_cnt'/`=_N') 	///
 							(`unique_cnt') 			///
-							(`important_var')
+							("`important_var'")
 		}
 
 		* export results
@@ -128,7 +128,6 @@ program ipacheckmissing, rclass sortpreserve
 			gsort -important_var -percent_missing -number_missing variable
 
 			* convert important_var to string
-			tostring important_var, replace
 			replace important_var = cond(important_var == "1", "yes", "")
 			
 			* export & format output
