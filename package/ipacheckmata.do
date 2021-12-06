@@ -78,9 +78,6 @@ void colformats(string scalar filename, string scalar sheet, string vector varso
 }
 
 mata mlib create lipadms, dir(PERSONAL) replace
-// mata mlib add lipadms *()
+mata mlib add lipadms *()
 mata mlib index
 end
-
-//mata mlib add lipadms *()
-//mata mlib index
