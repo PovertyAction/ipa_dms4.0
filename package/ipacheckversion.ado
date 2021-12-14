@@ -7,8 +7,6 @@ program ipacheckversion, rclass sortpreserve
 
 	#d;
 	syntax 	varname,
-        	id(varname) 
-        	ENUMerator(varname) 
         	DATEvar(varname)
         	outfile(string)
         	dta(string) 
