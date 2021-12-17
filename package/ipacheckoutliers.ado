@@ -11,19 +11,28 @@ program ipacheckoutliers, rclass sortpreserve
         	OUTFile(string)
         	[OUTSheet(string)]  
 			id(varname) 
-			[keepvars(varlist)]
         	ENUMerator(varname) 
         	DATEvar(varname) 
 			[SHEETMODify SHEETREPlace NOLabel]
 		;	
 	#d cr
-	
-	* get variable details from input sheet
 
 	qui {
+	    
+		* drop frames
+		foreach frame in frm_inputs {
+		    cap confirm frame `frame'
+			if !_rc {
+			    frame drop `frame'
+			}
+		}
 
 		*** preserve data ***
 		preserve
+		
+		* specify default values
+		
+		if "`outsheet'" == "" loc outsheet "outliers"
 
 		*** import inputs ***
 
@@ -41,7 +50,7 @@ program ipacheckoutliers, rclass sortpreserve
 		}
 
 		* save keep variables in local and drop
-		levelsof keep, clean loc(keepvars_inp)
+		levelsof keep, clean loc(keepvars)
 
 		* save a list of variables
 		levelsof variable, clean loc (vars)
@@ -81,8 +90,8 @@ program ipacheckoutliers, rclass sortpreserve
 		restore, preserve 
 		
 		* check keepvars
-		if !missing("`keepvars'`keepvars_inp'") {
-			unab keepvars: `keepvars' `keepvars_inp' 
+		if !missing("`keepvars'") {
+			unab keepvars: `keepvars'
 			loc keepvars: list uniq keepvars
 		}
 
@@ -270,7 +279,7 @@ program ipacheckoutliers, rclass sortpreserve
 		}
 
 		order `datevar' `id' `enumerator' variable varlabel value byvar `byvars' method multiplier combine range_min range_max value_count value_sd iqr value_mean value_min p25 value_median p75 value_max `keepvars'
-
+		
 		export excel using "`outfile'", first(var) sheet("`outsheet'") `nolabel' `sheetreplace'
 
 		mata: colwidths("`outfile'", "`outsheet'")

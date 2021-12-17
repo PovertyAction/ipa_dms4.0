@@ -7,19 +7,25 @@ program ipacheckspecify, rclass sortpreserve
 
 	#d ;
 	syntax 	[using/],
-			[sheetname(string)] 
-			[CHILDvars(string)]
-			[PARENTvars(varlist)]
+			[sheetname(string)]
+			id(varname)
+			ENUMerator(varname)
+			DATEvar(varname)
 	    	outfile(string) 
-        	id(varname) 
-        	ENUMerator(varname) 
-        	DATEvar(varname) 
-			[KEEPvars(varlist)] 
+			[outsheet(string)]
 			[SHEETMODify SHEETREPlace NOLabel]
 		;	
 	#d cr
 
 	qui {
+	    
+		* drop frames
+		foreach frame in frm_choice_list frm_inputs {
+		    cap confirm frame `frame'
+			if !_rc {
+			    frame drop `frame'
+			}
+		}
 
 		*** preserve data ***
 		preserve
@@ -37,118 +43,93 @@ program ipacheckspecify, rclass sortpreserve
 
 		*** check syntax ***
 
-		* using, (childvars, parentvars): either is specified
-		if mi("`using'") & (mi("`childvars'") | mi("`parentvars'")) {
-			disp as err `"using or option childvars()/parentvars() required"'
-			ex 198
-		}
-
-		* using, (childvars, parentvars,keepvars): are mutually exclusive
-		if !mi("`using'") & (!mi("`childvars'") | !mi("`parentvars'")) {
-			disp as err `"using() and options childvars() & parentvars() are mutually exclusive"'
-			ex 198
-		}
-
 		* check that input sheetname is specified with using() option
-		if !mi("`using'") & mi("`sheetname'") {
-			disp as err `"option sheetname() is required if using is specified"'
+		if mi("`sheetname'") {
+			disp as err `"option sheetname() is required"'
 			ex 198
 		}
+		
+		* set default values
+		
+		if "`outsheet'" == "" loc outsheet "other specify"
 
 		*** inputs sheet: ***
 
 		* get inputs from inputs sheet if using is specified
-		if !mi("`using'") {
 			
-			import excel child=A parent=B keep=D using "`using'", sheet("`sheetname'") clear
+		import excel parent=A child=B keep=D using "`using'", sheet("`sheetname'") clear
 
-			drop in 1
-			drop if missing(child) & missing(parent)
+		drop in 1
+		drop if missing(child) & missing(parent)
 
-			* keep vars
-			levelsof keep, loc(keepvars_inp) clean
-			if "`keepvars'" ~= "" unab keepvars: `keepvars'
+		* keep vars
+		levelsof keep, loc(keepvars) clean
 
-			* get child and parent vars
-			keep if !mi(child) | !missing(parent)
+		* get child and parent vars
+		keep if !mi(child) | !missing(parent)
 
-			* save number of paires to check
-			loc osp_N `=_N'
+		* save number of paires to check
+		loc osp_N `=_N'
 
-			*** check for missing child or parent ***
-			count if mi(child) | mi(parent)
-			if `r(N)' > 0 {
-				disp as err "missing child or parent in input sheet"
-				gen row = _n + 1
+		*** check for missing child or parent ***
+		count if mi(child) | mi(parent)
+		if `r(N)' > 0 {
+			disp as err "missing child or parent in input sheet"
+			gen row = _n + 1
 
-				noi list if mi(child) | mi(parent)
-				ex 198
-			}
-
-			* save input data into frame and import survey data
-			frame copy default frm_inputs
-				
-			* change to main data
-			restore, preserve
-
-			* expand keepvars
-			if !mi("`keepvars'`keepvars_inp'") unab keepvars: `keepvars' `keepvars_inp'
-
-
-			*** create output ***
-
-			* For each pair, check that # of children and parents match after expansion
-			forval i = 1/`osp_N' {
-
-				* save and expand locals
-				frame frm_inputs: loc child = child[`i']
-				unab child : `child'
-				
-				frame frm_inputs: loc parent = parent[`i']
-				unab parent: `parent'
-
-				if wordcount("`child'") ~= wordcount("`parent'") {
-					disp as err "number of vars specified in child (`child') does not" , ///
-								"does not match the number of vars specified in parent", ///
-								"(`parent') on row `=`i'+1'"
-					ex 198
-				}
-				else {
-					loc childvars  "`childvars'  `child'"
-					loc parentvars "`parentvars' `child'"
-				}
-
-				* save full child and parent varlist in local
-				loc unab_child  "`unab_child' `child'"
-				loc unab_parent "`unab_parent' `parent'"
-			}
-
-		}
-
-		else {
-			* expand vars and check that the number of child and parent vars match
-			unab unab_child : `childvars'
-			unab unab_parent: `parentvars'
-
-			if wordcount("`unab_child'") ~= wordcount("`unab_parent'") {
-				disp as err "number of vars specified in childvars(`unab_child') does not" , ///
-							"does not match the number of vars specified in parentvars(`unab_parent')"
-				ex 198
-			}
-
+			noi list if mi(child) | mi(parent)
+			ex 198
 		}
 		
+		* save input data into frame and import survey data
+		frame copy default frm_inputs
+			
+		* change to main data
+		restore, preserve
+	
+		* expand keepvars
+		if !mi("`keepvars'") unab keepvars: `keepvars'
+
+
+		*** create output ***
+
+		* For each pair, check that # of children and parents match after expansion
+		forval i = 1/`osp_N' {
+
+			* save and expand locals
+			frame frm_inputs: loc child = child[`i']
+			unab child : `child'
+			
+			frame frm_inputs: loc parent = parent[`i']
+			unab parent: `parent'
+
+			if wordcount("`child'") ~= wordcount("`parent'") {
+				disp as err "number of vars specified in child (`child') does not" , ///
+							"does not match the number of vars specified in parent", ///
+							"(`parent') on row `=`i'+1'"
+				ex 198
+			}
+			else {
+				loc childvars  "`childvars'  `child'"
+				loc parentvars "`parentvars' `child'"
+			}
+
+			* save full child and parent varlist in local
+			loc unab_child  "`unab_child' `child'"
+			loc unab_parent "`unab_parent' `parent'"
+		}
+	
 		* keep only variables that are needed for check
 		keep `id' `enumerator' `datevar' `keepvars' `unab_child' `unab_parent'
 		
 		loc child_cnt = wordcount("`unab_child'")
 
 		forval i = 1/`child_cnt' {
-
+			
 			* get child and parent vars
-			loc c_var = word("`unab_child'", `i')
 			loc p_var = word("`unab_parent'", `i')
-
+			loc c_var = word("`unab_child'", `i')
+			
 			* check that child variable has values. If not skip current iteration
 			qui count if !missing(`c_var')
 			if `r(N)' == 0 {
@@ -161,9 +142,10 @@ program ipacheckspecify, rclass sortpreserve
 
 			* get levels of parent var.
 			* This is to account for values with missing label codes
+			
 			qui levelsof `p_var', loc (vals) clean
 			loc vals: list uniq vals
-
+			
 			* get parent label
 			loc p_var_vallab "`:val lab `p_var''"
 
@@ -205,14 +187,16 @@ program ipacheckspecify, rclass sortpreserve
 				loc p_var_type "str"
 			}
 			else loc p_var_type "num"
-
+			
 			foreach val in `list_vals' {
-
+		
 				if "`p_var_type'" == "str" {
+					
 					qui count if regexm("_" + subinstr(`p_var', " ", "_", .) + "_", "_`val'_")
 					loc val_cnt `r(N)'
 
 					loc val_lab ""
+					
 				}
 				else {
 					qui count if `p_var' == `val'
@@ -224,7 +208,7 @@ program ipacheckspecify, rclass sortpreserve
 					else loc val_lab ""
 
 				}
-
+		
 				qui count if !missing(`p_var')
 				loc nm_cnt `r(N)'
 			
@@ -248,15 +232,20 @@ program ipacheckspecify, rclass sortpreserve
 			loc c_var_name`i' 	"`c_var'"
 			loc c_var_lab`i' 	"`:var lab `c_var''"
 
-			* rename vars
-			ren `p_var' parent_value`i' 
-			ren `c_var' child_value`i'
-
-			_strip_labels parent_value`i'
-			tostring parent_value`i', replace
-
+			* change vars to string vars
+			cap confirm numeric var `p_var'
+			if !_rc {
+			    gen parent_value`i' = string(`p_var'), after(`p_var')
+			}
+			else ren `p_var' parent_value`i'
+			
+			cap confirm numeric var `c_var'
+			if !_rc {
+			    gen child_value`i' = string(`c_var'), after(`c_var')
+			}
+			else ren `c_var' child_value`i'
 		}
-
+		
 		* drop rows that contain no osp
 		egen noosp = rownonmiss(child*), strok
 		drop if !noosp
@@ -285,7 +274,6 @@ program ipacheckspecify, rclass sortpreserve
 
 		compress
 
-
 		* change date to %td before export
 
 		* check that datevar if in %td format. Convert to %tc if td & show error if not datetime format
@@ -304,14 +292,14 @@ program ipacheckspecify, rclass sortpreserve
 
 		}
 	
-
+		keep `datevar' `id' `enumvar' parent parent_label parent_value child child_label child_value
 		order `datevar' `id' `enumvar' parent parent_label parent_value child child_label child_value 
 
 
-		export excel using "`outfile'", sheet("other specify") replace first(var) `nolabel'
+		export excel using "`outfile'", sheet("`outsheet'") first(var) `nolabel' `sheetreplace' `sheetmodify'
 		
-		mata: colwidths("`outfile'", "other specify")
-		mata: add_lines("`outfile'", "other specify", (1, `=_N' + 1), "medium")
+		mata: colwidths("`outfile'", "`outsheet'")
+		mata: add_lines("`outfile'", "`outsheet'", (1, `=_N' + 1), "medium")
 		
 		frames frm_choice_list {
 
@@ -321,12 +309,11 @@ program ipacheckspecify, rclass sortpreserve
 			levelsof line_index if line_index_last, loc (indexes) sep(",")
 			drop line_index*
 
-			export excel using "`outfile'", sheet("other specify (choice list)") first(var)
+			export excel using "`outfile'", sheet("other specify (choice list)") first(var) `sheetreplace' `sheetmodify'
 
 			mata: colwidths("`outfile'", "other specify (choice list)")
 			mata: colformats("`outfile'", "other specify (choice list)", "percentage", "percent_d2")
 			mata: add_lines("`outfile'", "other specify (choice list)", (1, `=_N' + 1), "medium")
-
 
 			mata: add_lines("`outfile'", "other specify (choice list)", (`indexes'), "thin")
 

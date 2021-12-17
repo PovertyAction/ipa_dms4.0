@@ -36,7 +36,6 @@ program ipacheckversion, rclass sortpreserve
 		* set outsheet: default to form versions if not specified
 		if mi("`outsheet'") loc outsheet "form versions"
 		
-
 		*** convert variables to desired format ***
 
 		* datevar: format datevar in %td format
@@ -50,7 +49,7 @@ program ipacheckversion, rclass sortpreserve
 			disp as err `"variable `datevar' is not a date or datetime variable"'
 			if `=_N' > 5 loc limit = `=_N'
 			else 		 loc limit = 5
-			list `datevar' in 1/`limit'
+			noi list `datevar' in 1/`limit'
 		}
 
 		*** create frames ***
@@ -132,7 +131,7 @@ program ipacheckversion, rclass sortpreserve
 
 			* export & format results
 			export excel using "`outfile'", first(varl) 				///
-											replace sheet("`outsheet'") ///
+											sheet("`outsheet'") 		///
 											`sheetmodify' 				///
 											`sheetreplace'
 
@@ -145,7 +144,7 @@ program ipacheckversion, rclass sortpreserve
 			loc lastdate = last_date[`=_N'-1]
 			levelsof row if date(last_date, "DMY") == date("`lastdate'", "DMY") & _n ~= `=_N'-1, ///
 				loc(rows) sep(,) clean
-			mata: add_flags("`outfile'", "`outsheet'", "lightpink", (1), (`rows'))
+			if "`rows'" ~= "" mata: add_flags("`outfile'", "`outsheet'", "lightpink", (1), (`rows'))
 		}
 
 		*** export a list of outdate forms: ***
@@ -162,6 +161,7 @@ program ipacheckversion, rclass sortpreserve
 
 		* total outdate submissions
 		return scalar N_outdated = `outdated'
+		
 	}
 	
 end

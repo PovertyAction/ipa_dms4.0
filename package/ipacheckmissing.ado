@@ -122,7 +122,7 @@ program ipacheckmissing, rclass sortpreserve
 			if regexm("`show'", "%") {
 				drop if float(percent_missing) < float(`show_val')
 			}
-			else if "`show'" ~= "" drop if missing_cnt < `show'
+			else if "`show'" ~= "" drop if number_missing < `show'
 			
 			* sort data by importance & percent missing
 			gsort -important_var -percent_missing -number_missing variable
@@ -131,7 +131,7 @@ program ipacheckmissing, rclass sortpreserve
 			replace important_var = cond(important_var == "1", "yes", "")
 			
 			* export & format output
-			export excel using "`outfile'", first(var) replace sheet("`outsheet'") `sheetmodify' `sheetreplace'
+			export excel using "`outfile'", first(var) sheet("`outsheet'") `sheetmodify' `sheetreplace'
 			mata: colwidths("`outfile'", "`outsheet'")
 			mata: colformats("`outfile'", "`outsheet'", "percent_missing", "percent_d2")
 			mata: add_lines("`outfile'", "`outsheet'", (1, `=_N' + 1), "medium")
@@ -144,7 +144,7 @@ program ipacheckmissing, rclass sortpreserve
 
 	*** store r return values *** 
 		* number variables checked
-		return scalar N = `varscount'
+		return scalar N_vars = `varscount'
 
 		* number of variables all missing
 		return scalar N_allmiss = `allmisscount'
