@@ -42,6 +42,7 @@ program ipacheckids, rclass sortpreserve
 			if `=_N' > 5 loc limit = `=_N'
 			else 		 loc limit = 5
 			list `datevar' in 1/`limit'
+			ex 181
 		}
 		
 		* set outsheet

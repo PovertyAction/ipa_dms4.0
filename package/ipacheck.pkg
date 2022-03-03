@@ -20,4 +20,5 @@ f ipacheckversion.ado
 f ipacheckmissing.ado
 f ipacheckspecify.ado
 f ipacheckoutliers.ado
+f ipachecksurveydb.ado
 f ipacheckmata.do

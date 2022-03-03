@@ -9,7 +9,7 @@ program ipacheckversion, rclass sortpreserve
 	syntax 	varname,
         	DATEvar(varname)
         	outfile(string)
-        	dta(string) 
+        	[dta(string)]
         	[outsheet(string)]  
 			[SHEETMODify SHEETREPlace]
 		;	
@@ -148,9 +148,11 @@ program ipacheckversion, rclass sortpreserve
 		}
 
 		*** export a list of outdate forms: ***
-
-		keep if `varlist' ~= `curr_ver' & `datevar' >= `curr_ver_fdate'
-		save "`dta'", replace
+		
+		if "`dta'" ~= "" {
+			keep if `varlist' ~= `curr_ver' & `datevar' >= `curr_ver_fdate'
+			save "`dta'", replace
+		}
 		
 		* display number of outdated submissions
 		noi disp "Found {cmd:`outdated'} submissions with outdated forms."
