@@ -1,6 +1,6 @@
 *! version 4.0.0 Innovations for Poverty Action 27jul2020
 
-program ipacheckoutliers, rclass sortpreserve
+program ipacheckoutliers, rclass
 	
 	* This program flags outliers in numeric variables
 	version 17
@@ -19,7 +19,6 @@ program ipacheckoutliers, rclass sortpreserve
 
 	qui {
 	    
-		* drop frames
 		foreach frame in frm_inputs {
 		    cap confirm frame `frame'
 			if !_rc {
@@ -27,14 +26,10 @@ program ipacheckoutliers, rclass sortpreserve
 			}
 		}
 
-		*** preserve data ***
 		preserve
 		
-		* specify default values
-		
+		* set default outsheet values
 		if "`outsheet'" == "" loc outsheet "outliers"
-
-		*** import inputs ***
 
 		* import input data	
 		import excel using "`using'", clear sheet("`sheetname'") first case(l) allstr
@@ -68,10 +63,9 @@ program ipacheckoutliers, rclass sortpreserve
 		replace multiplier = cond(method == "iqr" & missing(multiplier), "1.5", ///
 							 cond(method == "sd" & missing(multiplier), "3", multiplier))
 
-		* convert multiplied to numeric
 		destring multiplier, replace 
 
-		* check that all multpliers supplied are numeric
+		* check that all multpliers are numeric
 		cap confirm numeric var multiplier
 		if _rc == 7 {
 			disp as err "Multiplier contains non-numeric variables"
@@ -86,15 +80,7 @@ program ipacheckoutliers, rclass sortpreserve
 		* copy inputs into data frame
 		frames copy default frm_inputs
 
-		* use original data
 		restore, preserve 
-		
-		* check keepvars
-		if !missing("`keepvars'") {
-			unab keepvars: `keepvars'
-			loc keepvars: list uniq keepvars
-		}
-
 
 		* expand and replace vars in input sheet
 		forval i = 1/`cnt' {
@@ -170,28 +156,18 @@ program ipacheckoutliers, rclass sortpreserve
 					replace combine_ind = 1 if variable == "`var'"
 				}
 				
-				if "`by`i''" ~= "" {
-					bys `by`i'': egen vcount  = count(value)  if combine == "`vars`i''"
-					bys `by`i'': egen vmin 	  = min(value) 	  if combine == "`vars`i''"
-					bys `by`i'': egen vmax 	  = max(value) 	  if combine == "`vars`i''"
-					bys `by`i'': egen vmean   = mean(value)   if combine == "`vars`i''"
-					bys `by`i'': egen vmedian = median(value) if combine == "`vars`i''"
-					bys `by`i'': egen vsd     = sd(value)     if combine == "`vars`i''"
-					bys `by`i'': egen vp25 	  = pctile(value) if combine == "`vars`i''", p(25)
-					bys `by`i'': egen vp75 	  = pctile(value) if combine == "`vars`i''", p(75)
-					bys `by`i'': egen viqr 	  = iqr(value)    if combine == "`vars`i''"
-				}
-				else {
-					egen vcount   = count(value)  if combine == "`vars`i''"
-					egen vmin 	  = min(value) 	  if combine == "`vars`i''"
-					egen vmax 	  = max(value) 	  if combine == "`vars`i''"
-					egen vmean    = mean(value)   if combine == "`vars`i''"
-					egen vmedian  = median(value) if combine == "`vars`i''"
-					egen vsd 	  = sd(value)     if combine == "`vars`i''"
-					egen vp25 	  = pctile(value) if combine == "`vars`i''", p(25)
-					egen vp75 	  = pctile(value) if combine == "`vars`i''", p(75)
-					egen viqr 	  = iqr(value)    if combine == "`vars`i''"
-				}
+				if "`by`i''" ~= "" 	loc by_syntnax "bys `by`i'':"
+				else 				loc by_syntax ""
+					
+				`by_syntax' egen vcount  = count(value)   if combine == "`vars`i''"
+				`by_syntax' egen vmin 	  = min(value) 	  if combine == "`vars`i''"
+				`by_syntax' egen vmax 	  = max(value) 	  if combine == "`vars`i''"
+				`by_syntax' egen vmean   = mean(value)    if combine == "`vars`i''"
+				`by_syntax' egen vmedian = median(value)  if combine == "`vars`i''"
+				`by_syntax' egen vsd     = sd(value)      if combine == "`vars`i''"
+				`by_syntax' egen vp25 	  = pctile(value) if combine == "`vars`i''", p(25)
+				`by_syntax' egen vp75 	  = pctile(value) if combine == "`vars`i''", p(75)
+				`by_syntax' egen viqr 	  = iqr(value)    if combine == "`vars`i''"
 
 				replace value_count 	  = vcount 		  if combine == "`vars`i''"
 				replace value_min 		  = vmin 		  if combine == "`vars`i''"
@@ -211,28 +187,18 @@ program ipacheckoutliers, rclass sortpreserve
 			}
 			else {
 				foreach var in `vars`i'' {
-					if "`by`i''" ~= "" {
-						bys `by`i'': egen vcount  = count(value)  if variable == "`var'"
-						bys `by`i'': egen vmin 	  = min(value) 	  if variable == "`var'"
-						bys `by`i'': egen vmax 	  = max(value) 	  if variable == "`var'"
-						bys `by`i'': egen vmean   = mean(value)   if variable == "`var'"
-						bys `by`i'': egen vmedian = median(value) if variable == "`var'"
-						bys `by`i'': egen vsd     = sd(value)     if variable == "`var'"
-						bys `by`i'': egen vp25 	  = pctile(value) if variable == "`var'", p(25)
-						bys `by`i'': egen vp75 	  = pctile(value) if variable == "`var'", p(75)
-						bys `by`i'': egen viqr 	  = iqr(value)    if variable == "`var'"
-					}
-					else {
-						egen vcount   = count(value)  if variable == "`var'"
-						egen vmin 	  = min(value) 	  if variable == "`var'"
-						egen vmax 	  = max(value) 	  if variable == "`var'"
-						egen vmean    = mean(value)   if variable == "`var'"
-						egen vmedian  = median(value) if variable == "`var'"
-						egen vsd 	  = sd(value)     if variable == "`var'"
-						egen vp25 	  = pctile(value) if variable == "`var'", p(25)
-						egen vp75 	  = pctile(value) if variable == "`var'", p(75)
-						egen viqr 	  = iqr(value)    if variable == "`var'"
-					}
+					if "`by`i''" ~= "" 	loc by_sytnax "bys `by`i'':"
+					else 				loc by_sytnax ""
+					
+					`by_syntax' egen vcount  = count(value)  if variable == "`var'"
+					`by_syntax' egen vmin 	  = min(value) 	  if variable == "`var'"
+					`by_syntax' egen vmax 	  = max(value) 	  if variable == "`var'"
+					`by_syntax' egen vmean   = mean(value)   if variable == "`var'"
+					`by_syntax' egen vmedian = median(value) if variable == "`var'"
+					`by_syntax' egen vsd     = sd(value)     if variable == "`var'"
+					`by_syntax' egen vp25 	  = pctile(value) if variable == "`var'", p(25)
+					`by_syntax' egen vp75 	  = pctile(value) if variable == "`var'", p(75)
+					`by_syntax' egen viqr 	  = iqr(value)    if variable == "`var'"
 
 					replace value_count 	  = vcount 		  if variable == "`var'"
 					replace value_min 		  = vmin 		  if variable == "`var'"
@@ -244,9 +210,9 @@ program ipacheckoutliers, rclass sortpreserve
 					replace p75 			  = vp75 		  if variable == "`var'"
 					replace iqr 			  = viqr 		  if variable == "`var'"
 
-					replace byvar 		= "`by`i''" 		if variable == "`var'" 
-					replace method 		= "`method`i''"		if variable == "`var'"
-					replace multiplier 	= `multiplier`i''   if variable == "`var'"
+					replace byvar 		= "`by`i''" 		  if variable == "`var'" 
+					replace method 		= "`method`i''"		  if variable == "`var'"
+					replace multiplier 	= `multiplier`i''     if variable == "`var'"
 
 					drop vcount vmin vmax vmean vmedian vsd vp25 vp75 viqr
 				}
@@ -262,28 +228,65 @@ program ipacheckoutliers, rclass sortpreserve
 		gen range_max = cond(method == "iqr", p75 + (1.5 * iqr), value_mean + (multiplier * value_sd)) 
 		
 		keep if !inrange(value, range_min, range_max)
-
-		if lower("`:format `datevar''") == "%tc"	{
-				gen _datevar = dofc(`datevar'), after(`datevar')
-				format %td _datevar
-
-				drop `datevar'
-				ren _datevar `datevar'
-		}
-		else if lower("`:format `datevar''") != "%td" {
-			disp as err "variable `datevar is not a date or datetime variable'"
-			if `=_N' > 5 loc limit = `=_N'
-			else 		 loc limit = 5
-			list _datevar in 1/`limit'
-
-		}
-
-		order `datevar' `id' `enumerator' variable varlabel value byvar `byvars' method multiplier combine range_min range_max value_count value_sd iqr value_mean value_min p25 value_median p75 value_max `keepvars'
 		
-		export excel using "`outfile'", first(var) sheet("`outsheet'") `nolabel' `sheetreplace'
+		if `c(N)' > 0 {
 
-		mata: colwidths("`outfile'", "`outsheet'")
-		mata: add_lines("`outfile'", "`outsheet'", (1, `=_N' + 1), "medium")
+			if lower("`:format `datevar''") == "%tc"	{
+					gen _datevar = dofc(`datevar'), after(`datevar')
+					format %td _datevar
+
+					drop `datevar'
+					ren _datevar `datevar'
+			}
+			else if lower("`:format `datevar''") != "%td" {
+				disp as err "variable `datevar is not a date or datetime variable'"
+				if `=_N' > 5 loc limit = `=_N'
+				else 		 loc limit = 5
+				list _datevar in 1/`limit'
+
+			}
+			
+			gen method_value = cond(method == "iqr", iqr, value_sd)
+			gen range = "Range for " + string(multiplier, "%15.2f") + " * " + method + ///
+						"(" + string(method_value, "%15.2f") + "): " + ///
+						string(range_min, "%15.2f") + " to " + string(range_max, "%15.2f")
+						
+			foreach var of varlist _all {
+				lab var `var' "`var'"
+			}
+			
+			lab var varlabel 		"label"
+			lab var value_count 	"count"
+			lab var value_sd 		"sd"
+			lab var value_mean 		"mean"
+			lab var value_min 		"min"
+			lab var value_max 		"max"
+			
+			keep 	`enumerator' `keepvars' `datevar' `id'  variable varlabel ///
+					byvar `byvars' combine value value_count value_min value_mean value_max range 
+
+			order 	`enumerator' `keepvars' `datevar' `id'  variable varlabel ///
+					byvar `byvars' combine value value_count value_min value_mean value_max range 
+			
+			export excel using "`outfile'", first(varl) sheet("`outsheet'") `nolabel' `sheetreplace'
+
+			mata: colwidths("`outfile'", "`outsheet'")
+			mata: colformats("`outfile'", "`outsheet'", ("value", "value_min", "value_mean", "value_max"), "number_sep_d2")	
+			mata: setheader("`outfile'", "`outsheet'")
+			
+			tab variable
+			loc var_cnt `r(r)'
+			
+			* display number of outliers flagged
+			noi disp "Found {cmd:`c(N)'} duplicates in `var_cnt' variable(s)."
+		}
+		else {
+		    loc var_cnt 0
+			noi disp "Found {cmd:0} outliers."
+		}
+		
+		return scalar N_outliers = `c(N)'
+		return scalar N_vars = `var_cnt'
 	}
 	
 end
