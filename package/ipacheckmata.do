@@ -1,20 +1,9 @@
-
-// mata programs
-// 1. add_lines 				- add dividing lines to excel outputs
-// 2. add_flags 				- add colors to cells
-// 3. colwidths 				- adjust column widths
-// 4. colformats				- format cells 
-// 5. putpic 					- insert picture in excel
-// 6. format_sdb_summary		- format summary page of survey dashboard
-// 7. format_sdb_summary_grp	- format grouped summary page of survey dashboard
-// 8. format_sdb_prod 			- format productivity page of survey dashboard
-// 9. format_sdb_prod_grp		- format grouped productivity page of survey dashboard
-
 mata: 
 mata clear
 
-void add_lines(string scalar file, string scalar sheet, real vector rows, string scalar linewidth)
+void addlines(string scalar file, string scalar sheet, real vector rows, string scalar linewidth)
 {
+	real scalar i
 	class xl scalar b
 	b = xl()
 	b.load_book(file)
@@ -28,9 +17,11 @@ void add_lines(string scalar file, string scalar sheet, real vector rows, string
 	b.close_book()
 }
 
-void add_flags (string scalar file, string scalar sheet, string scalar color, real scalar col, real vector rows)
+void addflags (string scalar file, string scalar sheet, string scalar color, real scalar col, real vector rows)
 {
-class xl scalar b
+	
+	real scalar i
+	class xl scalar b
 	b = xl()
 	b.load_book(file)
 	b.set_sheet(sheet)
@@ -45,9 +36,9 @@ class xl scalar b
 
 void colwidths(string scalar filename, string scalar sheet) 
 {
-class xl scalar b
-real scalar i
-real rowvector datawidths, varnamewidths
+	real scalar i
+	class xl scalar b
+	real rowvector datawidths, varnamewidths
 	b = xl()
 	b.load_book(filename)
 	b.set_sheet(sheet)
@@ -68,44 +59,78 @@ real rowvector datawidths, varnamewidths
 
 void colformats(string scalar filename, string scalar sheet, string vector varsofinterest, string scalar excelformat) 
 {
+	
+	real scalar i
 	class xl scalar b
 	real scalar endrow, index 
 	b = xl()
 	b.load_book(filename)
 	b.set_sheet(sheet)
 	b.set_mode("open")
+	
 	endrow = st_nobs() + 1
 	for (i=1; i<=cols(varsofinterest); i++) {
 		index = st_varindex(varsofinterest[i])
 		b.set_number_format((2, endrow), index, excelformat)		
 	} 
 	b.close_book()
+	
 }
 
-void putpic(string scalar filename, string scalar sheetname, string scalar picture, row, col)
+void setfont(string scalar filename, string scalar sheetname, real vector rows, real vector cols, string scalar font, real scalar size)
 {
-	
+	real scalar i
 	class xl scalar b
-
 	b = xl()
-	
 	b.load_book(filename)
 	b.set_sheet(sheetname)
 	b.set_mode("open")
 	
-	b.put_picture(row, col, picture)
+	b.set_font(rows, cols, font, size)
 	
 	b.close_book()
 }
 
-void format_sdb_summary(string scalar filename, string scalar sheetname, real scalar consent, real scalar dontknow, real scalar refuse, real scalar duration, string scalar firstdate, string scalar lastdate) 
+void setheader(string scalar filename, string scalar sheetname)
 {
+	real scalar i
 	class xl scalar b
-
 	b = xl()
-	
 	b.load_book(filename)
 	b.set_sheet(sheetname)
+	b.set_mode("open")
+	
+	b.set_font_bold((1, 1), (1, st_nvar()), "on")
+	b.set_font_italic((1, 1), (1, st_nvar()), "on")
+	b.set_bottom_border((1, 1), (1, st_nvar()), "medium")	
+	b.close_book()
+}
+
+void settotal(string scalar filename, string scalar sheetname)
+{
+	real scalar i
+	class xl scalar b
+	b = xl()
+	b.load_book(filename)
+	b.set_sheet(sheetname)
+	b.set_mode("open")
+	
+	b.set_font_bold((st_nobs() + 1, st_nobs() + 1), (1, st_nvar()), "on")
+	b.set_font_italic((st_nobs() + 1, st_nobs() + 1), (1, st_nvar()), "on")
+	b.set_top_border((st_nobs() + 1, st_nobs() + 1), (1, st_nvar()), "medium")
+	b.set_number_format((st_nobs() + 1, st_nobs() + 1), (2, st_nvar()), "number_sep")
+	
+	b.close_book()
+}
+
+
+void format_sdb_summary(string scalar file, string scalar sheet, real scalar consent, real scalar dontknow, real scalar refuse, real scalar other, real scalar duration, string scalar firstdate, string scalar lastdate) 
+{
+	real scalar i
+	class xl scalar b
+	b = xl()
+	b.load_book(file)
+	b.set_sheet(sheet)
 	b.set_mode("open")
 	
 	b.set_column_width(1, 1, 2)
@@ -114,28 +139,24 @@ void format_sdb_summary(string scalar filename, string scalar sheetname, real sc
 	
 	b.set_border((1, st_nobs()), (2, 3), "thin")
 	b.set_bottom_border((1, 1), (2, 3), "medium")
-	
-	b.set_font((1, st_nobs()), (2, 3), "calibri", 10)
-	b.set_font((1, 1), (2, 3), "calibri", 11)
-	b.set_font((2, 2), (2, 3), "calibri", 9)
-	
+		
 	b.set_horizontal_align((1, st_nobs()), (3, 3), "center")
 	b.set_font_bold((1, st_nobs()), (2, 2), "on")
 	b.set_font_bold((2, 2), (2, 2), "off")
 	b.set_font_italic((2, 2), (2, 2), "on")
 	b.set_font_italic((1, st_nobs()), (3, 3), "on")
 	
-	b.set_sheet_merge(sheetname, (1, 1), (2, 3))
+	b.set_sheet_merge(sheet, (1, 1), (2, 3))
 	b.set_horizontal_align((1, 1), (2, 3), "center")
-	b.set_sheet_merge(sheetname, (2, 2), (2, 3))
+	b.set_sheet_merge(sheet, (2, 2), (2, 3))
 	b.set_horizontal_align((2, 2), (2, 3), "center")
-	b.set_sheet_merge(sheetname, (3, 3), (2, 3))
+	b.set_sheet_merge(sheet, (3, 3), (2, 3))
 	b.set_horizontal_align((3, 3), (2, 3), "center")
 	b.set_fill_pattern((3, 3), (2, 3), "solid", "255 192 0")
 	b.set_number_format((4, 7), (3, 3), "number_sep")
 
 
-	b.set_sheet_merge(sheetname, (8, 8), (2, 3))
+	b.set_sheet_merge(sheet, (8, 8), (2, 3))
 	b.set_horizontal_align((8, 8), (2, 3), "center")
 	b.set_fill_pattern((8, 8), (2, 3), "solid", "255 192 0")
 	
@@ -145,7 +166,7 @@ void format_sdb_summary(string scalar filename, string scalar sheetname, real sc
 		b.put_string(9, 3, "-")
 	}
 	
-	b.set_sheet_merge(sheetname, (10, 10), (2, 3))
+	b.set_sheet_merge(sheet, (10, 10), (2, 3))
 	b.set_horizontal_align((10, 10), (2, 3), "center")
 	b.set_fill_pattern((10, 10), (2, 3), "solid", "255 192 0")
 	
@@ -159,173 +180,222 @@ void format_sdb_summary(string scalar filename, string scalar sheetname, real sc
 	
 	b.set_number_format((11, 13), (3, 3), "percent_d2")
 	
-	b.set_sheet_merge(sheetname, (14, 14), (2, 3))
+	b.set_sheet_merge(sheet, (14, 14), (2, 3))
 	b.set_horizontal_align((14, 14), (2, 3), "center")
 	b.set_fill_pattern((14, 14), (2, 3), "solid", "255 192 0")
-	b.set_number_format((15, 18), (3, 3), "number_sep")
+	
+	if (other == 0) {
+		b.put_string(15, 3, "-")
+		b.put_string(16, 3, "-")
+	}
+	
+	b.set_number_format((15, 15), (3, 3), "number_sep")
+	b.set_number_format((16, 16), (3, 3), "percent_d2")
+	
+	b.set_sheet_merge(sheet, (17, 17), (2, 3))
+	b.set_horizontal_align((17, 17), (2, 3), "center")
+	b.set_fill_pattern((17, 17), (2, 3), "solid", "255 192 0")
+	b.set_number_format((18, 21), (3, 3), "number_sep")
 		
-	b.set_sheet_merge(sheetname, (19, 19), (2, 3))
-	b.set_horizontal_align((19, 19), (2, 3), "center")
-	b.set_fill_pattern((19, 19), (2, 3), "solid", "255 192 0")
-	b.set_number_format((20, 23), (3, 3), "number_sep")
+	b.set_sheet_merge(sheet, (22, 22), (2, 3))
+	b.set_horizontal_align((22, 22), (2, 3), "center")
+	b.set_fill_pattern((22, 22), (2, 3), "solid", "255 192 0")
+	b.set_number_format((23, 26), (3, 3), "number_sep")
 	
 	if (duration == 0) {
-		b.put_string(20, 3, "-")
-		b.put_string(21, 3, "-")
-		b.put_string(22, 3, "-")
 		b.put_string(23, 3, "-")
+		b.put_string(24, 3, "-")
+		b.put_string(25, 3, "-")
+		b.put_string(26, 3, "-")
 	}
 
-	b.set_sheet_merge(sheetname, (24, 24), (2, 3))
-	b.set_horizontal_align((24, 24), (2, 3), "center")
-	b.set_fill_pattern((24, 24), (2, 3), "solid", "255 192 0")
-	b.set_number_format((25, 26), (3, 3), "number_sep")
-	b.set_number_format((29, 29), (3, 3), "number_sep")
+	b.set_sheet_merge(sheet, (27, 27), (2, 3))
+	b.set_horizontal_align((27, 27), (2, 3), "center")
+	b.set_fill_pattern((27, 27), (2, 3), "solid", "255 192 0")
+	b.set_number_format((28, 29), (3, 3), "number_sep")
+	b.set_number_format((32, 32), (3, 3), "number_sep")
 	
 	
-	b.put_string(27, 3, firstdate)
-	b.put_string(28, 3, lastdate)
+	b.put_string(30, 3, firstdate)
+	b.put_string(31, 3, lastdate)
 	
 	b.close_book()
 
 }
 
-void format_sdb_summary_grp(string scalar filename, string scalar sheetname, real scalar consent, real scalar dontknow, real scalar refuse, real scalar duration) 
+void format_edb_stats(string scalar file, string scalar sheet, string vector labs, string vector percentcols) 
 {
+	real scalar i, j, k
 	class xl scalar b
-	real scalar col
-	
 	b = xl()
-	
-	b.load_book(filename)
-	b.set_sheet(sheetname)
+	b.load_book(file)
+	b.set_sheet(sheet)
 	b.set_mode("open")
 	
-	b.set_font((1, st_nobs() + 1), (1, st_nvar()), "calibri", 11)
-	b.set_font_italic((1, 1), (1, st_nvar()), "on")
-	b.set_font_bold((1, 1), (1, st_nvar()), "on")
-	b.set_bottom_border((1, 1), (1, st_nvar()), "medium")
-	b.set_horizontal_align((1, st_nobs() + 1), (2, st_nvar()), "center")	
+	real scalar n, startcol
+	string scalar var, nextvar, meanvar
 	
-	b.set_number_format((2, st_nobs() + 1), (2, 2), "number_sep")
-	col = 3
-	if (consent == 1) {
-		b.set_number_format((2, st_nobs() + 1), (col, col), "percent_d2")
-		col = col + 1
+	b.set_font_bold((1, 2), (1, st_nvar()), "on")
+	b.set_font_italic((1, 2), (1, st_nvar()), "on")
+	b.set_number_format((3, st_nobs() + 2), (2, st_nvar()), "number_d2")
+	b.set_bottom_border((2, 2), (1, st_nvar()), "medium")
+	
+	n = 2
+	for (i = 1; i <= length(labs); i++) {
+	    
+		startcol = n
+		var = st_varname(n)
+		b.put_string(1, n, labs[i])
+		for (j = 1; j <= 5;j++) {
+			if (n + 1 <= st_nvar()) {
+				nextvar = st_varname(n + 1)
+				if (regexm(nextvar, "_count") == 0) {
+					n = n + 1
+				}
+				if (regexm(nextvar, "_mean") == 1) {
+				    meanvar = nextvar
+				}
+			}
+		}
+		
+		b.set_sheet_merge(sheet, (1, 1), (startcol, n))
+		b.set_horizontal_align((1, 1), (startcol, n), "center")
+		b.set_left_border((1, st_nobs() + 2), (startcol, startcol), "medium")
+		
+		n = n + 1
+		
+		if (length(percentcols) > 0) {
+		    for (k=1; k <= length(percentcols); k++) {
+			    if (percentcols[k] == labs[i]) {
+				    b.set_number_format((3, st_nobs() + 2), (st_varindex(meanvar), st_varindex(meanvar)), "percent_d2")
+				}
+			}
+		} 
 	}
-	b.set_number_format((2, st_nobs() + 1), (col, col), "percent_d2")
-	col = col + 1
-	if (dontknow == 1) {
-		b.set_number_format((2, st_nobs() + 1), (col, col), "percent_d2")
-		col = col + 1
-	}
-	if (refuse == 1) {
-		b.set_number_format((2, st_nobs() + 1), (col, col), "percent_d2")
-		col = col + 1
-	}
-	if (duration == 1) {
-		b.set_number_format((2, st_nobs() + 1), (col, col + 3), "number_sep")
-		col = col + 4
-	}
-	b.set_number_format((2, st_nobs() + 1), (col, col + 1), "number_sep")
-	col = col + 2
-	b.set_number_format((2, st_nobs() + 1), (col, col + 1), "date_d_mon_yy")
-	col = col + 2
-	b.set_number_format((2, st_nobs() + 1), (col, col), "number_sep")
+	
 	
 	b.close_book()
 
 }
 
-void format_sdb_prod(string scalar filename, string scalar sheetname, string scalar period) 
+void format_timeuse(string scalar file, string scalar sheet, string scalar title, real scalar fmtdate) 
 {
-	class xl scalar b
 
+	class xl scalar b	
 	b = xl()
-	
-	b.load_book(filename)
-	b.set_sheet(sheetname)
+	b.load_book(file)
+	b.set_sheet(sheet)
 	b.set_mode("open")
 	
-	b.set_font((1, st_nobs() + 1), (1, st_nvar()), "calibri", 11)
-	b.set_font_italic((1, 1), (1, st_nvar()), "on")
-	b.set_font_bold((1, 1), (1, st_nvar()), "on")
-	b.set_bottom_border((1, 1), (1, st_nvar()), "medium")
-	b.set_horizontal_align((1, st_nobs() + 1), (2, st_nvar()), "center")
+	real scalar min, max, colormax, i, j, value, fmtid
+	real scalar colwidth, r_mult, g_mult, b_mult, range
+	real scalar red, green, blue
+	real scalar max_r, max_g, max_b
+	real scalar min_r, min_g, min_b 
 	
-	b.set_number_format((2, st_nobs() + 1), (1, 1), "number_sep")
+	string scalar time_lab, rgb
 	
-	if (period == "daily") {
-		b.set_number_format((2, st_nobs() + 1), (2, 2), "date_d_mon_yy")
-		b.set_number_format((2, st_nobs() + 1), (3, 3), "number_sep")
+	colwidth = max(strlen(st_sdata(. , 1)))
+	if (colwidth == 0) {
+		colwidth = 10
+		if (fmtdate) {
+			b.set_number_format((4, st_nobs() + 4), (2, 2), "date_d_mon_yy")
+		}
+	}
+	
+	b.set_sheet_gridlines(sheet, "off")
+	b.set_column_width(2, 2, colwidth + 3)
+	b.set_column_width(3, 26, 3)
+	
+	for (i = 0;i <= 23; i++) {
+		if (i == 0) {
+			time_lab = "Midnight"
+		}
+		else if (i >= 0 & i <= 11) {
+			time_lab = strofreal(i) + " AM"
+		}
+		else if (i == 12) {
+			time_lab = "12 Noon"
+		}
+		else {
+			time_lab = strofreal(i - 12) + " PM"
+		}
+		b.put_string(st_nobs() + 5, i + 3, time_lab)
+		
+	}
+	
+	fmtid = b.add_fmtid()
+	b.set_fmtid((st_nobs() + 5, st_nobs() + 5), (3, 26), fmtid)
+	b.fmtid_set_text_rotate(fmtid, 90)
+	b.fmtid_set_vertical_align(fmtid, "top")
+	
+	min = min(colmin(st_data(. , st_varname(2..st_nvar()))))
+	max = max(colmax(st_data(. , st_varname(2..st_nvar()))))
+	
+	max_r = 209
+	max_g = 200
+	max_b = 162
+	min_r = 11
+	min_g = 59
+	min_b = 79
+	
+	if (max > 20) {
+		colormax = 20
 	}
 	else {
-		b.set_number_format((2, st_nobs() + 1), (2, 3), "date_d_mon_yy")
-		b.set_number_format((2, st_nobs() + 1), (4, 4), "number_sep")
+		colormax = max
 	}
+	
+	range = max - min
+	
+	r_mult = floor((max_r - min_r) / colormax)
+	g_mult = floor((max_g - min_g) / colormax)
+	b_mult = floor((max_b - min_b) / colormax)
+	
+	for (i = 1; i <= 24; i++) {
+		for (j = 1; j <= st_nobs(); j++) {
+			
+			value = st_data(j, i + 1)
+			
+			if (value ~= .) {
+				
+				red = max_r - floor(((value/max) * (max_r - min_r)))
+				green = max_g - floor(((value/max) * (max_g - min_g)))
+				blue = max_b- floor(((value/max) * (max_b - min_b)))
+				
+				rgb = strofreal(red) + " " + strofreal(green) + " " + strofreal(blue)
+				
+				b.set_fill_pattern((j + 3, j + 3), (i + 2, i + 2), "solid", rgb)
+			}
+		}
+	}
+	
+	b.put_string(4, 28, "Scale")
+	b.put_number(6, 29, min)
+	
+	for (i = 1; i <= colormax; i ++) {
+	    
+	    red = max_r - floor(((i/colormax) * (max_r - min_r)))
+		green = max_g - floor(((i/colormax) * (max_g - min_g)))
+		blue = max_b- floor(((i/colormax) * (max_b - min_b)))
+		
+		rgb = strofreal(red) + " " + strofreal(green) + " " + strofreal(blue)
+		
+		b.set_fill_pattern((5 + i, 5 + i), (28, 28), "solid", rgb)
+
+	}
+	
+	b.put_number(5 + colormax, 29, max)
+	
+	b.set_column_width(28, 29, 5)
+	
+	b.put_string(2, 3, title)
+	b.set_sheet_merge(sheet, (2, 2), (3, 27))
+	b.set_horizontal_align((2, 2), (3, 27), "center")
+	b.set_font_bold((2, 2), (3, 27), "on")
+	b.set_font_italic((2, 2), (3, 27), "on")
 	
 	b.close_book()
-
-}
-
-void format_sdb_prod_grp(string scalar filename, string scalar sheetname) 
-{
-	class xl scalar b
-	
-	b = xl()
-	
-	b.load_book(filename)
-	b.set_sheet(sheetname)
-	b.set_mode("open")
-	
-	b.set_font((1, st_nobs() + 1), (1, st_nvar()), "calibri", 11)
-	b.set_font_italic((1, 1), (1, st_nvar()), "on")
-	b.set_font_bold((1, 1), (1, st_nvar()), "on")
-	b.set_bottom_border((1, 1), (1, st_nvar()), "medium")
-	b.set_bottom_border((st_nobs(), st_nobs()), (1, st_nvar()), "medium")
-	b.set_font_italic((st_nobs() + 1, st_nobs() + 1), (1, st_nvar()), "on")
-	b.set_font_bold((st_nobs() + 1, st_nobs() + 1), (1, st_nvar()), "on")
-	b.set_horizontal_align((1, st_nobs() + 1), (2, st_nvar()), "center")
-	
-	b.close_book()
-
-}
-
-void format_sdb_var_det(string scalar filename, string scalar sheetname, real scalar dontknow, real scalar refuse) 
-{
-	class xl scalar b
-	real scalar col
-	
-	b = xl()
-	
-	b.load_book(filename)
-	b.set_sheet(sheetname)
-	b.set_mode("open")
-	
-	b.set_font((1, st_nobs() + 1), (1, st_nvar()), "calibri", 11)
-	b.set_font_italic((1, 1), (1, st_nvar()), "on")
-	b.set_font_bold((1, 1), (1, st_nvar()), "on")
-	b.set_bottom_border((1, 1), (1, st_nvar()), "medium")
-	b.set_horizontal_align((1, st_nobs() + 1), (3, st_nvar()), "center")
-	
-	b.set_number_format((1, st_nobs() + 1), (4, 5), "number_sep")
-	b.set_number_format((1, st_nobs() + 1), (6, 6), "percent_d2")
-	
-	if (dontknow == 1) {
-		b.set_number_format((1, st_nobs() + 1), (7, 7), "number_sep")
-		b.set_number_format((1, st_nobs() + 1), (8, 8), "percent_d2")
-		col = 9
-	}
-	else {
-		col = 7
-	}
-	if (refuse == 1) {
-		b.set_number_format((1, st_nobs() + 1), (col, col), "number_sep")
-		b.set_number_format((1, st_nobs() + 1), (col + 1, col + 1), "percent_d2")
-	}
-	
-	b.close_book()
-
 }
 
 mata mlib create lipadms, dir(PLUS) replace
