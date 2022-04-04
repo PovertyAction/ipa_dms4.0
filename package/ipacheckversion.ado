@@ -1,28 +1,28 @@
-*! version 4.0.0 Innovations for Poverty Action 27jul2020
+*! version 4.0.0 Innovations for Poverty Action 28mar2022
 * ipacheckversion: Outputs a table showing number of submissions per formversion
 
-program ipacheckversion, rclass sortpreserve
+program ipacheckversion, rclass
 	
 	version 17
 
 	#d;
 	syntax 	varname,
+			enumerator(varname)
         	DATEvar(varname)
         	outfile(string)
-        	[dta(string)]
-        	[outsheet(string)]  
+        	[outsheet1(string)] 
+			[outsheet2(string)]
+			[keepvars(varlist)]
 			[SHEETMODify SHEETREPlace]
 		;	
 	#d cr
 
 	qui {
-
-		*** preserve data ***
+	    
+		cap frame drop frm_version
+		
 		preserve
 
-		*** Check syntax ***
-
-		* check that version variable has no missing values
 		cap assert !missing(`varlist')
 		if _rc == 9 {
 			count if missing(`varlist')
@@ -31,12 +31,9 @@ program ipacheckversion, rclass sortpreserve
 			ex 9
 		}
 
-		*** set default values ***
-
 		* set outsheet: default to form versions if not specified
-		if mi("`outsheet'") loc outsheet "form versions"
-		
-		*** convert variables to desired format ***
+		if "`outsheet1'" == "" loc outsheet 		"form versions"
+		if "`outsheet1'" == "" loc outdated_sheet 	"outdated"
 
 		* datevar: format datevar in %td format
 		if lower("`:format `datevar''") == "%tc"	{
@@ -51,117 +48,116 @@ program ipacheckversion, rclass sortpreserve
 			else 		 loc limit = 5
 			noi list `datevar' in 1/`limit'
 		}
-
-		*** create frames ***
-
-		* output frame
+		
+		* create output frame
 		#d;
 		frames 	create  frm_version 
 				str10 	formdef_version 
-				str5 	(submitted outdated) 
-				str10 	(first_date last_date)
+				double 	(submitted outdated) 
+				double 	(first_date last_date)
 			;
 		#d cr
-
-		*** create output table ***
 		
-		* current form version
+		* get current form version
 		summ `varlist'
 		loc curr_ver `r(max)'
 
-		* first date of latest version
+		* get first date of latest version
 		summ `datevar' if `varlist' == `curr_ver'
 		loc   curr_ver_fdate `r(min)'
 
-		* list of form versions
+		* get form versions
 		levelsof `varlist', loc (vers) clean
-
-		* count form versions
 		loc vers_cnt = wordcount("`vers'")
 		
-		* record stats for each version
+		* get stats for each form version
 		foreach ver in `vers' {
 			
-			* count number of submissions for version
 			count if `varlist' == `ver'
 			loc submitted `r(N)'
 
-			* count number of outdated submissions for version
+			* get number of outdated submissions for version
 			count if `varlist' == `ver' & `datevar' >= `curr_ver_fdate'
 			loc outdated `r(N)'
 
-			* first and last dates
+			* get first and last dates for each version
 			summ `datevar' if `varlist' == `ver'
-			loc firstdate "`r(min)'"
-			loc lastdate  "`r(max)'"
+			loc firstdate `r(min)'
+			loc lastdate  `r(max)'
 
 			* post results 
-			frames post 								///
-				frm_version ("`ver'") 		 			///
-							("`submitted'")  			///
-							("`outdated'")   			///
-							("`:disp %td `firstdate''") ///
-							("`:disp %td `lastdate''")
+			frames post 					///
+				frm_version ("`ver'") 		///
+							(`submitted')  	///
+							(`outdated')   	///
+							(`firstdate') 	///
+							(`lastdate')
 			
 		}
 
-		* create stats for totals rows
+		* get stats for totals row
 		count if `datevar' >= `curr_ver_fdate' & `varlist' != `curr_ver'
 		loc outdated `r(N)'
 
 		* post totals
+		frames post frm_version ("Total") 		///
+								(`c(N)')  	 	///
+								(`outdated') 	///
+								(.) 		 	///
+								(.)
 
-		frames post frm_version ("Total") 		 ///
-								("`=_N'")  		 ///
-								("`outdated'")   ///
-								("") 			 ///
-								("")
-
-		* output results
 		frames frm_version {
 			
 			* replace outdated count for last version with missing
-			replace outdated = "-" if `varlist' == "`curr_ver'"
+			replace outdated = . if `varlist' == "`curr_ver'"
 
 			* label variables
 			lab var submitted  "# submitted"
 			lab var outdated   "# outdated"
 			lab var first_date "first date"
 			lab var last_date  "last date"
+			
+			format %td first_date last_date
 
 			* export & format results
 			export excel using "`outfile'", first(varl) 				///
-											sheet("`outsheet'") 		///
+											sheet("`outsheet1'") 		///
 											`sheetmodify' 				///
 											`sheetreplace'
-
-			mata: colwidths("`outfile'", "`outsheet'")
-			mata: add_lines("`outfile'", "`outsheet'", (1, `=_N', `=_N' + 1), "medium")
-
+											
+			mata: colwidths("`outfile'", "`outsheet1'")
+			mata: colformats("`outfile'", "`outsheet1'", ("first_date", "last_date"), "date_d_mon_yy")
+			mata: colformats("`outfile'", "`outsheet1'", ("submitted", "outdated"), "number_sep")
+			mata: setheader("`outfile'", "`outsheet1'")
+			mata: settotal("`outfile'", "`outsheet1'")
 
 			* highlight versions still in use
 			gen row = _n
 			loc lastdate = last_date[`=_N'-1]
-			levelsof row if date(last_date, "DMY") == date("`lastdate'", "DMY") & _n ~= `=_N'-1, ///
+			levelsof row if last_date == `lastdate' & _n ~= `c(N)'-1, ///
 				loc(rows) sep(,) clean
-			if "`rows'" ~= "" mata: add_flags("`outfile'", "`outsheet'", "lightpink", (1), (`rows'))
+			if "`rows'" ~= "" mata: addflags("`outfile'", "`outsheet'", "lightpink", (1), (`rows'))
 		}
 
-		*** export a list of outdate forms: ***
-		
-		if "`dta'" ~= "" {
+		* export a list of outdate forms: ***
+		if `outdated' > 0 {
 			keep if `varlist' ~= `curr_ver' & `datevar' >= `curr_ver_fdate'
-			save "`dta'", replace
+			keep `datevar' `enumerator' `keepvars' `varlist'
+			
+			foreach var of varlist `datevar' `enumerator' `keepvars' `varlist' {
+				lab var `var' "`var'"
+			}
+			
+			export excel using "`outfile'", first(varl) sheet("`outsheet2'") `sheetreplace'
+			
+			mata: colwidths("`outfile'", "`outsheet2'")
+			mata: colformats("`outfile'", "`outsheet2'", ("`datevar'"), "date_d_mon_yy")
+			mata: setheader("`outfile'", "`outsheet2'")
 		}
-		
-		* display number of outdated submissions
+
 		noi disp "Found {cmd:`outdated'} submissions with outdated forms."
 		
-		*** store r return values *** 
-		* number of form version
 		return scalar N_versions = `vers_cnt'
-
-		* total outdate submissions
 		return scalar N_outdated = `outdated'
 		
 	}
