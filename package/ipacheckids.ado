@@ -1,41 +1,46 @@
+*! version 4.0.0 Innovations for Poverty Action 28mar2022
+* ipacheckids: Outputs duplicates in survey id
 
-program ipacheckids, rclass sortpreserve
+program ipacheckids, rclass
 	
 	#d;
-	syntax, id(varname) 
+	syntax varname, 
 			enumerator(varname) 
 			datevar(varname) 
 			key(varname) 
 			outfile(string) 
 			[outsheet(string)]
-			[KEEPvars(varlist) dupfile(string)]
+			[dupfile(string)]
 			[save(string)]
-			[SHEETMODify SHEETREPlace]
+			[KEEPvars(varlist)]
+			[SHEETMODify SHEETREPlace replace]
 		;
 	#d cr
 		
 	qui {
 	    
-		*** preserve data ***
+		cap frame drop frm_subset 
+		
 		preserve
 	
-		tempvar subdate serial index min max 
+		* tempvars
+		tempvar tmv_subdate tmv_serial tmv_index tmv_min tmv_max tmv_dups
+		tempvar tmv_compared tmv_diffs tmv_perc_diffs
 		
 		* save a de-duplicated dataset
 		if "`save'" ~= "" {
-		    duplicates drop `id', force
+		    duplicates drop `varlist', force
 			save "`save'", replace
 			
-			* restore data
 			restore, preserve
 		}
  		
 		* datevar: format datevar in %td format
 		if lower("`:format `datevar''") == "%tc"	{
-			gen `subdate' = dofc(`datevar')
-			format %td `subdate'
+			gen `tmv_subdate' = dofc(`datevar')
+			format %td `tmv_subdate'
 			drop `datevar'
-			ren `subdate' `datevar'
+			ren `tmv_subdate' `datevar'
 		}
 		else if lower("`:format `datevar''") ~= "%td" {
 			disp as err `"variable `datevar' is not a date or datetime variable"'
@@ -45,89 +50,87 @@ program ipacheckids, rclass sortpreserve
 			ex 181
 		}
 		
-		* set outsheet
+		* set default outsheet
 		if "`outsheet'" == "" loc outsheet "id duplicates"
 
-		* creates only duplicates dataset
-		duplicates tag `id', gen(dups)
-		count if dups
-	
-		if `r(N)' == 0 noi display "There are no duplicates of `id' in the data." 
+		* create dataset of duplicate outputs
+		duplicates tag `varlist', gen(`tmv_dups')
+		keep if `tmv_dups'
+
+		if `c(N)' == 0 noi display "There are no duplicates of `varlist' in the data." 
 		else {
-			keep if dups
-			bysort `id' (`datevar') : gen `serial' = _n
-			drop dups 
+			keep if `tmv_dups'
+			drop `tmv_dups'
 
 			* save duplicates dta
-			if !mi("`dupfile'") save "`dupfile'", replace
+			if "`dupfile'" ~= "" save "`dupfile'", replace
+			
+			bysort `varlist' (`datevar') : gen `tmv_serial' = _n
 
-			ds `id' `datevar' `key' `serial', not 
+			ds `varlist' `datevar' `key' `tmv_serial', not 
 			loc compvars `r(varlist)'
-			gen total_compared = `: word count `compvars''
+			gen `tmv_compared' = `:word count `compvars''
 
 			* use this value to find the first row for each ID
-			gen `index' = _n 
-			bysort `id' : egen `min' = min(`index')
-			gen `max' = cond(`index' == `min', ., `index')
-					
-			forval j = 2/`=_N' { 
-				loc minval = `min'[`j']
-				loc maxval = `max'[`j']
+			gen `tmv_index' = _n 
+			bysort `varlist' : egen `tmv_min' = min(`tmv_index')
+			gen `tmv_max' = cond(`tmv_index' == `tmv_min', ., `tmv_index')
+			
+			* compare values for all vars except admin vars
+			gen `tmv_diffs' = 0	
+			forval j = 2/`c(N)' { 
+				loc minval = `tmv_min'[`j']
+				loc maxval = `tmv_max'[`j']
 
-				foreach var in `compvars' { // compare all variables
-					if `j' == 2 gen `var'_c = .
-					replace `var'_c = `var'[`minval'] != `var'[`maxval'] if _n == `maxval'
+				foreach var of varlist `compvars' { 
+				
+					replace `tmv_diffs' = `tmv_diffs' + 1 if `var'[`minval'] != `var'[`maxval'] & _n == `maxval'
 				}
 			}
 
+			gen `tmv_perc_diffs' 	= `tmv_diffs' / `tmv_compared'
+			recode `tmv_diffs' `tmv_perc_diffs' (0 = .)
+			replace `tmv_compared' = . if missing(`tmv_diffs')
 
-			egen differences 	= 	rowtotal(*_c)
-			gen percent_difference = differences / total_compared
-			replace differences = . if !differences
-			format percent %8.4f
-			drop *_c
-			
 			foreach var of varlist * {
 				lab var `var' ""
 			}
 
-			lab var differences 		"Differences"
-			lab var total_compared 		"Total Compared"
-			lab var percent_difference 	"Percent Difference"
-			lab var `serial' 			"Serial"
-
-		}
-
-		frame put `serial' `datevar' `id' `enumerator' `key' differences total_compared percent_difference `keepvars', into(frm_subset)
-		frame frm_subset {
-
+			lab var `tmv_diffs' 		"# different"
+			lab var `tmv_compared' 		"# compared"
+			lab var `tmv_perc_diffs' 	"% different"
+			lab var `tmv_serial' 		"serial"
+			
+			* export data 
+			keep  `enumerator' `keepvars' `tmv_serial' `datevar' `key' `varlist' `tmv_compared' `tmv_diffs' `tmv_perc_diffs'
+			order `enumerator' `keepvars' `tmv_serial' `datevar' `key' `varlist' `tmv_compared' `tmv_diffs' `tmv_perc_diffs'
+			
 			export excel using "`outfile'", first(varl) sheet("`outsheet'") `sheetreplace' `sheetmodify'
 			mata: colwidths("`outfile'", "`outsheet'")
-			mata: colformats("`outfile'", "`outsheet'", "percent_difference", "percent_d2")	
-						
-			bys `id' (`serial'): gen _dp_count = _N
-			gen _dp_row = _n + 1
-			levelsof _dp_row if `serial' == _dp_count, loc (rows) clean sep(,) 
+			mata: colformats("`outfile'", "`outsheet'", "`tmv_perc_diffs'", "percent_d2")	
+			mata: colformats("`outfile'", "`outsheet'", ("`tmv_diffs'", "`tmv_compared'"), "number_sep")
+			mata: colformats("`outfile'", "`outsheet'", "`datevar'", "date_d_mon_yy")	
+			mata: setheader("`outfile'", "`outsheet'")
 			
-			drop _dp_*
-		
-			mata: add_lines("`outfile'", "`outsheet'", (`rows'), "thin")
-			mata: add_lines("`outfile'", "`outsheet'", (1, `=_N' + 1), "medium")
-		}
-		
-		* display number of duplicates founds
-		tab `id'
-		noi disp "Found {cmd:`=_N'} duplicates observations in `r(r)' duplicate pairs."
-		
-		*** store r return values *** 
-		* number duplicate observations
-		return scalar N_dups = `=_N'
+			* get row numbers for seperator line
+			frame put `varlist' `tmv_serial', into(frm_subset)
+			frame frm_subset {
+			    bys `varlist' (`tmv_serial'): gen _dp_count = _N
+				gen _dp_row = _n + 1
+				keep if `tmv_serial' == _dp_count
+				mata: rows = st_data(., st_varindex("_dp_row"))
+			}
+			frame drop frm_subset
+			mata: addlines("`outfile'", "`outsheet'", rows, "thin")
 
-		* total outdate submissions
+		}
+
+		tab `varlist'
+		if `c(N)' > 0 noi disp "Found {cmd:`c(N)'} duplicates observations in `r(r)' duplicate pairs."
+		
+		return scalar N_dups = `c(N)'
 		return scalar N_pairs = `r(r)'
 		
-
 	} 
 
 end 
-
