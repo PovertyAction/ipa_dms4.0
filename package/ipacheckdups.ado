@@ -1,4 +1,4 @@
-program ipacheckdups, rclass sortpreserve
+program ipacheckdups, rclass
 	
 	#d;
 	syntax varlist, 
@@ -11,12 +11,20 @@ program ipacheckdups, rclass sortpreserve
 		[SHEETMODify SHEETREPlace]
 		;
 	#d cr
-	
-	*** preserve data ***
-	preserve
 
 	qui {
 	    
+		preserve
+		
+		cap frame drop frm_subset
+		
+		* tempfiles
+		tempfile tmf_main_data
+		
+		* tempvars
+		tempvar tmv_subdate tmv_dv_check tmv_dv_flag tmv_serial
+		tempvar tmv_max_serial tmv_index tmv_variable tmv_label
+	   
 		* check that ID var is unique
 		cap isid `id'
 		if _rc == 459 {
@@ -24,81 +32,98 @@ program ipacheckdups, rclass sortpreserve
 			exit 459
 		}
 		
-		* create default for outsheet if not specified
+		* set default outsheet
 		if "`outsheet'" == "" loc outsheet "duplicates"
-	    
-		* declare tempvars
-		#d;
-		tempvar subdate 
-				dv_check dv_flag 
-				serial max_serial index 
-				value variable label
-			;
-		#d cr
 		
-		* keep only variables of interest
+		* keep variables of interest
 		keep `datevar' `varlist' `id' `enumerator' `datevar' `keepvars'
 		
 		* datevar: format datevar in %td format
 		if lower("`:format `datevar''") == "%tc"	{
-			gen `subdate' = dofc(`datevar')
-			format %td `subdate'
+			gen `tmv_subdate' = dofc(`datevar')
+			format %td `tmv_subdate'
 			drop `datevar'
-			ren `subdate' `datevar'
+			ren `tmv_subdate' `datevar'
 		}
 		else if lower("`:format `datevar''") ~= "%td" {
 			disp as err `"variable `datevar' is not a date or datetime variable"'
-			if `=_N' > 5 loc limit = `=_N'
+			if `c(N)' > 5 loc limit = `c(N)'
 			else 		 loc limit = 5
 			list `datevar' in 1/`limit'
 		}
 		
 		* check for duplicates 
-		gen `dv_check' = 0
+		gen `tmv_dv_check' = 0
 		foreach var in `varlist' {
-			duplicates tag `var' if !mi(`var'), gen(`dv_flag')
-			replace `dv_check' = 1 if `dv_flag' & !mi(`dv_flag')
-			drop `dv_flag'
+			duplicates tag `var' if !mi(`var'), gen(`tmv_dv_flag')
+			replace `tmv_dv_check' = 1 if `tmv_dv_flag' & !mi(`tmv_dv_flag')
+			drop `tmv_dv_flag'
 		}
 		
 		* keep only observations with at least one duplicate
-		drop if !`dv_check'
+		drop if !`tmv_dv_check'
 		
-		if `=_N' > 0 {
+		if `c(N)' > 0 {
 		
 			* save variable information in locals
-			loc vl_cnt 1
+			loc i 1
 			foreach var of varlist `varlist' {
-				loc var`vl_cnt' 		"`var'"
-				loc varlab`vl_cnt'		"`:var lab `var''"
+				loc var`i' 		"`var'"
+				loc varlab`i'		"`:var lab `var''"
 				
 				cap confirm numeric var `var'
 				if !_rc {
-					gen _v`vl_cnt' 	= string(`var')
+					gen _v`i' 	= string(`var')
 				}
-				else gen _v`vl_cnt' = `var'
+				else gen _v`i' = `var'
 				drop `var'
 				
-				loc ++vl_cnt
+				loc ++i
 			}
 			
-			* reshape data
-			reshape long _v, i(`id') j(`index')
-			drop if mi(_v)
-			ren _v `value'
+			loc vl_cnt = `i' - 1
+			loc obs_cnt `c(N)'
 			
-			gen `variable' = "", before(`value')
-			gen `label' = "", after(`variable')
+			* reshape data to long
+			expand `vl_cnt'
+			bys `id': gen `tmv_index' = _n
+			cap confirm string var `id'
+			if !_rc {
+				mata: ids = st_sdata(., "`id'")
+				gen _v = ""
+				forval i = 1/`obs_cnt' {
+					mata: st_local("instanceid", ids[`i'])
+					forval j = 1/`vl_cnt' {
+						replace _v = _v`j' if `id' == "`instanceid'" & `tmv_index' == `j'
+					}
+				}
+			}
+			else {
+				mata: ids = st_data(., "`id'")
+				gen _v = ""
+				forval i = 1/`obs_cnt' {
+					mata: st_local("instanceid", ids[`i'])
+					forval j = 1/`vl_cnt' {
+						replace _v = _v`j' if `id' == `instanceid' & `tmv_index' == `j'
+					}
+				}
+			}
+			
+			drop _v?*
+			drop if missing(_v)
+		
+			gen `tmv_variable' = "", before(_v)
+			gen `tmv_label' = "", after(_v)
 			forval i = 1/`vl_cnt' {
-				replace `variable' 	= "`var`i''" 	if `index' == `i'
-				replace `label' 	= "`varlab`i''" if `index' == `i'
+				replace `tmv_variable' 	= "`var`i''" 	if `tmv_index' == `i'
+				replace `tmv_label' 	= "`varlab`i''" if `tmv_index' == `i'
 			}
 			
-			drop `index'
-			sort `variable' `value' `id'
+			drop `tmv_index'
+			sort `tmv_variable' _v `id'
 			
-			bys `variable' `value' (`id')		: gen `serial' 		= _n
-			bys `variable' `value' (`serial')	: gen `max_serial' 	= _N
+			bys `tmv_variable' _v (`id')			: gen `tmv_serial' 		= _n
+			bys `tmv_variable' _v (`tmv_serial')	: gen `tmv_max_serial' 	= _N
 			
 			* remove variable labels from all vars
 			foreach var of varlist _all {
@@ -106,44 +131,49 @@ program ipacheckdups, rclass sortpreserve
 			}
 			
 			* label tmp vars
-			foreach var in variable label value serial {
-				lab var ``var'' "`var'"
+			foreach var in variable label serial {
+				lab var `tmv_`var'' "`var'"
 			}
 			
-			gen `index' = _n + 1
-			levelsof `index' if `serial' == `max_serial', loc(rows) sep(,) clean
+			lab var _v "variable"
 			
-			keep `serial' `datevar' `id' `enumerator' `variable' `label' `value' `keepvars'
-			order `serial' `datevar' `id' `enumerator' `variable' `label' `value' `keepvars'
+			* check for duplicates again and drop any non duplicate values
+			duplicates tag `tmv_variable' _v, gen (`tmv_dv_flag')
+			drop if !`tmv_dv_flag'
+			drop `tmv_dv_flag'
+			
+			* get row numbers for seperator line
+			frame put `tmv_serial' `tmv_max_serial', into(frm_subset)
+			frame frm_subset {
+				gen _dp_row = _n + 1
+				keep if `tmv_serial' == `tmv_max_serial'
+				mata: rows = st_data(., st_varindex("_dp_row"))
+			}
+			frame drop frm_subset
+			
+			keep `tmv_serial' `datevar' `id' `enumerator' `tmv_variable' `tmv_label' _v `keepvars'
+			order `tmv_serial' `datevar' `id' `enumerator' `tmv_variable' `tmv_label' _v `keepvars'
 						
 			export excel using "`outfile'", sheet("`outsheet'") first(varl) `sheetmodify' `sheetreplace'
-			
 			mata: colwidths("`outfile'", "`outsheet'")
-			mata: add_lines("`outfile'", "`outsheet'", (`rows'), "thin")
-			mata: add_lines("`outfile'", "`outsheet'", (1, `=_N' + 1), "medium")
-
-
-			tab `variable'
+			mata: setheader("`outfile'", "`outsheet'")
+			mata: addlines("`outfile'", "`outsheet'", rows, "thin")
+			
+			tab `tmv_variable'
 			loc var_cnt `r(r)'
 			loc obs_cnt `r(N)'
 			
-			* display number of outdated submissions
 			noi disp "Found {cmd:`obs_cnt'} duplicates in `var_cnt' variable(s)."
 		
 		}
 		else {
-		    loc var_cnt `r(r)'
-			loc obs_cnt `r(N)'
+		    loc var_cnt 0
+			loc obs_cnt 0
 			
-			* display number of outdated submissions
 			noi disp "Found {cmd:0} duplicates."
 		}
 		
-		*** store r return values *** 
-		* number duplicate observations
 		return scalar N_obs = `obs_cnt'
-
-		* number of variables with duplicates
 		return scalar N_vars = `var_cnt'
 	}
 end 
