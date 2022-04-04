@@ -1,18 +1,20 @@
-*! version 4.0.0 Innovations for Poverty Action 27jul2020
+*! version 4.0.0 Innovations for Poverty Action 28mar2022
+*! ipacheckspecify: This program collates and list other specify values.
 
 program ipacheckspecify, rclass sortpreserve
 	
-	* This program collates and list all other values specified.
+
 	version 17
 
 	#d ;
-	syntax 	[using/],
+	syntax 	using/,
 			[sheetname(string)]
 			id(varname)
 			ENUMerator(varname)
 			DATEvar(varname)
 	    	outfile(string) 
-			[outsheet(string)]
+			[outsheet1(string)]
+			[outsheet2(string)]
 			[SHEETMODify SHEETREPlace NOLabel]
 		;	
 	#d cr
@@ -20,18 +22,25 @@ program ipacheckspecify, rclass sortpreserve
 	qui {
 	    
 		* drop frames
-		foreach frame in frm_choice_list frm_inputs {
+		foreach frame in frm_choice_list frm_inputs frm_subset {
 		    cap confirm frame `frame'
 			if !_rc {
 			    frame drop `frame'
 			}
 		}
 
-		*** preserve data ***
 		preserve
+		
+		* temfiles 
+		tempfile tmf_choices
 
-		*** create frames ***
-
+		* check that input sheetname is specified. If not assume "other specify"
+		if "`sheetname1'" ~= "" loc sheetname1 "other specify"
+		if "`sheetname2'" ~= "" loc sheetname2 "other specify (choices)"
+		
+		* set default outsheet
+		if "`outsheet'" == "" loc outsheet "other specify"
+		
 		* create frame for choice_list
 		#d;
 		frames create 	 frm_choice_list
@@ -40,35 +49,17 @@ program ipacheckspecify, rclass sortpreserve
 			   double    (frequency percentage)
 			   ;
 		#d cr	
-
-		*** check syntax ***
-
-		* check that input sheetname is specified with using() option
-		if mi("`sheetname'") {
-			disp as err `"option sheetname() is required"'
-			ex 198
-		}
 		
-		* set default values
-		
-		if "`outsheet'" == "" loc outsheet "other specify"
-
-		*** inputs sheet: ***
-
-		* get inputs from inputs sheet if using is specified
-			
-		import excel parent=A child=B keep=D using "`using'", sheet("`sheetname'") clear
-
-		drop in 1
+		* get inputs from inputs sheet if using is specified	
+		import excel using "`using'", sheet("`sheetname'") first clear allstr case(l)
 		drop if missing(child) & missing(parent)
-
-		* keep vars
 		levelsof keep, loc(keepvars) clean
 
 		* get child and parent vars
-		keep if !mi(child) | !missing(parent)
+		keep child parent
+		keep if !missing(child) | !missing(parent)
 
-		* save number of paires to check
+		* save number of pairs to check
 		loc osp_N `=_N'
 
 		*** check for missing child or parent ***
@@ -88,10 +79,7 @@ program ipacheckspecify, rclass sortpreserve
 		restore, preserve
 	
 		* expand keepvars
-		if !mi("`keepvars'") unab keepvars: `keepvars'
-
-
-		*** create output ***
+		if "`keepvars'" == "" unab keepvars: `keepvars'
 
 		* For each pair, check that # of children and parents match after expansion
 		forval i = 1/`osp_N' {
@@ -250,78 +238,112 @@ program ipacheckspecify, rclass sortpreserve
 		egen noosp = rownonmiss(child*), strok
 		drop if !noosp
 		drop noosp
-
-		gen reshape_id = _n
-		reshape long parent_value child_value, i(reshape_id) j(index)
-
-		keep if !missing(child_value)
-
-		gen parent_label = "", before(parent_value)
-		gen parent 		 = "", before(parent_label)
-		gen child_label  = "", before(child_value)
-		gen child 		 = "", before(child_label)
-
-		forval i = 1/`child_cnt' {
-			replace parent 			= "`p_var_name`i''" if index == `i'
-			replace parent_label 	= "`p_var_lab`i''" if index == `i'
-			replace child 			= "`c_var_name`i''" if index == `i'
-			replace child_label 	= "`c_var_lab`i''" if index == `i'
-		}
-
-		sort parent child child_value `datevar'
-
-		drop reshape_id index
-
-		compress
-
-		* change date to %td before export
-
-		* check that datevar if in %td format. Convert to %tc if td & show error if not datetime format
-		if lower("`:format `datevar''") == "%tc"	{
-			gen _datevar = dofc(`datevar'), after(`datevar')
-			format %td _datevar
-
-			drop `datevar'
-			ren _datevar `datevar'
-		}
-		else if lower("`:format `datevar''") != "%td" {
-			disp as err "variable `datevar is not a date or datetime variable'"
-			if `=_N' > 5 loc limit = `=_N'
-			else 		 loc limit = 5
-			list _datevar in 1/`limit'
-
-		}
-	
-		keep `datevar' `id' `enumvar' parent parent_label parent_value child child_label child_value
-		order `datevar' `id' `enumvar' parent parent_label parent_value child child_label child_value 
-
-
-		export excel using "`outfile'", sheet("`outsheet'") first(var) `nolabel' `sheetreplace' `sheetmodify'
 		
-		mata: colwidths("`outfile'", "`outsheet'")
-		mata: add_lines("`outfile'", "`outsheet'", (1, `=_N' + 1), "medium")
+		if `c(N)' > 0 {
+		    gen reshape_id = _n
+			reshape long parent_value child_value, i(reshape_id) j(index)
+
+			keep if !missing(child_value)
+
+			gen parent_label = "", before(parent_value)
+			gen parent 		 = "", before(parent_label)
+			gen child_label  = "", before(child_value)
+			gen child 		 = "", before(child_label)
+
+			forval i = 1/`child_cnt' {
+				replace parent 			= "`p_var_name`i''" if index == `i'
+				replace parent_label 	= "`p_var_lab`i''" if index == `i'
+				replace child 			= "`c_var_name`i''" if index == `i'
+				replace child_label 	= "`c_var_lab`i''" if index == `i'
+			}
+
+			sort parent child child_value `datevar'
+
+			drop reshape_id index
+
+			compress
+			
+			* change date to %td before export
+
+			* check that datevar if in %td format. Convert to %tc if td & show error if not datetime format
+			if lower("`:format `datevar''") == "%tc"	{
+				gen _datevar = dofc(`datevar'), after(`datevar')
+				format %td _datevar
+
+				drop `datevar'
+				ren _datevar `datevar'
+			}
+			else if lower("`:format `datevar''") != "%td" {
+				disp as err "variable `datevar is not a date or datetime variable'"
+				if `=_N' > 5 loc limit = `=_N'
+				else 		 loc limit = 5
+				list _datevar in 1/`limit'
+
+			}
 		
-		frames frm_choice_list {
+			keep 	`enumerator' `keepvars' `datevar' `id'  parent parent_label parent_value child child_label child_value
+			order 	`enumerator' `datevar' `keepvars' `id' parent parent_label parent_value child child_label child_value 
 
-			gsort variable value
-			gen line_index = _n + 1
-			bys variable (value): gen line_index_last = _n == _N
-			levelsof line_index if line_index_last, loc (indexes) sep(",")
-			drop line_index*
+			foreach var of varlist _all {
+				lab var `var' ""
+			}
+			
+			label var parent 		"parent variable"
+			label var parent_label 	"parent label"
+			label var parent_value 	"parent value"
+			label var child 		"child variable"
+			label var child_label 	"child label"
+			label var child_value 	"child value"
 
-			export excel using "`outfile'", sheet("other specify (choice list)") first(var) `sheetreplace' `sheetmodify'
+			export excel using "`outfile'", sheet("`outsheet1'") first(varl) `nolabel' `sheetreplace' `sheetmodify'
+			mata: colwidths("`outfile'", "`outsheet1'")
+			mata: colformats("`outfile'", "`outsheet1'", "`datevar'", "date_d_mon_yy")
+			mata: setheader("`outfile'", "`outsheet1'")
+			
+			tab child
+			loc var_cnt `r(r)'
+			
+			frames frm_choice_list {
 
-			mata: colwidths("`outfile'", "other specify (choice list)")
-			mata: colformats("`outfile'", "other specify (choice list)", "percentage", "percent_d2")
-			mata: add_lines("`outfile'", "other specify (choice list)", (1, `=_N' + 1), "medium")
+				gsort variable value
+				foreach var of varlist _all {
+					lab var `var' ""
+				}
+			
+				label var vartype 		"variable type"
+				label var choice_label 	"choice list"
 
-			mata: add_lines("`outfile'", "other specify (choice list)", (`indexes'), "thin")
+				export excel using "`outfile'", sheet("`outsheet2'") first(varl) `sheetreplace' `sheetmodify'
 
+				mata: colwidths("`outfile'", "`outsheet2'")
+				mata: colformats("`outfile'", "`outsheet2'", "percentage", "percent_d2")	
+				mata: setheader("`outfile'", "`outsheet2'")
+				
+				* get row numbers for seperator line
+				frame put variable value, into(frm_subset)
+				frame frm_subset {
+				    bys variable (value): gen _dp_index = _n
+					bys variable (value): gen _dp_count = _N
+					gen _dp_row = _n + 1
+					keep if _dp_index == _dp_count
+					mata: rows = st_data(., st_varindex("_dp_row"))
+				}
+				frame drop frm_subset
+
+				mata: addlines("`outfile'", "`outsheet2'", rows, "thin")
+				
+			}
+			
+			noi disp "Found {cmd:`c(N)'} total specified values in `var_cnt' variables."
+		}
+		else {
+		    loc var_cnt 0
+			
+			noi disp "Found {cmd:0} other specify values."
 		}
 
-		disp "Found {cmd:`=_N'} total specified values."
-		return scalar N_specify = `=_N'
-
+		return scalar N_specify = `c(N)'
+		return scalar N_vars 	= `var_cnt'
 	}
 
 end
