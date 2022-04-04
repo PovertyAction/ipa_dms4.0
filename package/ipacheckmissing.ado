@@ -1,12 +1,12 @@
 *! version 4.0.0 Innovations for Poverty Action 27jul2020
 * ipacheckmissing: Outputs a table showing information missing data in survey
 
-program ipacheckmissing, rclass sortpreserve
+program ipacheckmissing, rclass
 	
 	version 17
 
 	#d;
-	syntax 	[varlist] [using],
+	syntax 	varlist,
         	[IMPortantvars(varlist)] 
         	OUTFile(string)
         	[show(string)]
@@ -17,8 +17,8 @@ program ipacheckmissing, rclass sortpreserve
 
 	qui {
 
-		*** Check syntax ***
-
+		preserve
+	
 		* show(): if % -- check that value is within 0 to 100
 		* 		  if not specified, default to 0
 		if "`show'" ~= "" {
@@ -34,32 +34,10 @@ program ipacheckmissing, rclass sortpreserve
 		}
 		else loc show_val = 0
 
-		* inputs: varlist | using must be specified specified
-		if mi("`varlist'") & mi("`using'") {
-			disp as err `"varlist or using is required"'
-			ex 198
-		}
-
-		* inputs: varlist & using are mutually exclusive
-		if !mi("`varlist'") & !mi("`using'") {
-			disp as err `"varlist or using are mutually exclusive"'
-			ex 198
-		}
-
-		* important vars: using and importantvars are mutually exclusive
-		if !mi("`using'") & !mi("`important'") {
-			disp as err `"using() and options importantvars() are mutually exclusive"'
-			ex 198
-		}
-
-		*** set default values ***
-
-		* outsheet: default to "missing" if not specified
+		* set default outsheet
 		if "`outsheet'" == "" loc outsheet "missing"
 
-		*** create frames ***
-
-		* output frame
+		* create output frame
 		#d;
 		frames 	create 	missing 
 				str32  	variable 
@@ -69,10 +47,8 @@ program ipacheckmissing, rclass sortpreserve
 			;
 		#d cr
 
-		*** create output ***
-
 		* list important vars
-		if !mi("`importantvars'") unab importantvars: `importantvars'
+		if "`importantvars'" ~= "" unab importantvars: `importantvars'
 
 		* unabbrev varlist
 		unab vars: `varlist'
@@ -83,16 +59,13 @@ program ipacheckmissing, rclass sortpreserve
 		* create & post stats for each variable
 		foreach var of varlist `vars' {
 			
-			* count missing values for var
 			qui count if missing(`var')
 			loc missing_cnt `r(N)'
 			
-			* count number of unique nonmissing values for var
 			qui tab `var'
 			loc unique_cnt `r(r)'
 
-			* check if var is an important var
-			if !missing("`importantvars'") loc important_var: list var in importantvars
+			if "`importantvars'" ~= "" loc important_var: list var in importantvars
 
 			* post results to frame
 			frames post ///
@@ -106,15 +79,12 @@ program ipacheckmissing, rclass sortpreserve
 
 		* export results
 		frames missing {
-
-			* count number of variables to check
+		    
 			loc varscount = wordcount("`vars'")
-
-			* count number of variables that are all missing
+			
 			count if percent_missing == 1
 			loc allmisscount `r(N)'
 
-			* count number of vars with at least 1 missing variables
 			count if percent_missing ~= 1
 			loc misscount `r(N)'
 
@@ -126,30 +96,31 @@ program ipacheckmissing, rclass sortpreserve
 			
 			* sort data by importance & percent missing
 			gsort -important_var -percent_missing -number_missing variable
+			
+			lab var number_missing 	"# missing"
+			lab var percent_missing "% missing"
+			lab var important_var 	"important var?"
+			lab var number_unique   "# distinct"
 
 			* convert important_var to string
 			replace important_var = cond(important_var == "1", "yes", "")
 			
+			* replace distinct values with missing of all is missing
+			replace number_unique = . if percent_missing == 1
+			
 			* export & format output
-			export excel using "`outfile'", first(var) sheet("`outsheet'") `sheetmodify' `sheetreplace'
+			export excel using "`outfile'", first(varl) sheet("`outsheet'") `sheetmodify' `sheetreplace'
 			mata: colwidths("`outfile'", "`outsheet'")
 			mata: colformats("`outfile'", "`outsheet'", "percent_missing", "percent_d2")
-			mata: add_lines("`outfile'", "`outsheet'", (1, `=_N' + 1), "medium")
+			mata: setheader("`outfile'", "`outsheet'")
 		}
 	}
 
-	* show information on missing vars
 	noi disp "Found {cmd:`allmisscount'} of `varscount' variables with all missing values."
 	noi disp "Found {cmd:`misscount'} of `varscount' variables with at least 1 missing values."
 
-	*** store r return values *** 
-		* number variables checked
-		return scalar N_vars = `varscount'
-
-		* number of variables all missing
-		return scalar N_allmiss = `allmisscount'
-
-		* number of vars with at least 1 missing
-		return scalar N_miss = `misscount'
+	return scalar N_vars = `varscount'
+	return scalar N_allmiss = `allmisscount' 	// all missing values
+	return scalar N_miss = `misscount'			// at least one missing value
 	
 end
