@@ -1,7 +1,7 @@
 *! version 4.0.0 Innovations for Poverty Action 27jul2020
 * ipachecksurveydb: Outputs general survey statistics
 
-program ipachecksurveydb, rclass sortpreserve
+program ipachecksurveydb, rclass
 	
 	version 17
 
@@ -14,21 +14,30 @@ program ipachecksurveydb, rclass sortpreserve
         	[CONSent(string)]
         	[DONTKnow(string)]
 			[REFuse(string)]
+			[OTHERvars(varlist)]
         	[DURation(varname)]
         	FORMVersion(varname)
         	OUTFile(string)
-			REPlace
+			[SHEETREPlace SHEETMODify]
 		;	
 	#d cr
 
 	qui {
+	    
+		* drop frames
+		foreach frame in frm_summary {
+		    cap confirm frame `frame'
+			if !_rc {
+			    frame drop `frame'
+			}
+		}
 
 		*** preserve data ***
 		preserve
 
 		* tempvars
 		tempvar tmv_subdate tmv_consent_yn
-		tempvar tmv_obs tmv_enum tmv_formversion tmv_days tmv_dur tmv_miss tmv_dk tmv_ref
+		tempvar tmv_obs tmv_enum tmv_formversion tmv_days tmv_dur tmv_miss tmv_dk tmv_ref tmv_other
 
 		* tempfiles
 		tempfile tmf_main_data tmf_datecal
@@ -44,9 +53,16 @@ program ipachecksurveydb, rclass sortpreserve
 		* check missing
 		egen `tmv_miss' = rowmiss(_all)
 		
+		* create dummies scalars for options
+		loc _cons 	= "`consent'" 	~= ""
+		loc _dk 	= "`dontknow'" 	~= ""
+		loc _ref 	= "`refuse'" 	~= ""
+		loc _other 	= "`othervars'" ~= ""
+		loc _dur 	= "`duration'" 	~= ""
+		
 		* check for dk, ref. Generate dummies if not specified
 
-		if "`dontknow'" ~= "" 	{
+		if `_dk' {
 			token `"`dontknow'"', parse(,)
 				
 			* check numeric number
@@ -60,10 +76,10 @@ program ipachecksurveydb, rclass sortpreserve
 					}
 				}
 			}
-			anycount _all, generate(`tmv_dk') numval(`1') strval("`3'")
+			ipaanycount _all, generate(`tmv_dk') numval(`1') strval("`3'")
 		}
 		else gen `tmv_dk' = 0
-		if "`refuse'" ~= "" {
+		if `_ref' {
 			token `"`refuse'"', parse(,)
 			
 			* check numeric number
@@ -78,10 +94,20 @@ program ipachecksurveydb, rclass sortpreserve
 				}
 			}
 
-			anycount _all, generate(`tmv_ref') numval(`1') strval("`3'")
+			ipaanycount _all, generate(`tmv_ref') numval(`1') strval("`3'")
 		}
 		else gen `tmv_ref' = 0
-
+	
+		if `_other' {
+			unab othervars: `othervars'
+			loc other_count = wordcount("`othervars'")
+			egen `tmv_other' = rownonmiss(`othervars'), strok
+		}
+		else {
+			gen `tmv_other' = 0
+			loc other_count 0
+		}
+		
 		* datevar: datevar(varname)
 		* check  : format datevar in %td format
 		if lower("`:format `datevar''") == "%tc"	{
@@ -97,12 +123,6 @@ program ipachecksurveydb, rclass sortpreserve
 			list `datevar' in 1/`limit'
 			exit 181
 		}
-		
-		* create dummies for options
-		loc _cons 	= "`consent'" ~= ""
-		loc _dk 	= "`dontknow'" ~= ""
-		loc _ref 	= "`refuse'" ~= ""
-		loc _dur 	= "`duration'" ~= ""
 		
 		* save main dateset
 		save "`tmf_main_data'"
@@ -125,7 +145,7 @@ program ipachecksurveydb, rclass sortpreserve
 		}
 
 		* duration: check that duration is a numeric var
-		if "`duration'"  ~= "" {
+		if `_dur' {
 		    cap confirm numeric var `duration'
 		    if _rc == 7 {
 			    disp as err "variable `duration' found at option duration() where numeric variable is expected"
@@ -138,7 +158,7 @@ program ipachecksurveydb, rclass sortpreserve
 		else gen `tmv_dur' = 0
 
 		* consent: consent(consent, 1) or consent(consent, 1 2 3)
-		if "`consent'" ~= "" {	
+		if `_cons' {	
 			* check  : check that consent variable is numeric and values is a numlist
 			token "`consent'", parse(,)
 			* check variable specified
@@ -183,22 +203,25 @@ program ipachecksurveydb, rclass sortpreserve
 		* create additional statistics
 		
 		count if `datevar' == today()
-		loc today = `r(N)'											// total submissions from today
-		count if week(`datevar') == week(today()) & year(`datevar') == year(today())
-		loc week = `r(N)'											// total submissions for week
-		count if month(`datevar') == month(today()) & year(`datevar') == year(today())
-		loc month = `r(N)'											// totak submissions for month
+		loc today = `r(N)'												// total submissions from today
+		count if week(`datevar') == week(today()) & 	///
+			year(`datevar') == year(today())
+		loc week = `r(N)'												// total submissions for current calendar week
+		count if month(`datevar') == month(today()) & 	///
+			year(`datevar') == year(today())
+		loc month = `r(N)'												// total submissions for current calendar month
 		su `tmv_consent_yn'
-		loc consent_rate `r(mean)'									// consent rate
+		loc consent_rate `r(mean)'										// consent rate
 		mata: st_numscalar("sum", colsum(st_data(., "`tmv_miss'")))
-		loc miss_rate = scalar(sum)/(`obs_count' * `vars_count')	// missing rate
+		loc miss_rate = scalar(sum)/(`obs_count' * `vars_count')		// missing rate
 		mata: st_numscalar("sum", colsum(st_data(., "`tmv_dk'")))
 		loc dontknow_rate = scalar(sum)/(`obs_count' * `vars_count') 	// dontknow rate
 		mata: st_numscalar("sum", colsum(st_data(., "`tmv_ref'")))
 		loc refuse_rate = scalar(sum)/(`obs_count' * `vars_count')		// refuse rate
+		mata: st_numscalar("sum", colsum(st_data(., "`tmv_other'")))
+		loc other_rate = scalar(sum)/(`obs_count' * `other_count')		// refuse rate
 		
 		* get unique, non miss and all var count
-		* drop tempvars
 		
 		loc uniq_count 		0
 		loc nomiss_count 	0
@@ -243,7 +266,7 @@ program ipachecksurveydb, rclass sortpreserve
 
 		frames frm_summary {
 		 
-			set obs 29
+			set obs 32
 			replace description = "Survey Dashboard" 				in 1 
 			replace description = "`c(current_date)'" 				in 2
 			replace description = "submissions" 					in 3
@@ -265,44 +288,47 @@ program ipachecksurveydb, rclass sortpreserve
 			replace values 		= "`dontknow_rate'" 				in 12
 			replace description = "% of refuse to answer value" 	in 13
 			replace values 		= "`refuse_rate'"					in 13
-			replace description = "variables" 						in 14
-			replace description = "# with only unique values" 		in 15
-			replace values 		= "`uniq_count'" 					in 15
-			replace description = "# with no missing values" 		in 16
-			replace values 		= "`nomiss_count'" 					in 16
-			replace description = "# with all missing values" 		in 17
-			replace values 		= "`allmiss_count'"					in 17
-			replace description = "total number" 					in 18
-			replace values 		= "`vars_count'" 					in 18
-			replace description = "duration" 						in 19
-			replace description = "minimum" 						in 20
-			replace values 		= "`dur_min'" 						in 20
-			replace description = "mean" 							in 21
-			replace values 		= "`dur_mean'" 						in 21
-			replace description = "median" 							in 22
-			replace values 		= "`dur_med'" 						in 22
-			replace description = "maximum" 						in 23
-			replace values 		= "`dur_max'" 						in 23
-			replace description = "other details" 					in 24
-			replace description = "# of enumerators" 				in 25
-			replace values 		= "`enum_count'" 					in 25
-			replace description = "# of form versions" 				in 26
-			replace values 		= "`formversion_count'"				in 26
-			replace description = "first date of survey" 			in 27
-			replace values 		= "" 								in 27
-			replace description = "last date of survey" 			in 28
-			replace values 		= "" 								in 28
-			replace description = "# of days" 						in 29	
-			replace values 		= "`days_count'" 					in 29
-
+			replace description = "other specify" 					in 14
+			replace description = "# of other specify variables"    in 15
+			replace values		= "`other_count'" 					in 15
+			replace description	= "% of other specify values"		in 16
+			replace values		= "`other_rate'" 					in 16
+			replace description = "variables" 						in 17
+			replace description = "# with only unique values" 		in 18
+			replace values 		= "`uniq_count'" 					in 18
+			replace description = "# with no missing values" 		in 19
+			replace values 		= "`nomiss_count'" 					in 19
+			replace description = "# with all missing values" 		in 20
+			replace values 		= "`allmiss_count'"					in 20
+			replace description = "total number" 					in 21
+			replace values 		= "`vars_count'" 					in 21
+			replace description = "duration" 						in 22
+			replace description = "minimum" 						in 23
+			replace values 		= "`dur_min'" 						in 23
+			replace description = "mean" 							in 24
+			replace values 		= "`dur_mean'" 						in 24
+			replace description = "median" 							in 25
+			replace values 		= "`dur_med'" 						in 25
+			replace description = "maximum" 						in 26
+			replace values 		= "`dur_max'" 						in 26
+			replace description = "other details" 					in 27
+			replace description = "# of enumerators" 				in 28
+			replace values 		= "`enum_count'" 					in 28
+			replace description = "# of form versions" 				in 29
+			replace values 		= "`formversion_count'"				in 29
+			replace description = "first date of survey" 			in 30
+			replace values 		= "" 								in 30
+			replace description = "last date of survey" 			in 31
+			replace values 		= "" 								in 31
+			replace description = "# of days" 						in 32	
+			replace values 		= "`days_count'" 					in 32
 			
 			destring values, replace
 			
 			* export partially completed sheet. This is to hold the position of the sheet 
 			if "`replace'" ~= "" cap rm "`outfile'"
 			export excel using "`outfile'", replace sheet("summary")
-			
-			mata: format_sdb_summary("`outfile'", "summary", `_cons', `_dk', `_ref', `_dur', "`firstdate'", "`lastdate'")	
+			mata: format_sdb_summary("`outfile'", "summary", `_cons', `_dk', `_ref', `_other', `_dur', "`firstdate'", "`lastdate'")	
 		}
 		
 		*** Summary (by group) ***
@@ -347,6 +373,7 @@ program ipachecksurveydb, rclass sortpreserve
 					 (sum)   	missing_rate   	= `tmv_miss'
 					 (sum)   	dontknow_rate  	= `tmv_dk'
 					 (sum)	 	refuse_rate		= `tmv_ref'
+					 (sum)		other_rate 		= `tmv_other'
 					 (min)	 	duration_min   	= `tmv_dur'
 					 (mean)	 	duration_mean   = `tmv_dur'
 					 (median) 	duration_median = `tmv_dur'
@@ -365,6 +392,7 @@ program ipachecksurveydb, rclass sortpreserve
 			replace missing_rate 	= missing_rate/(submissions * `vars_count')
 			replace dontknow_rate 	= dontknow_rate/(submissions * `vars_count')
 			replace refuse_rate 	= refuse_rate/(submissions * `vars_count')
+			replace other_rate 		= other_rate/(submissions * `other_count')
 			
 			*label variables
 			lab var submissions 	"# of submissions"
@@ -372,6 +400,7 @@ program ipachecksurveydb, rclass sortpreserve
 			lab var missing_rate   	"% missing"
 			lab var dontknow_rate  	"% dont know"
 			lab var refuse_rate		"% refuse"
+			lab var other_rate		"% other"
 			lab var duration_min   	"min duration"
 			lab var duration_mean   "mean duration"
 			lab var duration_median "median duration"
@@ -382,22 +411,30 @@ program ipachecksurveydb, rclass sortpreserve
 			lab var lastdate		"last date"
 			lab var days 			"# of days"
 			
-			* drop consent, dk, ref, duration
-			if !`_cons' drop consent_rate
-			if !`_dk' 	drop dontknow
-			if !`_ref' 	drop refuse
-			if !`_dur' 	drop duration_*
+			* drop consent, dk, ref, other, duration
+			if !`_cons' 	drop consent_rate
+			if !`_dk' 		drop dontknow_rate
+			if !`_ref' 		drop refuse_rate
+			if !`_other'	drop other_rate
+			if !`_dur' 		drop duration_*
 
 			export excel using "`outfile'", first(varl) sheet("summary (grouped)")
 			mata: colwidths("`outfile'", "summary (grouped)")
-			mata: format_sdb_summary_grp("`outfile'", "summary (grouped)", `_cons', `_dk', `_ref', `_dur')
+			mata: setheader("`outfile'", "summary (grouped)")
+			if `_cons' 	mata: colformats("`outfile'", "summary (grouped)", ("consent_rate", "missing_rate"), "percent_d2")
+			if `_dk' 	mata: colformats("`outfile'", "summary (grouped)", ("dontknow_rate"), "percent_d2")
+			if `_ref' 	mata: colformats("`outfile'", "summary (grouped)", ("refuse_rate"), "percent_d2")
+			if `_other' mata: colformats("`outfile'", "summary (grouped)", ("other_rate"), "percent_d2")
+			if `_dur'   mata: colformats("`outfile'", "summary (grouped)", ("duration_min", "duration_mean", "duration_median", "duration_max"), "number_sep")
+						mata: colformats("`outfile'", "summary (grouped)", ("enumerators", "formversion", "days"), "number_sep")
+						mata: colformats("`outfile'", "summary (grouped)", ("firstdate", "lastdate"), "date_d_mon_yy")
 		}
 		
 		*** productivity ***
 		
 		* generate a calendar dataset
 		use "`tmf_main_data'", clear
-		getcal `datevar'
+		ipagetcal `datevar'
 		
 		merge 1:m `datevar' using "`tmf_main_data'", keepusing(`datevar' `by') gen(datematch)
 		gen weight = cond(datematch == 3, 1, 0)
@@ -426,7 +463,19 @@ program ipachecksurveydb, rclass sortpreserve
 		
 		export excel using "`outfile'", first(var) sheet("`period' productivity")
 		mata: colwidths("`outfile'", "`period' productivity")
-		mata: format_sdb_prod("`outfile'", "`period' productivity", "`period'")
+		mata: setheader("`outfile'", "`period' productivity")
+		if "`period'" == "daily" {
+			mata: colformats("`outfile'", "`period' productivity", ("day", "submissions"), "number_sep")
+			mata: colformats("`outfile'", "`period' productivity", ("`datevar'"), "date_d_mon_yy")
+		}
+		else if "`period'" == "weekly" {
+			mata: colformats("`outfile'", "`period' productivity", ("week", "submissions"), "number_sep")
+			mata: colformats("`outfile'", "`period' productivity", ("startdate", "enddate"), "date_d_mon_yy")
+		}
+		else {
+			mata: colformats("`outfile'", "`period' productivity", ("month", "submissions"), "number_sep")
+			mata: colformats("`outfile'", "`period' productivity", ("startdate", "enddate"), "date_d_mon_yy")
+		}
 		
 		*** productivity by group ***
 		if "`by'" ~= "" {
@@ -482,190 +531,10 @@ program ipachecksurveydb, rclass sortpreserve
 			
 			export excel using "`outfile'", first(varl) sheet("`period' productivity (grouped)")
 			mata: colwidths("`outfile'", "`period' productivity (grouped)")
-			mata: format_sdb_prod_grp("`outfile'", "`period' productivity (grouped)")
-		}
-		
-		*** export variable details ***
-		* restore data to original and cancel preserve
-		restore
-		
-		* set new frames
-		cap frames drop frm_variables
-		#d;
-		frames 	create 	frm_variables 
-				str32  	variable 
-				str80 	label
-				str32   type
-				int		(distinct_count 
-						 missing_count 	
-						 dk_count 		
-						 ref_count 		)
-			;
-		#d cr
-		
-		foreach var of varlist _all {
-			tab `var'
-			loc distinct_count = `r(r)'
-			count if missing(`var')
-			loc missing_count `r(N)'
+			mata: setheader("`outfile'", "`period' productivity (grouped)")
+			mata: colformats("`outfile'", "`period' productivity (grouped)", st_varname(2..st_nvar()), "number_sep")
 			
-			if "`dontknow'" ~= "" {
-				token `"`dontknow'"', parse(,)
-				loc numval `1'
-				loc strval "`3'"
-				cap confirm string var `var'
-				if !_rc & "`strval'" ~= "" {
-					count if `var' == "`strval'"
-					loc dk_count `r(N)'
-				}
-				else if "`numval'" ~= "" {
-					count if `var' == `numval'
-					loc dk_count `r(N)'
-				}
-			}
-			else {
-				loc dk_count 0
-			}
-			if "`refuse'" ~= "" {
-				token `"`refuse'"', parse(,)
-				loc numval `1'
-				loc strval "`3'"
-				cap confirm string var `var'
-				if !_rc & "`strval'" ~= "" {
-					count if `var' == "`strval'"
-					loc ref_count `r(N)'
-				}
-				else if "`numval'" ~= "" {
-					count if `var' == `numval'
-					loc ref_count `r(N)'
-				}
-			}
-			else {
-				loc ref_count 0
-			}
-			
-			#d;
-			frames post frm_variables ("`var'") 
-									  ("`:var lab `var''")
-									  ("`:type `var''")
-									  (`distinct_count')
-									  (`missing_count')
-									  (`dk_count')
-									  (`ref_count')
-				;
-			#d cr
-		
-		}
-		
-		* export data
-		frames frm_variables {
-			
-			* generate missing, dk & refuse rates
-			gen missing_perc 	= missing_count/`obs_count'	, after(missing_count)
-			gen dk_perc 		= dk_count/`obs_count'		, after(dk_count)
-			gen ref_perc 		= ref_count/`obs_count'		, after(ref_count)			
-			
-			lab var distinct_count 	"# distinct"
-			lab var missing_count 	"# missing"
-			lab var missing_perc 	"% missing"
-			lab var dk_count 		"# don't know"
-			lab var dk_perc 		"% dont'know"
-			lab var ref_count 		"# refuse"
-			lab var ref_perc 		"% refuse"
-			
-			if "`dontknow'" == "" drop dk_count 	dk_perc
-			if "`refuse'"	== "" drop ref_count 	ref_perc
-			
-			* replace distint_count with missing if all vars are missing
-			replace distinct_count = . if float(missing_perc) == 1
-			
-			export excel using "`outfile'", first(varl) sheet("variable details")
-			mata: colwidths("`outfile'", "variable details")
-			
-			loc _dk 	= "`dontknow'" ~= ""
-			loc _ref 	= "`refuse'" ~= ""
-			mata: format_sdb_var_det("`outfile'", "variable details", `_dk', `_ref')
-		}
-
-	}
-	
-end
-
-*** additional programs ***
-
-* program to count the number of times items in values appear in varlist
-program define anycount
-	
-	syntax varlist, generate(name) [numval(numlist missingokay) strval(string)]
-	
-
-	*** check syntax ***
-	if "`numval'`strval'" == "" {
-	    disp as err "must specify options numval() or strval()"
-		ex 198
-	}
-
-	* generate count variable
-	gen `generate' = 0
-	foreach var of varlist `varlist' {
-	    cap confirm string var `var'
-		if !_rc & "`strval'" ~= "" {
-		    replace `generate' = `generate' + 1 if `var' == "`strval'"
-		}
-		else if !missing("`numval'") {
-		    replace `generate' = `generate' + 1 if `var' == `strval'
 		}
 	}
 	
 end
-
-* program to generate calendar
-program define getcal 
-
-	syntax varname
-	
-	* temp var
-	tempvar tmv_date
-	
-	*** check syntax***
-	* check that varname is date type var
-	* check  : format datevar in %td format
-	if lower("`:format `varlist''") == "%tc"	{
-		gen `tmv_date' = dofc(`varlist')
-		format %td `tmv_date'
-		drop `valist'
-		ren `tmv_date' `varlist'
-	}
-	else if lower("`:format `varlist''") ~= "%td" {
-		disp as err `"variable `varlist' is not a date or datetime variable"'
-		if `=_N' > 5 loc limit = `=_N'
-		else 		 loc limit = 5
-		list `varlist' in 1/`limit'
-		exit 181
-	}
-	
-	* check start and enddate
-	su `varlist'
-	loc startdate = `r(min)'
-	loc enddate = `r(max)'
-	
-	loc days = `enddate' - `startdate'
-	
-	clear
-	set obs `=`days'+1' 
-	gen index = _n
-	gen `varlist' 	= `startdate' + index - 1
-	format %td `varlist'
-	gen week 		= week(`varlist') 
-	gen month 		= month(`varlist') 
-	gen year 		= year(`varlist') 
-
-end
-/*
-mata: 
-mata clear
-
-
-
-end
-
