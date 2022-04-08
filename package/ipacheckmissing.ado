@@ -38,8 +38,9 @@ program ipacheckmissing, rclass
 		if "`outsheet'" == "" loc outsheet "missing"
 
 		* create output frame
+		cap frame drop frm_missing
 		#d;
-		frames 	create 	missing 
+		frames 	create 	frm_missing 
 				str32  	variable 
 				str80 	label 
 				double  (number_missing percent_missing number_unique) 
@@ -69,7 +70,7 @@ program ipacheckmissing, rclass
 
 			* post results to frame
 			frames post ///
-					missing ("`var'") 				///
+				frm_missing ("`var'") 				///
 							("`:var lab `var''") 	///
 							(`missing_cnt') 		///
 							(`missing_cnt'/`=_N') 	///
@@ -78,7 +79,7 @@ program ipacheckmissing, rclass
 		}
 
 		* export results
-		frames missing {
+		frames frm_missing {
 		    
 			loc varscount = wordcount("`vars'")
 			
@@ -115,6 +116,8 @@ program ipacheckmissing, rclass
 			mata: setheader("`outfile'", "`outsheet'")
 		}
 	}
+	
+	cap frame drop frm_missing
 
 	noi disp "Found {cmd:`allmisscount'} of `varscount' variables with all missing values."
 	noi disp "Found {cmd:`misscount'} of `varscount' variables with at least 1 missing values."

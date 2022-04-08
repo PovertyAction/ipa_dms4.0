@@ -19,13 +19,7 @@ program ipacheckoutliers, rclass
 
 	qui {
 	    
-		foreach frame in frm_inputs {
-		    cap confirm frame `frame'
-			if !_rc {
-			    frame drop `frame'
-			}
-		}
-
+		* preserve
 		preserve
 		
 		* set default outsheet values
@@ -78,9 +72,24 @@ program ipacheckoutliers, rclass
 		loc cnt `=_N'
 
 		* copy inputs into data frame
+		cap frame drop frm_inputs
 		frames copy default frm_inputs
 
 		restore, preserve 
+		
+		cap confirm var _hfcokay
+		if !_rc {
+		    cap confirm var _hfcokayvar 
+			if !_rc {
+			    count if _hfcokay == 1
+			    loc checkok 1
+				cap frame drop frm_hfcokay
+				frames put `id' _hfcokay _hfcokayvar if _hfcokay == 1, into(frm_hfcokay)
+			}
+		}
+		else {
+		    loc checkok 0
+		}
 
 		* expand and replace vars in input sheet
 		forval i = 1/`cnt' {
@@ -228,6 +237,15 @@ program ipacheckoutliers, rclass
 		gen range_max = cond(method == "iqr", p75 + (1.5 * iqr), value_mean + (multiplier * value_sd)) 
 		
 		keep if !inrange(value, range_min, range_max)
+		
+		* drop if already marked as ok
+		if `checkok' {
+		    frame frm_hfcokay: loc okaycnt `c(N)'
+			forval i = 1/`okaycnt' {
+			    loc vars = _frval(frm_hfcokay, _hfcokayvar, `i')
+			    drop if `id' == _frval(frm_hfcokay, `id', `i') & regexm("`vars'", variable)
+			}
+		}
 		
 		if `c(N)' > 0 {
 

@@ -86,6 +86,7 @@ program ipaimportsctomedia, rclass
 			}
 			else {
 			    loc import_cnt `obs_cnt'
+				loc olddata_cnt 0
 			}
 			
 			if `import_cnt' > 0 {
