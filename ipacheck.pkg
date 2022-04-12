@@ -1,0 +1,37 @@
+v 4.0.0
+d 'IPACHECK': IPA Stata high-frequency check commands
+d These commands perform common data quality checks useful
+d during the data collection and cleaning phases of field
+d research.
+d
+d KW: data management
+d KW: data quality
+d KW: data collection
+d
+d Requires: Stata version 17
+d
+d Distribution-Date: 20220404
+d
+d Authors: Innovations for Poverty Action
+d Support: researchsupport@poverty-action.org
+f ipacheck.ado
+f ipacheckcorrections.ado
+f ipacheckspecifyrecode.ado
+f ipacheckversion.ado
+f ipacheckdups.ado
+f ipacheckids.ado
+f ipacheckmissing.ado
+f ipacheckspecify.ado
+f ipacheckoutliers.ado
+f ipacheckcomments.ado
+f ipachecktextaudit.ado
+f ipachecktimeuse.ado
+f ipachecksurveydb.ado
+f ipacheckenumdb.ado
+f ipatracksurvey.ado
+f ipaimportsctomedia.ado
+f ipaanycount.ado
+f ipagetcal.ado
+f ipalabels.ado
+f ipagettd.ado
+f ipacheckmata.do
