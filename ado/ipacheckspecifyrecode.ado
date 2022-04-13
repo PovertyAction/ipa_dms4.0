@@ -6,13 +6,6 @@ program define ipacheckspecifyrecode, rclass
 	#d;
 	syntax using/, 
 			[SHEETname(string)]
-			parent(name) 
-			child(name) 
-			MATCHType(name) 
-			MATCHText(name) 
-			RECODEFrom(name)
-			RECODETo(name)
-			NEWLabel(string)
 			id(varname)
 			[KEEPvars(varlist)]
 			[LOGFile(string)]
@@ -21,7 +14,7 @@ program define ipacheckspecifyrecode, rclass
 		;
 	#d cr
 	
-	cap version 17 
+	version 17 
 
 	qui {
 	    
@@ -63,10 +56,11 @@ program define ipacheckspecifyrecode, rclass
 		}
 		
 		* Clean data and check for errors
-		keep if !missing(`parent') & !missing(`child')
+		keep if !missing(parent) & !missing(child)
+		
 		loc recode_cnt `c(N)'
 		if `recode_cnt' > 0 {
-		    foreach var of varlist `parent' `child' `matchtype' `matchtext' `recodefrom' {
+		    foreach var of varlist parent child match_type match_text recode_from {
 			    cap confirm string var `var'
 				if _rc == 7 {
 					tostring `var', replace
@@ -80,10 +74,10 @@ program define ipacheckspecifyrecode, rclass
 				}
 			}
 			
-			tostring `newlabel', replace	
+			tostring new_label, replace	
 			
-			replace `matchtext' = 	"^" + `matchtext' if `matchtype' == "begins with"
-			replace `matchtext' = 	`matchtext' + "$" if `matchtype' == "ends with" 
+			replace match_text = 	"^" + match_text if match_type == "begins with"
+			replace match_text = 	match_text + "$" if match_type == "ends with" 
 			
 			cap frame drop frm_recode
 			frame put *, into(frm_recode)
@@ -99,13 +93,13 @@ program define ipacheckspecifyrecode, rclass
 			forval i = 1/`recode_cnt' {
 				
 				frame frm_recode {
-				    loc pvars 	= `parent'[`i']
-					loc cvars 	= `child'[`i']
-					loc vfrom 	= `recodefrom'[`i']
-					loc vto		= `recodeto'[`i']
-					loc mtype 	= `matchtype'[`i']
-					loc mtext 	= `matchtext'[`i']
-					loc nlab 	= `newlabel'[`i']
+				    loc pvars 	= parent[`i']
+					loc cvars 	= child[`i']
+					loc vfrom 	= recode_from[`i']
+					loc vto		= recode_to[`i']
+					loc mtype 	= match_type[`i']
+					loc mtext 	= match_text[`i']
+					loc nlab 	= new_label[`i']
 				}
 	
 				unab pvars: `pvars'				
@@ -185,12 +179,12 @@ program define ipacheckspecifyrecode, rclass
 							
 							frame frm_recodelog {
 								ren (`tmv_oldval' `tmv_oldval_lab' `tmv_newval' `tmv_newval_lab' `cvar') ///
-									(`recodefrom' `recodefrom'_lab `recodeto' `recodeto'_lab `matchtext')
-								gen `parent' = "`pvar'"
-								gen `parent'_lab = "`:var label `pvar''"
-								gen `child'  = "`cvar'"
-								gen `child'_lab = "`:var label `matchtext''"
-								loc vallab "`:val lab `pvar''"
+									(recode_from recode_from_lab recode_to recode_to_lab child_value)
+								gen parent 		= "`pvar'"
+								gen parent_lab 	= "`:var lab `pvar''"
+								gen child  		= "`cvar'"
+								gen child_lab 	= "`:var lab child_value'"
+								loc vallab 		"`:val lab `pvar''"
 								drop `pvar'
 								
 								append using "`tmf_recodelog'"
@@ -207,12 +201,12 @@ program define ipacheckspecifyrecode, rclass
 				use "`tmf_recodelog'", clear	
 				
 				if `c(N)' > 0 {
-					order `id' `keepvars' `parent' `parent'_lab `child' `child'_lab `matchtext' `recodefrom' `recodefrom'_lab `recodeto' `recodeto'_lab
+					order `id' `keepvars' parent parent_lab child child_lab child_value recode_from recode_from_lab recode_to recode_to_lab
 				
-					foreach var of varlist `id' `keepvars' `parent' `child' `matchtext' `recodefrom' `recodeto' {
+					foreach var of varlist `id' `keepvars' child_value {
 						lab var `var' "`var'"
 					}
-					foreach var of varlist `parent' `child' `recodefrom' `recodeto' {
+					foreach var of varlist parent child recode_from recode_to {
 						lab var `var'_lab "`var' label"
 					}
 					
