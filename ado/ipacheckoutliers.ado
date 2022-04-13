@@ -23,6 +23,8 @@ program ipacheckoutliers, rclass
 	    
 		preserve
 		
+		tempvar tmv_flag tmv_dups
+		
 		* set default outsheet values
 		if "`outsheet'" == "" loc outsheet "outliers"
 
@@ -33,14 +35,14 @@ program ipacheckoutliers, rclass
 		drop if missing(variable)
 		cap isid variable
 		if _rc == 459 {
-			duplicates tag variable, gen (dups)
+			duplicates tag variable, gen (`tmv_dups')
 			di as err "Duplicates found in inputs sheet:"
 			noi list variable label by combine keep method multiplier if dups
 			exit 459 
 		}
 
 		* save keep variables in local and drop
-		levelsof keep, clean loc(keepvars)
+		levelsof keepvars, clean loc(keepvars)
 
 		* save a list of variables
 		levelsof variable, clean loc (vars)
@@ -64,9 +66,9 @@ program ipacheckoutliers, rclass
 		cap confirm numeric var multiplier
 		if _rc == 7 {
 			disp as err "Multiplier contains non-numeric variables"
-			destring multiplier, force gen(flag)
+			destring multiplier, force gen(`tmv_flag')
 			gen row = _n, before(variable)
-			noi list row variable method multiplier if mi(flag), abbreviate(32) noobs
+			noi list row variable method multiplier if mi(`tmv_flag'), abbreviate(32) noobs
 			ex 198
 		}
 
@@ -74,7 +76,7 @@ program ipacheckoutliers, rclass
 
 		* copy inputs into data frame
 		cap frame drop frm_inputs
-		frames copy default frm_inputs
+		frames put * , into(frm_inputs)
 
 		restore, preserve 
 		

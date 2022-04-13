@@ -91,10 +91,6 @@ program ipacheckspecify, rclass sortpreserve
 							"(`parent') on row `=`i'+1'"
 				ex 198
 			}
-			else {
-				loc childvars  "`childvars'  `child'"
-				loc parentvars "`parentvars' `child'"
-			}
 
 			* save full child and parent varlist in local
 			loc unab_child  "`unab_child' `child'"
