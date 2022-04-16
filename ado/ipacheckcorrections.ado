@@ -6,10 +6,6 @@ program define ipacheckcorrections, rclass
 	syntax using/, 
 			[SHEETname(string)]
 			id(varname)
-			VARiable(name)
-			VALue(name) 
-			NEWVALue(name) 
-			ACTion(name)
 			[LOGFile(string)]
 			[LOGSheet(string)]
 			[NOLABel]
@@ -57,26 +53,36 @@ program define ipacheckcorrections, rclass
 			ex 198
 		}
 		
+		* check that neccesary vars exist in repfile
+		foreach var in variable value newvalue action {
+			cap confirm var `var'
+			if _rc == 111 {
+				disp as err "{p}variable `var' not found in `using'{p_end}"
+				ex 111
+			}
+		}
+		
 		* Clean data and check for errors
 		keep if !missing(`id')
 		loc rep_cnt `c(N)'
 		if `rep_cnt' > 0 {
-		    cap confirm string var `action'
+		    cap confirm string var action
 			if _rc == 7 {
-			    tostring `action', replace
-				cap confirm string var `action'
+			    tostring action, replace
+				cap confirm string var action
 				if _rc == 7 {
-				    disp as err "'`action'' found where string variable expected"
+				    disp as err "'action' variable found where string variable expected"
 					ex 7
 				}
 			}
 		    
-			replace `action' = itrim(trim(lower(action)))
+			replace action = itrim(trim(lower(action)))
 			
-			foreach var of varlist `id' `variable' `action' {
+			foreach var of varlist `id' variable action {
 				cap assert !missing(`var')
 				if _rc == 9 {
 					di as err "The following row(s) in replacement sheet have missing values for `var'"
+					gen row = _n + 1
 					noi list row `var' if missing(`var')
 					ex 9
 				}
@@ -85,13 +91,13 @@ program define ipacheckcorrections, rclass
 			cap assert inlist(action, "okay", "replace", "drop")
 			if _rc == 9 {
 				di as err "Invalid values for column `action'. Expected Values are okay, replace, drop"
-				noi list `_reprow' `action' if !inlist(`action', "okay", "replace", "drop")
+				noi list `_reprow' action if !inlist(action, "okay", "replace", "drop")
 				ex 9
 			}
 			
 			gen str12 `tmv_status' = ""
 			cap frames drop frm_repfile
-			frames put _all, into(frm_repfile)
+			frames put *, into(frm_repfile)
 			
 			use "`tmf_main_data'", clear
 			
@@ -100,8 +106,8 @@ program define ipacheckcorrections, rclass
 			cap gen _hfcokayvar	= "/"
 	
 			forval i = 1/`rep_cnt' {
-			    frame frm_repfile: loc var = `variable'[`i'] 
-			    cap assert `var' == _frval(frm_repfile, `value', `i') if `id' == _frval(frm_repfile, `id', `i')
+			    frame frm_repfile: loc var = variable[`i'] 
+			    cap assert `var' == _frval(frm_repfile, value, `i') if `id' == _frval(frm_repfile, `id', `i')
 				if _rc == 9 {
 					frame frm_repfile: replace `tmv_status' = "failed" in `i'
 				}
@@ -114,13 +120,13 @@ program define ipacheckcorrections, rclass
 						ex 198
 					}
 					
-				    loc action_type = _frval(frm_repfile, `action', `i')
+				    loc action_type = _frval(frm_repfile, action, `i')
 				    if "`action_type'" == "okay" {
 					    replace _hfcokay 	= 1 		if `id' == _frval(frm_repfile, `id', `i')
 						replace _hfcokayvar = "`var'/"	if `id' == _frval(frm_repfile, `id', `i')
 					}
 					else if "`action_type'" == "replace" {
-					    replace `var' = _frval(frm_repfile, `newvalue', `i') if `id' == _frval(frm_repfile, `id', `i')
+					    replace `var' = _frval(frm_repfile, newvalue, `i') if `id' == _frval(frm_repfile, `id', `i')
 					}
 					else {
 					    drop if `id' == _frval(frm_repfile, `id', `i')
@@ -138,7 +144,7 @@ program define ipacheckcorrections, rclass
 				loc failed_cnt = `r(N)'
 				if `failed_cnt' > 0 {
 				    disp as err "List of `r(N)' failed correction ... "
-					noi list `id' `variable' `value' `newvalue' `action' if `tmv_status' == "failed"
+					noi list `id' variable value newvalue action if `tmv_status' == "failed"
 					if "`ignore'" == "" ex 198
 				}
 				else {

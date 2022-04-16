@@ -10,6 +10,7 @@ program ipachecktextaudit, rclass
 			OUTFile(string)
 			[stats(name min = 1 max = 9)]
 			[SHEETMODify SHEETREPlace]
+			[NOLABel]
 		;
 	#d cr
 		

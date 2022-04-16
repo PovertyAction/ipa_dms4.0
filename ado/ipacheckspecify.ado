@@ -321,8 +321,10 @@ program ipacheckspecify, rclass sortpreserve
 			noi disp "Found {cmd:0} other specify values."
 		}
 
-		return local N_specify = `c(N)'
-		return local N_vars 	= `var_cnt'
+		return local N_specify 		= `c(N)'
+		return local N_vars 		= `var_cnt'
+		return local parentvarlist 	= "`unab_parent'"
+		return local childvarlist	= "`unab_child'"
 	}
 
 end
