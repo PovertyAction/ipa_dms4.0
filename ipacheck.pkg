@@ -10,28 +10,27 @@ d KW: data collection
 d
 d Requires: Stata version 17
 d
-d Distribution-Date: 20220404
+d Distribution-Date: 20220424
 d
 d Authors: Innovations for Poverty Action
 d Support: researchsupport@poverty-action.org
-f ipacheck.ado
-f ipacheckcorrections.ado
-f ipacheckspecifyrecode.ado
-f ipacheckversion.ado
-f ipacheckdups.ado
-f ipacheckids.ado
-f ipacheckmissing.ado
-f ipacheckspecify.ado
-f ipacheckoutliers.ado
-f ipacheckcomments.ado
-f ipachecktextaudit.ado
-f ipachecktimeuse.ado
-f ipachecksurveydb.ado
-f ipacheckenumdb.ado
-f ipatracksurvey.ado
-f ipaimportsctomedia.ado
-f ipaanycount.ado
-f ipagetcal.ado
-f ipalabels.ado
-f ipagettd.ado
-f ipacheckmata.do
+f ado/ipacheck.ado
+f ado/ipacheckcorrections.ado
+f ado/ipacheckspecifyrecode.ado
+f ado/ipacheckversion.ado
+f ado/ipacheckdups.ado
+f ado/ipacheckids.ado
+f ado/ipacheckmissing.ado
+f ado/ipacheckspecify.ado
+f ado/ipacheckoutliers.ado
+f ado/ipacheckcomments.ado
+f ado/ipachecktextaudit.ado
+f ado/ipachecktimeuse.ado
+f ado/ipachecksurveydb.ado
+f ado/ipacheckenumdb.ado
+f ado/ipatracksurvey.ado
+f ado/ipaimportsctomedia.ado
+f ado/ipaanycount.ado
+f ado/ipagetcal.ado
+f ado/ipalabels.ado
+f ado/ipagettd.ado
