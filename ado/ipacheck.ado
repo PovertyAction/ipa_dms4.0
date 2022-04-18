@@ -50,7 +50,7 @@ program ipacheck, rclass
 	loc url 	= "https://raw.githubusercontent.com/PovertyAction/ipa_dms4.0"
 
 	if "`namelist'" == "new" {
-		ipacheck_new, surveys(`surveys') location("`location'") `subfolders' `files' url("`url'") 
+		ipacheck_new, surveys(`surveys') location("`location'") `subfolders' `filesonly' url("`url'") branch(`branch')
 		ex
 	}
 	else {
@@ -134,7 +134,7 @@ program define ipacheck_new
 		if "`subfolders'" == "subfolders" {
 			
 			#d;
-			loc subs
+			loc sfs
 				""3_checks/1_inputs"
 				"3_checks/2_outputs"
 				"4_data/1_preloads"
@@ -151,9 +151,10 @@ program define ipacheck_new
 			noi disp "Creating subfolders ..."
 			noi disp
 			loc i 1
-			foreach sub in `surveys' {
+			
+			foreach survey in `surveys' {
 				loc sublab = "`i'_`survey'"
-				foreach sf in `subs' {
+				foreach sf in `sfs' {
 					mata : st_numscalar("exists", direxists("`location'/`sf'/`sublab'"))
 					if scalar(exists) == 1 {
 						noi disp "{red:Skipped}: Sub-folder `sf' already exists"
@@ -172,13 +173,22 @@ program define ipacheck_new
 	noi disp "Copying files to `location'/02_dofiles ..."
 	noi disp
 	
-	foreach file in 0_master 1_globals 3_prep 4_hfcs {
+	cap confirm file "`location'/0_master.do"
+	if _rc == 601 {
+		copy "`url'/`branch'/do/0_master.do" "`location'/0_master.do"
+	}
+	else {
+		disp  "{red:Skipped}: File 0_master.do already exists"
+	}
+	
+	foreach file in 1_globals 3_prep 4_hfcs {
 		cap confirm file "`location'/2_dofiles/`file'.do"
 		if _rc == 601 {
-			disp as err "{red:Skipped}: File `file' already exists"
+			copy "`url'/`branch'/do/`file'.do" "`location'/2_dofiles/`file'.do"
+			disp "`file'.do copied to `location'/2_dofiles"
 		}
 		else {
-			copy "`url'/`branch'/do/0_master.do" "`location'/2_dofiles/0_master.do"
+			disp  "{red:Skipped}: File `file'.do already exists"
 		}
 	}
 	
@@ -189,11 +199,61 @@ program define ipacheck_new
 	foreach file in hfc_inputs corrections specifyrecode {
 		cap confirm file "`location'/3_checks/1_inputs/`file'.xlsm"
 		if _rc == 601 {
-			disp as err "{red:Skipped}: File `file' already exists"
+			copy "`url'/`branch'/excel/`file'.xlsm" "`location'/3_checks/1_inputs/`file'.xlsm"
+			disp "`file'.xlsm copied to `location'/3_checks/1_inputs"
 		}
 		else {
-			copy "`url'/`branch'/excel/`file'.xlsm" "`location'/3_checks/1_inputs/`file'.xlsm"
+			disp "{red:Skipped}: File `file' already exists"
 		}
 	}
 
+end
+
+program define ipacheck_version
+	#d;
+	local programs          
+	    ipacheckcorrections	
+		ipacheckspecifyrecode
+		ipacheckversions
+		ipacheckids
+		ipacheckdups
+		ipacheckmissing
+		ipacheckoutliers
+		ipacheckspecify
+		ipacheckcomments
+		ipachecktextaudit
+		ipachecktimeuse
+		ipachecksurveydb
+		ipacheckenumdb
+		ipatracksurvey
+		ipaimportsctomedia
+		ipalabels
+		ipagettd
+		ipagetcal
+		ipaanycount
+		
+		;
+	#d cr
+
+	foreach prg in `programs' {
+		cap which `prg'
+		if !_rc {
+			local path = c(sysdir_plus)
+			if substr("`prg'", 1, 1) == "i" {
+				mata: get_version("`path'i/`prg'.ado")
+			}
+			else mata: get_version("`path'p/`prg'.ado")
+		}
+	}
+end
+
+mata: 
+void get_version(string scalar program) {
+	real scalar fh
+	
+    fh = fopen(program, "r")
+    line = fget(fh)
+    printf("  " + program + "\t\t%s\n", line) 
+    fclose(fh)
+}
 end

@@ -1,4 +1,4 @@
-*! version 4.0.0 Innovations for Poverty Action 11march2022
+*! version 4.0.0 Innovations for Poverty Action 25apr2022
 * ipachecktimeuse: Import and analyse text audit data for active times
 
 program ipachecktimeuse, rclass sortpreserve

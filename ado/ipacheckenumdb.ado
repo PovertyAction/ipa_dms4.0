@@ -1,4 +1,4 @@
-*! version 4.0.0 Innovations for Poverty Action 27jul2020
+*! version 4.0.0 Innovations for Poverty Action 25apr2022
 * ipacheckenumdb: Outputs survey statistics by enumerator
 
 program ipacheckenumdb, rclass sortpreserve
