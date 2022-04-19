@@ -9,54 +9,86 @@ program ipacheck, rclass
 	syntax 	name, 
 			[branch(name)] 
 			[surveys(namelist min = 2 max = 10)] 
-			[LOCation(string)] 
-			[SUBFolders] 
+			[DIRectory(string)] 
+			[SUBfolders] 
 			[FILESonly] 
 			[exercise]
 			;
 	#d cr
 	
-	if "`namelist'" == "" | !inlist("`namelist'", "new", "version", "update") {
+	if "`namelist'" == "" | !inlist("`namelist'", "new", "version", "update", "exercise") {
 		if "`namelist'" == "" disp as err "missing ipacheck subcommand"
 		else 				  disp as err "illegal ipacheck subcommand. Subcommands are:"
-		di as txt "    {cmd:ipacheck new} [{it: filepath}]"
-		di as txt "    {cmd:ipacheck update} [{it: branch}]"
-		di as txt "    {cmd:ipacheck version}"
+		di as txt 	"{cmd:ipacheck new}"
+		di as txt 	"{cmd:ipacheck update}"
+		di as txt 	"{cmd:ipacheck version}"
+		di as txt 	"{cmd:ipacheck exercise}"
 		ex 198
 	}
 	if inlist("`namelist'", "update", "version") {
 		if "`surveys'" ~= "" {
-			disp as error "subcommand `namelist' and surveys option are mutually exclusive"
+			disp as error "subcommand `namelist' and surveys options are mutually exclusive"
 			ex 198
 		}
-		if "`location'" ~= "" {
-			disp as error "subcommand `namelist' and locations option are mutually exclusive"
+		if "`directory'" ~= "" {
+			disp as error "subcommand `namelist' and directory options are mutually exclusive"
 			ex 198
 		}
 		if "`subfolders'" ~= "" {
-			disp as error "subcommand `namelist' and subfolders option are mutually exclusive"
+			disp as error "subcommand `namelist' and subfolders options are mutually exclusive"
 			ex 198
 		}
 		if "`filesonly'" ~= "" {
-			disp as error "subcommand `namelist' and files option are mutually exclusive"
+			disp as error "subcommand `namelist' and files options are mutually exclusive"
 			ex 198
 		}
 		if "`exercise'" ~= "" {
-			disp as error "subcommand `namelist' and exercise option are mutually exclusive"
+			disp as error "subcommand `namelist' and exercise options are mutually exclusive"
 			ex 198
 		}
  	}
+	else if "`namelist'" == "exercise" {
+		if "`surveys'" ~= "" {
+			disp as error "subcommand `namelist' and surveys options are mutually exclusive"
+			ex 198
+		}
+		if "`subfolders'" ~= "" {
+			disp as error "subcommand `namelist' and subfolders options are mutually exclusive"
+			ex 198
+		}
+		if "`filesonly'" ~= "" {
+			disp as error "subcommand `namelist' and files options are mutually exclusive"
+			ex 198
+		}
+	}
+	else if "`namelist'" == "new" {
+		if "`surveys'" == "" & "`subfolders'" ~= "" {
+			disp as err "subfolders option & survey options must be specified together"
+			ex 198
+		}
+		if "`exercise'" ~= "" {
+			if "`subfolders'" ~= "" {
+				disp as err "exercise and subfolders options are mutually exclusive"
+				ex 198
+			}
+			if "`filesonly'" ~= "" {
+				disp as err "exercise and filesonly options are mutually exclusive"
+				ex 198
+			}
+		}
+	}
 	
 	loc url 	= "https://raw.githubusercontent.com/PovertyAction/ipa_dms4.0"
 
 	if "`namelist'" == "new" {
-		ipacheck_new, surveys(`surveys') location("`location'") `subfolders' `filesonly' url("`url'") branch(`branch')
+		ipacheck_new, surveys(`surveys') directory("`directory'") `subfolders' `filesonly' url("`url'") branch(`branch')
 		ex
 	}
 	else {
 		ipacheck_`namelist', branch(`branch') url(`url')
 		ex
 	}
+	
 end
 
 program define ipacheck_update
@@ -65,29 +97,70 @@ program define ipacheck_update
 	loc branch 	= cond("`branch'" ~= "", "`branch'", "master")
 	net install ipacheck, replace from("`url'/`branch'")
 	qui do "`url'/`branch'/do/ipacheckmata.do"
+	noi disp "Mata library lipadms installed"
+	noi mata mata mlib index
+	
+end
+
+program define ipacheck_version
+	
+	#d;
+	local 	programs          
+			ipacheckcorrections	
+			ipacheckspecifyrecode
+			ipacheckversions
+			ipacheckids
+			ipacheckdups
+			ipacheckmissing
+			ipacheckoutliers
+			ipacheckspecify
+			ipacheckcomments
+			ipachecktextaudit
+			ipachecktimeuse
+			ipachecksurveydb
+			ipacheckenumdb
+			ipatracksurvey
+			ipacodebook
+			ipaimportsctomedia
+			ipalabels
+			ipagettd
+			ipagetcal
+			ipaanycount
+		
+		;
+	#d cr
+
+	foreach prg in `programs' {
+		cap which `prg'
+		if !_rc {
+			mata: get_version("`c(sysdir_plus)'i/`prg'.ado")
+		}
+	}
+	
+end
+
+mata: 
+void get_version(string scalar program) {
+	real scalar fh
+	
+    fh = fopen(program, "r")
+    line = fget(fh)
+    printf("  " + program + "\t\t%s\n", line) 
+    fclose(fh)
+}
 end
 
 program define ipacheck_new
 	
-	syntax, [surveys(string)] [location(string)] [SUBfolders] [filesonly] [exercise] [branch(name)] url(string)
+	syntax, [surveys(string)] [directory(string)] [SUBfolders] [filesonly] [exercise] [branch(name)] url(string)
 	
 	loc branch 	= cond("`branch'" ~= "", "`branch'", "master") 
 	
-	if "`location'" == "" {
-		loc location "`c(pwd)'"
+	if "`directory'" == "" {
+		loc directory "`c(pwd)'"
 	}
-	if `:word count `surveys'' == 1 & "`subfolders'" != "" {
-		disp as err "Option for subfolders is not allowed with only one survey form"
-		exit 198
-	}
-	if "`surveys'" == "" &  "`subfolders'" != "" {
-		disp as err "Option for subfolders is not allowed without specifying the surveys option"
-		exit 198
-	}
-	if "`exercise'" == "exercise" & "`surveys'" != "" {
-		disp as error "Option for exercise can only be used with the folders option"
-		exit 198
-	}
+	
+	loc surveys_cnt = wordcount("`surveys'")
 	
 	if "`filesonly'" == "" {
 		#d;
@@ -121,12 +194,12 @@ program define ipacheck_new
 		noi disp
 
 		foreach f in `folders' {
-			mata : st_numscalar("exists", direxists("`location'/`f'"))
+			mata : st_numscalar("exists", direxists("`directory'/`f'"))
 			if scalar(exists) == 1 {
 				noi disp "{red:Skipped}: Folder `f' already exists"
 			}
 			else {
-				mkdir "`location'/`f'"
+				mkdir "`directory'/`f'"
 				noi disp "Successful: Folder `f' created"
 			}
 		}
@@ -155,12 +228,12 @@ program define ipacheck_new
 			foreach survey in `surveys' {
 				loc sublab = "`i'_`survey'"
 				foreach sf in `sfs' {
-					mata : st_numscalar("exists", direxists("`location'/`sf'/`sublab'"))
+					mata : st_numscalar("exists", direxists("`directory'/`sf'/`sublab'"))
 					if scalar(exists) == 1 {
 						noi disp "{red:Skipped}: Sub-folder `sf' already exists"
 					}
 					else {
-						mkdir "`location'/`sf'/`sublab'"
+						mkdir "`directory'/`sf'/`sublab'"
 						noi disp "Successful: Folder `sf'/`sublab' created"
 					}
 				}
@@ -168,92 +241,83 @@ program define ipacheck_new
 			}
 		}
 	}
+	
+	loc exp_dir "`directory'"
 		
 	noi disp
-	noi disp "Copying files to `location'/02_dofiles ..."
+	noi disp "Copying files to `exp_dir' ..."
 	noi disp
 	
-	cap confirm file "`location'/0_master.do"
+	cap confirm file "`exp_dir'/0_master.do"
 	if _rc == 601 {
-		copy "`url'/`branch'/do/0_master.do" "`location'/0_master.do"
+		copy "`url'/`branch'/do/0_master.do" "`exp_dir'/0_master.do"
+		disp "0_master.do copied to `exp_dir'"
 	}
 	else {
 		disp  "{red:Skipped}: File 0_master.do already exists"
 	}
 	
+	if "`filesonly'" == "" 	loc exp_dir "`directory'/2_dofiles"
+	else 					loc exp_dir "`directory'"
+	
 	foreach file in 1_globals 3_prep 4_hfcs {
-		cap confirm file "`location'/2_dofiles/`file'.do"
-		if _rc == 601 {
-			copy "`url'/`branch'/do/`file'.do" "`location'/2_dofiles/`file'.do"
-			disp "`file'.do copied to `location'/2_dofiles"
+		if `surveys_cnt' > 0 {
+			forval i = 1/`surveys_cnt' {
+				loc exp_file = "`file'_" + word("`surveys'", `i')
+				cap confirm file "`exp_dir'/`exp_file'.do"
+				if _rc == 601 {
+					copy "`url'/`branch'/do/`file'.do" "`exp_dir'/`exp_file'.do"
+					disp "`exp_file'.do copied to `exp_dir'"
+				}
+				else {
+					disp  "{red:Skipped}: File `file'.do already exists"
+				}
+			}
 		}
 		else {
-			disp  "{red:Skipped}: File `file'.do already exists"
+			cap confirm file "`exp_dir'/`file'.do"
+			if _rc == 601 {
+				copy "`url'/`branch'/do/`file'.do" "`exp_dir'/`file'.do"
+				disp "`file'.do copied to `exp_dir'"
+			}
+			else {
+				disp  "{red:Skipped}: File `file'.do already exists"
+			}
 		}
 	}
 	
+	if "`filesonly'" == "" 	loc exp_dir "`directory'/3_checks/1_inputs"
+	else 					loc exp_dir "`directory'"
+	
 	noi disp
-	noi disp "Copying files to `location'/3_checks/1_inputs ..."
+	noi disp "Copying files to `directory'/3_checks/1_inputs ..."
 	noi disp
 	
 	foreach file in hfc_inputs corrections specifyrecode {
-		cap confirm file "`location'/3_checks/1_inputs/`file'.xlsm"
-		if _rc == 601 {
-			copy "`url'/`branch'/excel/`file'.xlsm" "`location'/3_checks/1_inputs/`file'.xlsm"
-			disp "`file'.xlsm copied to `location'/3_checks/1_inputs"
+		if `surveys_cnt' > 0 {
+			forval i = 1/`surveys_cnt' {
+				loc exp_file = "`file'_" + word("`surveys'", `i')
+				loc exp_dirmult  = cond("`subfolders'" == "", "`exp_dir'", "`exp_dir'/`i'_" + word("`surveys'", `i'))
+				cap confirm file "`exp_dirmult'/`exp_file'.xlsm"
+				if _rc == 601 {
+					copy "`url'/`branch'/excel/`file'.xlsm" "`exp_dirmult'/`exp_file'.xlsm"
+					disp "`exp_file'.xlsm copied to `exp_dirmult'"
+				}
+				else {
+					disp "{red:Skipped}: File `file' already exists"
+				}
+			}
 		}
 		else {
-			disp "{red:Skipped}: File `file' already exists"
-		}
-	}
-
-end
-
-program define ipacheck_version
-	#d;
-	local programs          
-	    ipacheckcorrections	
-		ipacheckspecifyrecode
-		ipacheckversions
-		ipacheckids
-		ipacheckdups
-		ipacheckmissing
-		ipacheckoutliers
-		ipacheckspecify
-		ipacheckcomments
-		ipachecktextaudit
-		ipachecktimeuse
-		ipachecksurveydb
-		ipacheckenumdb
-		ipatracksurvey
-		ipaimportsctomedia
-		ipalabels
-		ipagettd
-		ipagetcal
-		ipaanycount
-		
-		;
-	#d cr
-
-	foreach prg in `programs' {
-		cap which `prg'
-		if !_rc {
-			local path = c(sysdir_plus)
-			if substr("`prg'", 1, 1) == "i" {
-				mata: get_version("`path'i/`prg'.ado")
+			cap confirm file "`exp_dir'/`file'.xlsm"
+			if _rc == 601 {
+				copy "`url'/`branch'/excel/`file'.xlsm" "`exp_dir'/`file'.xlsm"
+				disp "`file'.xlsm copied to `exp_dir'"
 			}
-			else mata: get_version("`path'p/`prg'.ado")
+			else {
+				disp "{red:Skipped}: File `file' already exists"
+			}
 		}
 	}
-end
 
-mata: 
-void get_version(string scalar program) {
-	real scalar fh
-	
-    fh = fopen(program, "r")
-    line = fget(fh)
-    printf("  " + program + "\t\t%s\n", line) 
-    fclose(fh)
-}
 end
