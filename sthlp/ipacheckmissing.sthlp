@@ -14,7 +14,7 @@ Create statistics or missingness and distinctness of variables.
 {opth outfile(filename)} 
 [{it:options}]
 
-{synoptset 22 tabbed}{...}
+{synoptset 26 tabbed}{...}
 {synopthdr}
 {synoptline}
 {syntab:Main}
@@ -23,7 +23,7 @@ Create statistics or missingness and distinctness of variables.
 {syntab:Specifications}
 {synopt:{opt outs:heet("sheetname")}}save summary of duplicates to excel sheet{p_end}
 {synopt:{opth imp:ortantvars(varlist)}}important variables to show in output{p_end}
-{synopt:{opth show(integer[%])}}show variables statistics if variable is at least integer[%] missing values/percentage{p_end}
+{synopt:{opt show(integer[%])}}show variables statistics if variable is at least integer[%] missing values/percentage{p_end}
 {synopt:{opt sheetmod:ify}}modify excel sheet {cmd:outsheet}{p_end}
 {synopt:{opt sheetrep:lace}}overwrite excel sheet {cmd:outsheet}{p_end}
 

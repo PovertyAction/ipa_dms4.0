@@ -24,7 +24,7 @@ Make replacements, drop observations, or marks as okay observations that are spe
 
 {synopt:*{opth sheet:name(string)}}vExcel worksheet to load{p_end}
 {synopt:*{opth id(varname)}}variables for matching observations with
-the replacements specified in the using dataset{p_end}
+the corrections specified in the using dataset{p_end}
 
 {syntab:Specifications}
 
@@ -38,11 +38,12 @@ the replacements specified in the using dataset{p_end}
 {p 4 6 2}* {opt id()} is always required. {opt sheetname("sheetname")} is required for {opt .xls} and {opt .xlsx} correction files.{p_end} 
 {p 4 6 2}Variables {opt variable}, {opt value}, {opt newvalue} & {opt action} are required in using file.
 
+{marker description}{...}
 {title:Description}
 
 {pstd}
 {cmd:ipacheckcorrections} modifies the dataset currently in memory by
-making changes that are specified in an external dataset or the replacements file.
+making changes that are specified in an external dataset or the corrections file.
 
 {pstd}
 {cmd:ipacheckcorrections} allows the option to replace a current value with 
@@ -84,15 +85,15 @@ It is recommended to use a truly unique value (such as "key" if SurveyCTO is use
 
 {pstd}
 {cmd:ipacheckcorrections} changes the contents of existing variables by
-making replacements that are specified in a external dataset. The corrections file should contain one row per replacement. Replacements are described by a "variable" column/variable that contains
-the name of the variable to change, a "value" column/variable that contains the current value, a "newvalue" column/variable that contains the correct value (or is missing if action is "okay" or "drop") and an "action" variable/column that contains the action to take ie. "replace", "drop" or "okay".  The replacements file should also hold
+making corrections that are specified in a external dataset. The corrections file should contain one row per correction. Corrections are described by a "variable" column/variable that contains
+the name of the variable to change, a "value" column/variable that contains the current value, a "newvalue" column/variable that contains the correct value (or is missing if action is "okay" or "drop") and an "action" variable/column that contains the action to take ie. "replace", "drop" or "okay".  The corrections file should also store
 variables shared by the dataset in memory that indicate
-the subset of the data for which each change is intended;
+the subset of the data for which each correction is intended;
 these are specified to option {opt id()}, and are used to match
-observations in memory to their replacements in the replacements file.
+observations in memory to the corrections in the correction file.
 
 {pstd}
-Below, an example replacements file is shown with additional optional variables:
+Below, an example corrections file is shown with additional optional variables:
 {cmd:hhid}, to be specified to {opt id()},
 {cmd:variable}, {cmd: value}, {cmd:newvalue}, {cmd:action}. The correction file may also include additional variables which contain information that are useful for tracking. Although additional variables will not be used, they will be included in the corrections logfile if the logfile option is used.
 
@@ -203,7 +204,7 @@ Mark corrections using the sample corrections dataset above. Create a logfile an
 {title:Acknowledgement}
 
 {pstd}
-{cmd:ipacheckcorrections} and it's previous version {cmd:ipacheckreadreplace} are based on {help readreplace} written by Ryan Knight & Matthew White of Innovations for poverty action.
+{cmd:ipacheckcorrections} and it's previous version {cmd:ipacheckreadreplace} are based on {help readreplace} written by Ryan Knight & Matthew White of Innovations for Poverty Action.
 
 {txt}{...}
 {marker authors}{...}
@@ -211,7 +212,7 @@ Mark corrections using the sample corrections dataset above. Create a logfile an
 
 {pstd}
 Ishmail Azindoo Baako
-Innovations for Poverty Action{p_end}
+(Innovations for Poverty Action){p_end}
 
 {pstd}For questions or suggestions, submit a
 {browse "https://github.com/PovertyAction/high-frequency-checks/issues":GitHub issue}

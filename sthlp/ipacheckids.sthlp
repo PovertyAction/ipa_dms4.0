@@ -1,4 +1,5 @@
 {smcl}
+{* *! version 4.0.0 Innovations for Poverty Action 25apr2022}{...}
 {title:Title}
 
 {phang}
@@ -45,8 +46,7 @@ outfile. The exported sheet will show the summary of each duplicate group includ
 submitted.{cmd:ipacheckids} requires a unique key variable which is unique in the dataset. This unique key variable is different from the Survey ID variable that is checked by {cmd:ipacheckids} for duplicates. The unique key variable will help differenciate between the duplicate observations reported and to help resolve duplicates using the {helpb ipacheckcorrections}. 
 
 {marker optionsdesc}{...}
-{title:Options for ipacheckids}
-
+{title:Options}
 
 {pstd}
 {opt outsheet("sheetname")} option saves summary of duplicates to Excel sheet specified. The default is to save to Excel sheet "id duplicates".
@@ -67,13 +67,13 @@ submitted.{cmd:ipacheckids} requires a unique key variable which is unique in th
 {opt sheetreplace} option specifies that the duplicates summary sheet should be replaced if it already exist.  
 
 {pstd}
-{opt sheetreplace} nolabel exports the underlying numeric values instead of the value labels.
+{opt nolabel} nolabel exports the underlying numeric values instead of the value labels.
 
 {pstd}
 {opt replace} overwrites an existing Excel workbook.  replace cannot be specified when modifying or replacing a given worksheet.
 
 {pstd}
-The {it:force} option uses {help duplicates drop} in order to randomly drop all observations in a duplicate group except one. 
+{opt force} option uses {help duplicates drop} in order to randomly drop all observations in a duplicate group except one. 
 This allows the workflow to continue, since IPA's Data Management System cannot run with duplicates.
 
 {marker remarks}{...}
@@ -90,7 +90,7 @@ and outputs are formatted in a .xlsx file or used directly from the command wind
 {pstd}
 Check for duplicates in household ID variable (hhid):
 {p_end}{cmd}{...}
-{phang2}.  ipacheckids hhid,
+{phang2}. ipacheckids hhid,
   enum(enum_id)
   date(submissiondate)
   key(key)
@@ -100,7 +100,7 @@ Check for duplicates in household ID variable (hhid):
   keepvars(starttime endtime district)
   nolabel
   replace
-
+{text}{...}
   
 {marker authors}{...}
 {title:Authors}
@@ -113,4 +113,3 @@ Rosemarie Sandino & Ishmail Azindoo Baako
 For questions or suggestions, submit a
 {browse "https://github.com/PovertyAction/high-frequency-checks/issues":GitHub issue}
 or e-mail researchsupport@poverty-action.org.{p_end}
-
