@@ -1,4 +1,6 @@
-*! version 4.0.0 Innovations for Poverty Action 18apr2022
+*! version 4.0.0 
+*! Innovations for Poverty Action 11may2022
+
 * ipacheck: Update ipacheck package and initialize new projects
 
 program ipacheck, rclass
@@ -9,16 +11,15 @@ program ipacheck, rclass
 	syntax 	name, 
 			[branch(name)] 
 			[surveys(namelist min = 2 max = 10)] 
-			[DIRectory(string)] 
+			[FOLDer(string)] 
 			[SUBfolders] 
 			[FILESonly] 
 			[exercise]
 			;
 	#d cr
 	
-	if "`namelist'" == "" | !inlist("`namelist'", "new", "version", "update", "exercise") {
-		if "`namelist'" == "" disp as err "missing ipacheck subcommand"
-		else 				  disp as err "illegal ipacheck subcommand. Subcommands are:"
+	if !inlist("`namelist'", "new", "version", "update", "exercise") {
+		disp as err "illegal ipacheck subcommand. Subcommands are:"
 		di as txt 	"{cmd:ipacheck new}"
 		di as txt 	"{cmd:ipacheck update}"
 		di as txt 	"{cmd:ipacheck version}"
@@ -30,8 +31,8 @@ program ipacheck, rclass
 			disp as error "subcommand `namelist' and surveys options are mutually exclusive"
 			ex 198
 		}
-		if "`directory'" ~= "" {
-			disp as error "subcommand `namelist' and directory options are mutually exclusive"
+		if "`folder'" ~= "" {
+			disp as error "subcommand `namelist' and folder options are mutually exclusive"
 			ex 198
 		}
 		if "`subfolders'" ~= "" {
@@ -81,7 +82,7 @@ program ipacheck, rclass
 	loc url 	= "https://raw.githubusercontent.com/PovertyAction/ipa_dms4.0"
 
 	if "`namelist'" == "new" {
-		ipacheck_new, surveys(`surveys') directory("`directory'") `subfolders' `filesonly' url("`url'") branch(`branch')
+		ipacheck_new, surveys(`surveys') folder("`folder'") `subfolders' `filesonly' url("`url'") branch(`branch')
 		ex
 	}
 	else {
@@ -126,7 +127,6 @@ program define ipacheck_version
 			ipagettd
 			ipagetcal
 			ipaanycount
-		
 		;
 	#d cr
 
@@ -152,12 +152,12 @@ end
 
 program define ipacheck_new
 	
-	syntax, [surveys(string)] [directory(string)] [SUBfolders] [filesonly] [exercise] [branch(name)] url(string)
+	syntax, [surveys(string)] [folder(string)] [SUBfolders] [filesonly] [exercise] [branch(name)] url(string)
 	
 	loc branch 	= cond("`branch'" ~= "", "`branch'", "master") 
 	
-	if "`directory'" == "" {
-		loc directory "`c(pwd)'"
+	if "`folder'" == "" {
+		loc folder "`c(pwd)'"
 	}
 	
 	loc surveys_cnt = wordcount("`surveys'")
@@ -194,12 +194,12 @@ program define ipacheck_new
 		noi disp
 
 		foreach f in `folders' {
-			mata : st_numscalar("exists", direxists("`directory'/`f'"))
+			mata : st_numscalar("exists", direxists("`folder'/`f'"))
 			if scalar(exists) == 1 {
 				noi disp "{red:Skipped}: Folder `f' already exists"
 			}
 			else {
-				mkdir "`directory'/`f'"
+				mkdir "`folder'/`f'"
 				noi disp "Successful: Folder `f' created"
 			}
 		}
@@ -228,12 +228,12 @@ program define ipacheck_new
 			foreach survey in `surveys' {
 				loc sublab = "`i'_`survey'"
 				foreach sf in `sfs' {
-					mata : st_numscalar("exists", direxists("`directory'/`sf'/`sublab'"))
+					mata : st_numscalar("exists", direxists("`folder'/`sf'/`sublab'"))
 					if scalar(exists) == 1 {
 						noi disp "{red:Skipped}: Sub-folder `sf' already exists"
 					}
 					else {
-						mkdir "`directory'/`sf'/`sublab'"
+						mkdir "`folder'/`sf'/`sublab'"
 						noi disp "Successful: Folder `sf'/`sublab' created"
 					}
 				}
@@ -242,7 +242,7 @@ program define ipacheck_new
 		}
 	}
 	
-	loc exp_dir "`directory'"
+	loc exp_dir "`folder'"
 		
 	noi disp
 	noi disp "Copying files to `exp_dir' ..."
@@ -257,8 +257,8 @@ program define ipacheck_new
 		disp  "{red:Skipped}: File 0_master.do already exists"
 	}
 	
-	if "`filesonly'" == "" 	loc exp_dir "`directory'/2_dofiles"
-	else 					loc exp_dir "`directory'"
+	if "`filesonly'" == "" 	loc exp_dir "`folder'/2_dofiles"
+	else 					loc exp_dir "`folder'"
 	
 	foreach file in 1_globals 3_prep 4_hfcs {
 		if `surveys_cnt' > 0 {
@@ -286,11 +286,11 @@ program define ipacheck_new
 		}
 	}
 	
-	if "`filesonly'" == "" 	loc exp_dir "`directory'/3_checks/1_inputs"
-	else 					loc exp_dir "`directory'"
+	if "`filesonly'" == "" 	loc exp_dir "`folder'/3_checks/1_inputs"
+	else 					loc exp_dir "`folder'"
 	
 	noi disp
-	noi disp "Copying files to `directory'/3_checks/1_inputs ..."
+	noi disp "Copying files to `folder'/3_checks/1_inputs ..."
 	noi disp
 	
 	foreach file in hfc_inputs corrections specifyrecode {
