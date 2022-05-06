@@ -69,11 +69,11 @@ ipacheck version
 ```
 If you encounter a clear bug, please file a minimal reproducible example on [github](https://github.com/PovertyAction/high-frequency-checks/issues). For questions and other discussion, please email us at [researchsupport@poverty-action.org](mailto:researchsupport@poverty-action.org).
 
-## Current Authors
+## Current Author(s)
  - Ishmail Azindoo Baako
- - Rosemarie Sandino
 
-## Past Authors
+## Past Author(s)
+ - Rosemarie Sandino
  - Christopher Boyer
  - Isabel Onate
  - Kelsey Larson
