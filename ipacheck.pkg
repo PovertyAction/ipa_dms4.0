@@ -1,5 +1,5 @@
 v 4.0.0
-d 'IPACHECK': IPA Stata high-frequency check commands
+d 'IPACHECK': IPA Stata commands for high frequency checks
 d These commands perform common data quality checks useful
 d during the data collection and cleaning phases of field
 d research.
@@ -35,3 +35,33 @@ f ado/ipaanycount.ado
 f ado/ipagetcal.ado
 f ado/ipalabels.ado
 f ado/ipagettd.ado
+d
+f sthlp/ipacheck.ado
+f sthlp/ipacheckcorrections.sthlp
+f sthlp/ipacheckspecifyrecode.sthlp
+f sthlp/ipacheckversion.sthlp
+f sthlp/ipacheckdups.sthlp
+f sthlp/ipacheckids.sthlp
+f sthlp/ipacheckmissing.sthlp
+f sthlp/ipacheckspecify.sthlp
+f sthlp/ipacheckoutliers.sthlp
+f sthlp/ipacheckcomments.sthlp
+f sthlp/ipachecktextaudit.sthlp
+f sthlp/ipachecktimeuse.sthlp
+f sthlp/ipachecksurveydb.sthlp
+f sthlp/ipacheckenumdb.sthlp
+f sthlp/ipatracksurvey.sthlp
+f sthlp/ipaimportsctomedia.sthlp
+f sthlp/ipacodebook.sthlp
+f sthlp/ipaanycount.sthlp
+f sthlp/ipagetcal.sthlp
+f sthlp/ipalabels.sthlp
+f sthlp/ipagettd.sthlp
+d
+f sthlp/addlines.sthlp
+f sthlp/addflags.sthlp
+f sthlp/colwidths.sthlp
+f sthlp/colformats.sthlp
+f sthlp/setfont.sthlp
+f sthlp/setheader.sthlp
+f sthlp/settotal.sthlp
