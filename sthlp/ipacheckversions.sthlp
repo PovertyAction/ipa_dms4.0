@@ -10,7 +10,7 @@ Create a summary sheet detailing versions used by day, and flags interviews usin
 {title:Syntax}
 
 {p 8 10 2}
-{cmd:ipacheckversion} {it:{help varname}}{cmd:,}
+{cmd:ipacheckversions} {it:{help varname}}{cmd:,}
 
 
 {opth outfile(filename)}
@@ -40,18 +40,18 @@ Create a summary sheet detailing versions used by day, and flags interviews usin
 {title:Description}
 
 {pstd}
-{cmd:ipacheckversion} exports a table of versions used by date and, if applicable, 
+{cmd:ipacheckversions} exports a table of versions used by date and, if applicable, 
 a list of all observations that are using a form beside the most recent form version available by date. Optionally, the user can specify additional variables to show in {opt outsheet2}. 
 
 {marker remarks}{...}
 {title:Remarks}
 
 {pstd}
-{cmd:ipacheckversion} is one of the checks run in IPA's Data Management System. 
+{cmd:ipacheckversions} is one of the checks run in IPA's Data Management System. 
 It can be run within IPA's Data Management System, where inputs are entered into a globals do-file 
 and outputs are formatted in a .xlsx file or used directly from the command window or other do-files. See {help ipacheck} for more details on how to use the Data Management System.
 
-{pstd} It is important to note that ipacheckversion was written to take advantage of the SurveyCTO form versions format and there experts that the form versions values are numeric and in ascending order.
+{pstd} It is important to note that ipacheckversions was written to take advantage of the SurveyCTO form versions format and there experts that the form versions values are numeric and in ascending order.
 
 
 {marker examples}{...}
@@ -60,7 +60,7 @@ and outputs are formatted in a .xlsx file or used directly from the command wind
 {pstd}
 Assuming the variable with information on the form version is "formdef_version":
 {p_end}{cmd}{...}
-{phang2}.  ipacheckversion formdef_version, 
+{phang2}.  ipacheckversions formdef_version, 
   enumerator(enum_id)
   date(submissiondate)
   outfile("hfc_output.xlsx")
@@ -73,7 +73,7 @@ Assuming the variable with information on the form version is "formdef_version":
 {title:Acknowledgement}
 
 {pstd}
-{cmd:ipacheckversion} is is based on {help ipatrackversions} written by Chris Boyer of Innovations for Poverty Action.
+{cmd:ipacheckversions} is is based on {help ipatrackversions} written by Chris Boyer of Innovations for Poverty Action.
 	
 {marker authors}{...}
 {title:Authors}
