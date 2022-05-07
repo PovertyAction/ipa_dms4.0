@@ -29,12 +29,12 @@ Display version for each command in ipacheck
 {synoptset 23 tabbed}{...}
 {synopthdr:new_options}
 {synoptline}
-{synopt:{opt sur:veys(namelist)}}get input files for multiple projects{p_end}
+{synopt:{opt surv:eys(namelist)}}get input files for multiple projects{p_end}
 {synopt:{opt fold:er("folder path")}}save to folder location{p_end}
 {synopt:{opt sub:folders}}create subfolders for each survey in {cmd:surveys()} option{p_end}
 {synopt:{opt files:only}}get input files only{p_end}
-{synopt:{opt branch("branchname")}}install programs and files from specified repository instead of master{p_end}
-{synopt:{opt exercise}}generate folder structure with input files and exercise data{p_end}
+{synopt:{opt br:anch("branchname")}}install programs and files from specified repository instead of master{p_end}
+{synopt:{opt ex:ercise}}generate folder structure with input files and exercise data{p_end}
 {synoptline}
 {p2colreset}{...}
 
