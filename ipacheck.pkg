@@ -17,7 +17,7 @@ d Support: researchsupport@poverty-action.org
 f ado/ipacheck.ado
 f ado/ipacheckcorrections.ado
 f ado/ipacheckspecifyrecode.ado
-f ado/ipacheckversion.ado
+f ado/ipacheckversions.ado
 f ado/ipacheckdups.ado
 f ado/ipacheckids.ado
 f ado/ipacheckmissing.ado
@@ -39,7 +39,7 @@ d
 f sthlp/ipacheck.sthlp
 f sthlp/ipacheckcorrections.sthlp
 f sthlp/ipacheckspecifyrecode.sthlp
-f sthlp/ipacheckversion.sthlp
+f sthlp/ipacheckversions.sthlp
 f sthlp/ipacheckdups.sthlp
 f sthlp/ipacheckids.sthlp
 f sthlp/ipacheckmissing.sthlp
