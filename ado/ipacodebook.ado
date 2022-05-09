@@ -91,7 +91,7 @@ program define ipacodebook, rclass
 				}
 			}
 			else if regexm("`note_priority'", "^(short)") {
-				if length(`"`label'"') <= length(`"`notelab'"') {
+				if (length(`"`label'"') <= length(`"`notelab'"')) | missing("`notelab'") {
 					loc varlab "`label'"
 				}
 				else {
