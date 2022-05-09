@@ -17,7 +17,7 @@
 {title:Description}
 
 {pstd}
-{cmd:addlines(}{it:"filename"}{cmd:,} "sheetname"{cmd:,} {it:rows}{cmd:,} {it:"style"}} sets a bottom border and style for each Excel cell in the Excel cell in the rows specified in {cmd:rows} and columns spanning from the first to the total number of variables in the dataset in memory. {cmd:addlines()} is intended for use in formatting Excel outputs that are exported from the dataset in memory. 
+{cmd:addlines(}{it:"filename"}{cmd:,} "sheetname"{cmd:,} {it:rows}{cmd:,} {it:"style"}} sets a bottom border and style for each Excel cell in the rows specified in {cmd:rows} and columns spanning from the first to the total number of variables in the dataset in memory. {cmd:addlines()} is intended for use in formatting Excel outputs that are exported from the dataset in memory. Note that when {cmd:addlines()} adds one to each row specified in {cmd:rows} to account for the header column in the excel output. 
 
 {title:Remarks}
 
