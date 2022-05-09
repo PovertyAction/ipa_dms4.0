@@ -1,7 +1,7 @@
 {smcl}
 {* *! version 4.0.0 Innovations for Poverty Action 11may2022}{...}
 
-{cmd:flags()} {c -} set a solid background color for Excel cells 
+{cmd:addflags()} {c -} set a solid background color for Excel cells 
  
 {title:Syntax}
 
@@ -18,7 +18,7 @@
 {title:Description}
 
 {pstd}
-{cmd:addflags(}{it:"filename"}{cmd:,} {it:"sheetname"}{cmd:,} {it:"varname"}{cmd:,} {it:rows}{cmd:,} {it:"color"}} sets a solid background color for each Excel cell in the rows specified in {cmd:rows} and for the column matching the variable specified in {cmd:var} of variables in the dataset in memory. {cmd:addflags()} is intended for use in formatting Excel outputs that are exported from the dataset in memory. 
+{cmd:addflags(}{it:"filename"}{cmd:,} {it:"sheetname"}{cmd:,} {it:"varname"}{cmd:,} {it:rows}{cmd:,} {it:"color"}{cmd:)} sets a solid background color for each Excel cell in the rows specified in {cmd:rows} and for the column matching the variable specified in {cmd:var} of variables in the dataset in memory. {cmd:addflags()} is intended for use in formatting Excel outputs that are exported from the dataset in memory. 
 
 {title:Remarks}
 
@@ -27,7 +27,7 @@
 
 {title:Conformability}
 
-    {cmd:addflags(}{it:file}{cmd:,} sheet{cmd:,} {it:rows}{cmd:,} {it:var}{cmd:,} {it:color}}
+    {cmd:addflags(}{it:file}{cmd:,} sheet{cmd:,} {it:rows}{cmd:,} {it:var}{cmd:,} {it:color}{cmd:)}
 	{it:  file}: 1 {it:x} 1
 	{it: sheet}: 1 {it:x} 1
 	{it:  rows}: 1 {it:x} m
@@ -58,8 +58,10 @@
 {title:Author}
 
 {pstd}Ishmail Azindoo Baako, GRDS, Innovations for Poverty Action{p_end}
-{pstd}{it:Last updated: June 11, 2022}{p_end}
+{pstd}{it:Last updated: May 11, 2022}{p_end}
 
 {title:Also see}
 
 Help: {help putexcel:[RPT] putexcel}, {help mf_xl:[M-5] xl()}
+
+Other commands in lipadms: {help addlines:addlines()}, {help colwidths:colwidths()}, {help colformats:colformats()}, {help setfont:setfont()}, {help setheader:setheader()}, {help settotal:settotal()}
