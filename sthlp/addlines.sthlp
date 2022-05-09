@@ -29,7 +29,7 @@
     {cmd:addlines(}{it:file}{cmd:,} sheet{cmd:,} {it:rows}{cmd:,} {it:style}}
 	{it:  file}: 1 {it:x} 1
 	{it: sheet}: 1 {it:x} 1
-	{it:  rows}: m {it:x} 1
+	{it:  rows}: 1 {it:x} m
 	{it: style}: 1 {it:x} 1
 	{it:result}: {it:void}
 	
