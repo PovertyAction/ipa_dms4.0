@@ -62,4 +62,4 @@
 
 Help: {help putexcel:[RPT] putexcel}, {help mf_xl:[M-5] xl()}
 
-Other commands in lipadms: {help addlines:addlines()}, {help colwidths:colwidths()}, {help setfont:setfont()}, {help setheader:setheader()}, {help settotal:settotal()}
+Other commands in lipadms: {help addlines:addlines()}, {help addflags:addflags()}, {help colwidths:colwidths()}, {help setfont:setfont()}, {help setheader:setheader()}, {help settotal:settotal()}
