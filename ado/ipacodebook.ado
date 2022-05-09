@@ -133,7 +133,7 @@ program define ipacodebook, rclass
 			export excel using "`using'", first(var) sheet("codebook") `replace'
 			mata: colwidths("`using'", "codebook")
 			mata: colformats("`using'", "codebook", "percent_missing", "percent_d2")
-			mata: add_lines("`using'", "codebook", (1, `=_N' + 1), "medium")
+			mata: addlines("`using'", "codebook", (1, `=_N' + 1), "medium")
 			
 			* save vallels in local
 			levelsof vallabel, clean
