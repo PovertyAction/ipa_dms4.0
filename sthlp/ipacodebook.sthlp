@@ -30,7 +30,7 @@
 {title:Options}
 
 {phang}
-{cmd:note(#, replace|coalesce|longer|shorter)} specifies how notes and labels should be treated. {cmd:#} specifies the note number to consider. {replace} specifies that the note should always be used as the variable label, {cmd:coalesce} indicates that the note be used if the variable label is missing, {cmd:longer} specifies that the note be used if it is longer than the variable label and {cmd:shorter} specifies that the note be used if it is shorter than the variable label. 
+{cmd:note(#, replace|coalesce|longer|shorter)} specifies how notes and labels should be treated. {cmd:#} specifies the note number to use. {cmd:replace} specifies that the note should always be used as the variable label, {cmd:coalesce} indicates that the note be used if the variable label is missing, {cmd:longer} specifies that the note be used if it is longer than the variable label and {cmd:shorter} specifies that the note be used if it is not missing and shorter than the variable label. 
 
 {phang}
 {cmd:replace} overwrites an existing Excel workbook.
@@ -42,20 +42,27 @@
 {synoptline}
   {text:Setup}
 	{phang}{com}   . sysuse auto, clear{p_end}
-	{phang}{com}   . export excel using "auto.xlsx", sheet("auto") replace first(var){p_end}
 
   {text:export codebook for all variables}
 	{phang}{com}   . ipacodebook _all using "auto_codebook.xlsx", replace{p_end}
 {synoptline}
-
-{synoptline}
   {text:Setup}
 	{phang}{com}   . sysuse auto, clear{p_end}
-	{phang}{com}   . export excel using "auto.xlsx", sheet("auto") replace first(var){p_end}
 
   {text:export codebook for all variables using the notes as variable labels if notes are longer}
 	{phang}{com}   . ipacodebook _all using "auto_codebook.xlsx", note(1, longer) replace{p_end}
 {synoptline}
+
+{title:Stored results}
+
+{p 6} {cmd:ipacodebook} stores the following in r():{p_end}
+
+{synoptset 25 tabbed}{...}
+{syntab:{opt Scalars}}
+{synopt:{cmd: r(N_vars)}}number variables{p_end}
+{synopt:{cmd: r(N_allmiss)}}number of variables with all missing values{p_end}
+{synopt:{cmd: r(N_miss)}}number of variables with at least 1 missing values{p_end}
+{p2colreset}{...}
 	
 {text}
 {title:Author}
@@ -68,4 +75,4 @@
 
 Help: {help codebook:[D] codebook}
 
-User-written: {help codebookout:codebookouk}, {help iecodebook:iecodebook}
+User-written: {help codebookout:codebookout}, {help iecodebook:iecodebook}
