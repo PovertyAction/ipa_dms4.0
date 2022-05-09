@@ -17,9 +17,8 @@ void addlines(string scalar file, string scalar sheet, real vector rows, string 
 	b.close_book()
 }
 
-void addflags (string scalar file, string scalar sheet, string scalar color, real scalar col, real vector rows)
+void addflags (string scalar file, string scalar sheet, real vector rows, string scalar var, string scalar color)
 {
-	
 	real scalar i
 	class xl scalar b
 	b = xl()
@@ -28,19 +27,19 @@ void addflags (string scalar file, string scalar sheet, string scalar color, rea
 	b.set_mode("open")
 	
 	for (i = 1;i <= length(rows); i++) {
-		b.set_fill_pattern(rows[i] + 1, col, "solid", color)
+		b.set_fill_pattern(rows[i] + 1, st_varindex(var), "solid", color)
 	}
 	
 	b.close_book()
 }
 
-void colwidths(string scalar filename, string scalar sheet) 
+void colwidths(string scalar file, string scalar sheet) 
 {
 	real scalar i
 	class xl scalar b
 	real rowvector datawidths, varnamewidths
 	b = xl()
-	b.load_book(filename)
+	b.load_book(file)
 	b.set_sheet(sheet)
 	b.set_mode("open")
 	datawidths = colmax(strlen(st_sdata(. , .)))
@@ -57,47 +56,46 @@ void colwidths(string scalar filename, string scalar sheet)
 	b.close_book()
 }
 
-void colformats(string scalar filename, string scalar sheet, string vector varsofinterest, string scalar excelformat) 
+void colformats(string scalar file, string scalar sheet, string vector vars, string scalar format) 
 {
 	
 	real scalar i
 	class xl scalar b
 	real scalar endrow, index 
 	b = xl()
-	b.load_book(filename)
+	b.load_book(file)
 	b.set_sheet(sheet)
 	b.set_mode("open")
 	
 	endrow = st_nobs() + 1
-	for (i=1; i<=cols(varsofinterest); i++) {
-		index = st_varindex(varsofinterest[i])
-		b.set_number_format((2, endrow), index, excelformat)		
+	for (i=1; i<=cols(vars); i++) {
+		b.set_number_format((2, endrow), st_varindex(vars[i]), format)		
 	} 
 	b.close_book()
 	
 }
 
-void setfont(string scalar filename, string scalar sheetname, real vector rows, real vector cols, string scalar font, real scalar size)
+void setfont(string scalar file, string scalar sheet, real vector rows, real vector cols, string scalar fontname, real scalar size)
 {
 	real scalar i
 	class xl scalar b
 	b = xl()
-	b.load_book(filename)
-	b.set_sheet(sheetname)
+	b.load_book(file)
+	b.set_sheet(sheet)
 	b.set_mode("open")
 	
-	b.set_font(rows, cols, font, size)
+	b.set_font(rows, cols, fontname, size)
 	
 	b.close_book()
 }
 
-void setheader(string scalar filename, string scalar sheetname)
+void setheader(string scalar file, string scalar sheet)
 {
 	real scalar i
 	class xl scalar b
 	b = xl()
-	b.load_book(filename)
-	b.set_sheet(sheetname)
+	b.load_book(file)
+	b.set_sheet(sheet)
 	b.set_mode("open")
 	
 	b.set_font_bold((1, 1), (1, st_nvar()), "on")
@@ -106,12 +104,12 @@ void setheader(string scalar filename, string scalar sheetname)
 	b.close_book()
 }
 
-void settotal(string scalar filename, string scalar sheetname)
+void settotal(string scalar file, string scalar sheet)
 {
 	class xl scalar b
 	b = xl()
-	b.load_book(filename)
-	b.set_sheet(sheetname)
+	b.load_book(file)
+	b.set_sheet(sheet)
 	b.set_mode("open")
 	
 	b.set_font_bold((st_nobs() + 1, st_nobs() + 1), (1, st_nvar()), "on")
