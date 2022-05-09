@@ -108,7 +108,6 @@ void setheader(string scalar filename, string scalar sheetname)
 
 void settotal(string scalar filename, string scalar sheetname)
 {
-	real scalar i
 	class xl scalar b
 	b = xl()
 	b.load_book(filename)
@@ -287,8 +286,7 @@ void format_timeuse(string scalar file, string scalar sheet, string scalar title
 	b.set_sheet(sheet)
 	b.set_mode("open")
 	
-	real scalar min, max, colormax, i, j, value, fmtid
-	real scalar colwidth, r_mult, g_mult, b_mult, range
+	real scalar min, max, colormax, i, j, value, fmtid, colwidth
 	real scalar red, green, blue
 	real scalar max_r, max_g, max_b
 	real scalar min_r, min_g, min_b 
@@ -345,13 +343,7 @@ void format_timeuse(string scalar file, string scalar sheet, string scalar title
 	else {
 		colormax = max
 	}
-	
-	range = max - min
-	
-	r_mult = floor((max_r - min_r) / colormax)
-	g_mult = floor((max_g - min_g) / colormax)
-	b_mult = floor((max_b - min_b) / colormax)
-	
+		
 	for (i = 1; i <= 24; i++) {
 		for (j = 1; j <= st_nobs(); j++) {
 			
@@ -400,6 +392,6 @@ void format_timeuse(string scalar file, string scalar sheet, string scalar title
 
 mata mlib create lipadms, dir(PLUS) replace
 mata mlib add lipadms *()
-noi mata mlib index
-
 end
+
+noi mata: mata mlib index
