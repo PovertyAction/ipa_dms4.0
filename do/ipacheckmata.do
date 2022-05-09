@@ -1,7 +1,7 @@
 mata: 
 mata clear
 
-void addlines(string scalar file, string scalar sheet, real vector rows, string scalar linewidth)
+void addlines(string scalar file, string scalar sheet, real vector rows, string scalar style)
 {
 	real scalar i
 	class xl scalar b
@@ -11,7 +11,7 @@ void addlines(string scalar file, string scalar sheet, real vector rows, string 
 	b.set_mode("open")
 
 	for (i = 1;i <= length(rows); i++) {
-		b.set_bottom_border(rows[i], (1, st_nvar()), linewidth)
+		b.set_bottom_border(rows[i], (1, st_nvar()), style)
 	}
 	
 	b.close_book()
@@ -400,6 +400,6 @@ void format_timeuse(string scalar file, string scalar sheet, string scalar title
 
 mata mlib create lipadms, dir(PLUS) replace
 mata mlib add lipadms *()
-mata mlib index
+noi mata mlib index
 
 end
