@@ -1,15 +1,16 @@
 {smcl}
 {* *! version 4.0.0 Innovations for Poverty Action 11may2022}{...}
 
-{cmd:cmdcolwidths()} {c -} adjust the column width for each column in the Excel sheet using the length of the values in the corresponding variable of the dataset in memory.  
+{phang}
+{cmd:colwidths()} {c -} adjust the column width for each column in the Excel sheet using the length of the values in the corresponding variable of the dataset in memory.  
+{p_end}
 
 {title:Syntax}
 
 {p 8 12 2}
 {it:void}{bind:         }
 {cmd:colwidths(}{it:string scalar file}{cmd:,} 
-{it:string scalar sheet}
-{cmd:)}
+{it:string scalar sheet}{cmd:)}
 {p_end}
 
 {title:Description}

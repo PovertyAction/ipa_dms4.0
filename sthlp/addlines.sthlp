@@ -10,8 +10,7 @@
 {cmd:addlines(}{it:string scalar file}{cmd:,} 
 {it:string scalar sheet}{cmd:,}
 {it:real vector rows}{cmd:,}
-{it:string scalar {help mf_xl##style:style}}
-{cmd:)}
+{it:string scalar {help mf_xl##style:style}}{cmd:)}
 {p_end}
 
 {title:Description}

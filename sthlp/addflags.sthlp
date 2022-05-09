@@ -11,8 +11,7 @@
 {it:string scalar sheet}{cmd:,}
 {it:string scalar var}{cmd:,}
 {it:real vector rows}{cmd:,}
-{it:string scalar {help mf_xl##syn_format_colors:color}}
-{cmd:)}
+{it:string scalar {help mf_xl##syn_format_colors:color}}{cmd:)}
 {p_end}
 
 {title:Description}
