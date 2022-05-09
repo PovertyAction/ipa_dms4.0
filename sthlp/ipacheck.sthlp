@@ -1,14 +1,14 @@
 {smcl}
-{* *! version 4.0.0 Innovations for Poverty Action 25apr2022}{...}
+{* *! version 4.0.0 Innovations for Poverty Action 11may2022}{...}
 
-{cmd:[D] ipacheck} {c -} Update ipacheck package and initialize a high frequency check project or exercise
+{cmd:ipacheck} {c -} Update ipacheck package and initialize a high frequency check project or exercise
 
 {title:Syntax}
 
 {phang}
 Start new project with folder structure and/or input files
 
-{p 8 10 2}
+{pmore}
 {cmd:ipacheck new}
 [{cmd:,} {it:{help ipacheck##new_options:new_options}}]
 
@@ -212,4 +212,4 @@ versions of which were authored by:
 
 {pstd}Ishmail Azindoo Baako, GRDS, Innovations for Poverty Action{p_end}
 {pstd}Rosemarie Sandino, GRDS, Innovations for Poverty Action{p_end}
-{pstd}{it:Last updated: May 25, 2022}{p_end}
+{pstd}{it:Last updated: June 11, 2022}{p_end}
