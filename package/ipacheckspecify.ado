@@ -79,7 +79,7 @@ program ipacheckspecify, rclass sortpreserve
 		restore, preserve
 	
 		* expand keepvars
-		if "`keepvars'" == "" unab keepvars: `keepvars'
+		if "`keepvars'" ~= "" unab keepvars: `keepvars'
 
 		* For each pair, check that # of children and parents match after expansion
 		forval i = 1/`osp_N' {
