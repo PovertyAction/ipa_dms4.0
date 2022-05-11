@@ -23,7 +23,7 @@ ipacheck is Innovations for Poverty Action's Stata package for running high-freq
  ### Ancilliary programs
 
 - `ipacodebook` - export codebook to excel
-- `ipaimportsctomedia` - collate and export a dataset of SurveyCTO generated text audit or comment files.
+- `ipasctocollate` - collate and export a dataset of SurveyCTO generated text audit or comment files.
 - `ipalabels` - remove labels or values from variables.
 - `ipagettd` - convert datetime variables to date.
 - `ipagetcal` - create a date calendar dataset.
