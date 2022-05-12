@@ -7,7 +7,7 @@
 
 {pmore}
 {cmd:ipasctocollate comments|textaudit}
-{help varname}
+{help varname:mediavar}
 {cmd:, folder("folder path") save("filename")}
 [{it:{help ipasctocollate##options:options}}]
 
@@ -28,14 +28,16 @@
 {pstd}
 {cmd:ipasctocollate} imports, appends and exports a single .dta dataset for text 
 audit and comments data. This data is prepared for use by the {helpb ipachecktextaudit}
-and {helpb ipacheckcomments} commands. 
+and {helpb ipacheckcomments} commands. {cmd:ipasctocollate} requires the data in memory
+to have a "mediavar" which contains strings matching the names of files to import 
+from {cmd:folder()}
  
 {title:Options}
 
 {phang}
 {cmd:folder("folder path"} specifies the folder that contains the text audit and comments files. 
 {cmd:ipasctocollate} will cross check for files in {cmd:folder()} using the values
-specified at {cmd:varname}. {cmd:ipasctocollate} will display a message if some of
+specified as {cmd:mediavar}. {cmd:ipasctocollate} will display a message if some of
 files are not cound in the folder specified. 
 
 {phang}
