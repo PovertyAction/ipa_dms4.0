@@ -24,6 +24,9 @@ program ipasctocollate, rclass
 		loc mediavar "`2'"
 		confirm var `mediavar'
 		
+		* add .dta to save
+		if substr("`save'", -4, .) ~= ".dta" loc save "`save'.dta"
+		
 		* keep only relevant variables and observations
 		keep `mediavar' `keepvars'
 		keep if !missing(`mediavar')
