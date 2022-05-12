@@ -1,9 +1,10 @@
-*! version 4.0.0 Innovations for Poverty Action 25apr2022
+*! version 4.0.0 11may2022
+*! Innovations for Poverty Action
 * ipagetcal: Generate date calendar data
 
 program define ipagetcal 
 
-	syntax varname
+	syntax varname, clear
 	
 	* temp var
 	tempvar tmv_date
