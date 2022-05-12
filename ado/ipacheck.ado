@@ -8,61 +8,46 @@ program ipacheck, rclass
 	version 17
 	
 	#d;
-	syntax 	name, 
-			[branch(name)] 
-			[surveys(namelist min = 2 max = 10)] 
+	syntax 	name(name=subcmd id="sub command"), 
+			[SURVeys(string)] 
 			[FOLDer(string)] 
 			[SUBfolders] 
 			[FILESonly] 
-			[exercise]
+			[EXercise]
+			[BRanch(name)]
 			;
 	#d cr
 	
-	if !inlist("`namelist'", "new", "version", "update", "exercise") {
-		disp as err "illegal ipacheck subcommand. Subcommands are:"
+	if !inlist("`subcmd'", "new", "version", "update") {
+		disp as err "illegal ipacheck sub command. Sub commands are:"
 		di as txt 	"{cmd:ipacheck new}"
 		di as txt 	"{cmd:ipacheck update}"
 		di as txt 	"{cmd:ipacheck version}"
-		di as txt 	"{cmd:ipacheck exercise}"
 		ex 198
 	}
-	if inlist("`namelist'", "update", "version") {
+	if inlist("`subcmd'", "update", "version") {
 		if "`surveys'" ~= "" {
-			disp as error "subcommand `namelist' and surveys options are mutually exclusive"
+			disp as error "subccommand `subcmd' and surveys options are mutually exclusive"
 			ex 198
 		}
 		if "`folder'" ~= "" {
-			disp as error "subcommand `namelist' and folder options are mutually exclusive"
+			disp as error "sub command `subcmd' and folder options are mutually exclusive"
 			ex 198
 		}
 		if "`subfolders'" ~= "" {
-			disp as error "subcommand `namelist' and subfolders options are mutually exclusive"
+			disp as error "sub command `subcmd' and subfolders options are mutually exclusive"
 			ex 198
 		}
 		if "`filesonly'" ~= "" {
-			disp as error "subcommand `namelist' and files options are mutually exclusive"
+			disp as error "sub command `subcmd' and files options are mutually exclusive"
 			ex 198
 		}
 		if "`exercise'" ~= "" {
-			disp as error "subcommand `namelist' and exercise options are mutually exclusive"
+			disp as error "sub command `subcmd' and exercise options are mutually exclusive"
 			ex 198
 		}
  	}
-	else if "`namelist'" == "exercise" {
-		if "`surveys'" ~= "" {
-			disp as error "subcommand `namelist' and surveys options are mutually exclusive"
-			ex 198
-		}
-		if "`subfolders'" ~= "" {
-			disp as error "subcommand `namelist' and subfolders options are mutually exclusive"
-			ex 198
-		}
-		if "`filesonly'" ~= "" {
-			disp as error "subcommand `namelist' and files options are mutually exclusive"
-			ex 198
-		}
-	}
-	else if "`namelist'" == "new" {
+	else if "`subcmd'" == "new" {
 		if "`surveys'" == "" & "`subfolders'" ~= "" {
 			disp as err "subfolders option & survey options must be specified together"
 			ex 198
@@ -81,12 +66,12 @@ program ipacheck, rclass
 	
 	loc url 	= "https://raw.githubusercontent.com/PovertyAction/ipa_dms4.0"
 
-	if "`namelist'" == "new" {
+	if "`subcmd'" == "new" {
 		ipacheck_new, surveys(`surveys') folder("`folder'") `subfolders' `filesonly' url("`url'") branch(`branch')
 		ex
 	}
 	else {
-		ipacheck_`namelist', branch(`branch') url(`url')
+		ipacheck_`subcmd', branch(`branch') url(`url')
 		ex
 	}
 	
@@ -122,7 +107,7 @@ program define ipacheck_version
 			ipacheckenumdb
 			ipatracksurvey
 			ipacodebook
-			ipaimportsctomedia
+			ipasctocollate
 			ipalabels
 			ipagettd
 			ipagetcal
@@ -160,7 +145,7 @@ program define ipacheck_new
 		loc folder "`c(pwd)'"
 	}
 	
-	loc surveys_cnt = wordcount("`surveys'")
+	loc surveys_cnt = `word count `surveys''
 	
 	if "`filesonly'" == "" {
 		#d;

@@ -1,4 +1,5 @@
-*! version 4.0.0 Innovations for Poverty Action 25apr2022
+*! version 4.0.0 11may2022
+*! Innovations for Poverty Action 
 * ipacodebook: export excel codebook
 
 program define ipacodebook, rclass
@@ -6,12 +7,18 @@ program define ipacodebook, rclass
 	#d;
 	syntax 	[varlist] 
 			using/ 
+			[if] [in]
 			[, replace] 
 			[note(string)]
 			;
 	#d cr
 	
 	preserve
+	
+	* mark sample
+	marksample touse, strok
+	keep if `touse'
+	drop `touse'
 	
 	qui {
 	    
