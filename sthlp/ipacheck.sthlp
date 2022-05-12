@@ -176,7 +176,7 @@ ipacheck package.
 
 {syntab:Ancilliary programs}
 {synopt:{help ipacodebook}}export codebook to excel{p_end}
-{synopt:{help ipaimportsctomedia}}collate and export a dataset of SurveyCTO generated text audit or comment files{p_end}
+{synopt:{help ipasctocollate}}collate and export a dataset of SurveyCTO generated text audit or comment files{p_end}
 {synopt:{help ipalabels}}remove labels or values from variables{p_end}
 {synopt:{help ipagettd}}convert datetime variables to date{p_end}
 {synopt:{help ipagetcal}}create a date calendar dataset{p_end}
