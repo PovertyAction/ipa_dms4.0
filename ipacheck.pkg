@@ -29,7 +29,7 @@ f ado/ipachecktimeuse.ado
 f ado/ipachecksurveydb.ado
 f ado/ipacheckenumdb.ado
 f ado/ipatracksurvey.ado
-f ado/ipaimportsctomedia.ado
+f ado/ipactocollate.ado
 f ado/ipacodebook.ado
 f ado/ipaanycount.ado
 f ado/ipagetcal.ado
@@ -51,7 +51,7 @@ f sthlp/ipachecktimeuse.sthlp
 f sthlp/ipachecksurveydb.sthlp
 f sthlp/ipacheckenumdb.sthlp
 f sthlp/ipatracksurvey.sthlp
-f sthlp/ipaimportsctomedia.sthlp
+f sthlp/ipasctocollate.sthlp
 f sthlp/ipacodebook.sthlp
 f sthlp/ipaanycount.sthlp
 f sthlp/ipagetcal.sthlp
