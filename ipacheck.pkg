@@ -29,7 +29,7 @@ f ado/ipachecktimeuse.ado
 f ado/ipachecksurveydb.ado
 f ado/ipacheckenumdb.ado
 f ado/ipatracksurvey.ado
-f ado/ipactocollate.ado
+f ado/ipasctocollate.ado
 f ado/ipacodebook.ado
 f ado/ipaanycount.ado
 f ado/ipagetcal.ado
