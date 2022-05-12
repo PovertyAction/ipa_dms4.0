@@ -5,7 +5,7 @@
 program ipasctocollate, rclass
 	
 	#d;
-	syntax namelist(min = 2 max = 2 id = "subcmd and mediavar"),
+	syntax namelist(min = 2 max = 2 id = "subcmd and mediavar") [if] [in],
 			FOLDer(string)
 			save(string)
 			[replace]
@@ -16,6 +16,11 @@ program ipasctocollate, rclass
 		
 		preserve
 	    
+		* mark sample
+		marksample touse, strok
+		keep if touse
+		drop touse
+		
 		* tempfiles
 		tempfile tmf_media
 		
