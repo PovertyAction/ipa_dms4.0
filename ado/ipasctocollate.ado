@@ -18,8 +18,8 @@ program ipasctocollate, rclass
 	    
 		* mark sample
 		marksample touse, strok
-		keep if touse
-		drop touse
+		keep if `touse'
+		drop `touse'
 		
 		* tempfiles
 		tempfile tmf_media
