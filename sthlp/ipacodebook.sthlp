@@ -8,8 +8,9 @@
 {pmore}
 {cmd:ipacodebook}
 {help varlist}
-{cmd:using}
+{cmd:using} 
 {help filename}
+{help if:[if]} {help in:[in]}
 [{cmd:,}
 {it:{help ipacodebook##options:options}}]
 

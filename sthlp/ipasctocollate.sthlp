@@ -7,7 +7,8 @@
 
 {pmore}
 {cmd:ipasctocollate comments|textaudit}
-{help varname:mediavar}
+{help varname:mediavar} 
+{help if:[if]} {help in:[in]}
 {cmd:, folder("folder path") save("filename")}
 [{it:{help ipasctocollate##options:options}}]
 
