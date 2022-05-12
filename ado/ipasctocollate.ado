@@ -1,11 +1,11 @@
-*! version 4.0.0 Innovations for Poverty Action 25apr2022
+*! version 4.0.0 
+*! Innovations for Poverty Action 25apr2022
 * ipacheckcomments: Collate & export field comments
 
 program ipasctocollate, rclass
 	
 	#d;
-	syntax name(name="subcmd" id="subcmd") 
-		   varname(name="mediavar" id="mediavar"),
+	syntax name(name=subcmd id="subcmd") varname,
 			FOLDer(string)
 			save(string)
 			[replace]
@@ -18,6 +18,8 @@ program ipasctocollate, rclass
 	    
 		* tempfiles
 		tempfile tmf_media
+		
+		loc mediavar "`varlist'"
 		
 		* keep only relevant variables and observations
 		keep `mediavar' `keepvars'
