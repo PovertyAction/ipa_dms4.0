@@ -1,7 +1,7 @@
 *! version 4.0.0 Innovations for Poverty Action 25apr2022
 * ipacheckcomments: Collate & export field comments
 
-program ipaimportsctomedia, rclass
+program ipasctocollate, rclass
 	
 	#d;
 	syntax name(name="subcmd" id="subcmd") 
