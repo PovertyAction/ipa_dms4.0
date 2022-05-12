@@ -4,7 +4,8 @@
 program ipaimportsctomedia, rclass
 	
 	#d;
-	syntax name varname,
+	syntax name(name="subcmd" id="subcmd") 
+		   varname(name="mediavar" id="mediavar"),
 			FOLDer(string)
 			save(string)
 			[replace]
@@ -19,12 +20,12 @@ program ipaimportsctomedia, rclass
 		tempfile tmf_media
 		
 		* keep only relevant variables and observations
-		keep `varlist' `keepvars'
-		keep if !missing(`varlist')
+		keep `mediavar' `keepvars'
+		keep if !missing(`mediavar')
 		
-		cap assert(inlist("`namelist'", "comments", "textaudit"))
+		cap assert(inlist("`subcmd'", "comments", "textaudit"))
 		if _rc == 9 {
-		    disp as err "`namelist' invalid media type. Specify comments or textaudit"
+		    disp as err "`subcmd' invalid media type. Specify comments or textaudit"
 		}
 		
 		loc obs_cnt `c(N)' 
@@ -36,38 +37,38 @@ program ipaimportsctomedia, rclass
 		 
 			* extract id from media file
 			* check if data was downloaded from browser or api | from desktop
-			cap assert regexm(`varlist', "^https")
+			cap assert regexm(`mediavar', "^https")
 			if !_rc {
 			    * browser or API 
-			    replace `varlist' = substr(`varlist', strpos(`varlist', "uuid:") + 5, ///
-							strpos(`varlist', "&e=") - strpos(`varlist', "uuid:") - 5)
+			    replace `mediavar' = substr(`mediavar', strpos(`mediavar', "uuid:") + 5, ///
+							strpos(`mediavar', "&e=") - strpos(`mediavar', "uuid:") - 5)
 							
-				if "`namelist'" == "comments" {
-				    replace `varlist' = "Comments-" + `varlist'
+				if "`subcmd'" == "comments" {
+				    replace `mediavar' = "Comments-" + `mediavar'
 				}
 				else {
-				    replace `varlist' = "TA_" + `varlist'
+				    replace `mediavar' = "TA_" + `mediavar'
 				}
 			}
-			else if regexm(`varlist', "^media") {
+			else if regexm(`mediavar', "^media") {
 			    * surveycto desktop
-			    replace `varlist' = substr(`varlist', strpos(`varlist', "media\") + 6, ///
-							strpos(`varlist', ".csv") - strpos(`varlist', "media\") - 6)
+			    replace `mediavar' = substr(`mediavar', strpos(`mediavar', "media\") + 6, ///
+							strpos(`mediavar', ".csv") - strpos(`mediavar', "media\") - 6)
 			}
 		
 			cap frame drop frm_subset
-			frame put `varlist', into(frm_subset)
+			frame put `mediavar', into(frm_subset)
 			
 			* check if saving dataset exist and skip already merged files
 			cap confirm file "`save'"
 			if !_rc {
-			    use `varlist' using "`save'", clear
-				duplicates drop `varlist', force
+			    use `mediavar' using "`save'", clear
+				duplicates drop `mediavar', force
 				cap frame drop frm_oldmedia
-				frame put `varlist', into(frm_oldmedia)
+				frame put `mediavar', into(frm_oldmedia)
 				
 				frame frm_subset {
-					frlink 1:1 `varlist', frame(frm_oldmedia)
+					frlink 1:1 `mediavar', frame(frm_oldmedia)
 					count if !missing(frm_oldmedia)
 					loc olddata_cnt `r(N)'
 					loc import_cnt = `c(N)' - `olddata_cnt'
@@ -75,7 +76,7 @@ program ipaimportsctomedia, rclass
 					noi disp "skipping `olddata_cnt' files already imported"
 					
 					drop if missing(frm_oldmedia)
-					keep `varlist'
+					keep `mediavar'
 				}
 				
 				frame drop frm_oldmedia
@@ -89,17 +90,17 @@ program ipaimportsctomedia, rclass
 				clear
 				save "`tmf_media'", emptyok
 			
-				noi _dots 0, title(Importing `import_cnt' `varlist' files) reps(`import_cnt')
+				noi _dots 0, title(Importing `import_cnt' `mediavar' files) reps(`import_cnt')
 			
 				forval i = 1/`import_cnt' {
-					frames frm_subset: loc file = `varlist'[`i']
+					frames frm_subset: loc file = `mediavar'[`i']
 					cap import delim using "`folder'/`file'.csv", clear stringcols(_all) varnames(1)
 					if _rc == 601 {
 						loc disptype 1
 						loc ++fail_cnt
 					}
 					else {
-						gen `varlist' = "`file'"
+						gen `mediavar' = "`file'"
 						append using "`tmf_media'"
 						save "`tmf_media'", replace
 						
@@ -125,11 +126,11 @@ program ipaimportsctomedia, rclass
 				
 			}
 			else {
-				noi disp "Imported {cmd:0} new files in `varlist'."
+				noi disp "Imported {cmd:0} new files in `mediavar'."
 			}
 		}
 		else {
-		    noi disp "Found {cmd:0} files in `varlist'."
+		    noi disp "Found {cmd:0} files in `mediavar'."
 		}
 	} 
 	
