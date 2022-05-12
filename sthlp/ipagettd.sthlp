@@ -24,7 +24,7 @@ of %td {help datetime_display_formats:date} format.
 	{phang}{com}   . use "https://raw.githubusercontent.com/PovertyAction/ipa_dms4.0/final/data/household_survey.dta", clear{p_end}
 
   {text:convert submissiondate, starttime and endtime from datetime to date}
-	{phang}{com}   . ipagettd submissiondate starttime endttime{p_end}
+	{phang}{com}   . ipagettd submissiondate starttime endtime{p_end}
 {synoptline}
 
 {text}
