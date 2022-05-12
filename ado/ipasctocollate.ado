@@ -1,6 +1,6 @@
 *! version 4.0.0 
-*! Innovations for Poverty Action 25apr2022
-* ipacheckcomments: Collate & export field comments
+*! Innovations for Poverty Action 11may2022
+* ipacheckcomments: Collate & export text audit or field comments
 
 program ipasctocollate, rclass
 	
