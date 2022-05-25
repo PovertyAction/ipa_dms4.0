@@ -1,6 +1,5 @@
-*! version 4.0.0 
-*! Innovations for Poverty Action 11may2022
-
+*! version 4.0.0 11may2022
+*! Innovations for Poverty Action
 * ipacheck: Update ipacheck package and initialize new projects
 
 program ipacheck, rclass

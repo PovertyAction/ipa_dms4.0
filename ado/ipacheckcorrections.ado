@@ -1,4 +1,6 @@
-*! version 4.0.0 Innovations for Poverty Action 25apr2022
+*! version 4.0.0 11may2022
+*! Innovations for Poverty Action
+* ipacheckcorrections: Make corrections to data
 
 program define ipacheckcorrections, rclass
 	
@@ -8,7 +10,7 @@ program define ipacheckcorrections, rclass
 			id(varname)
 			[LOGFile(string)]
 			[LOGSheet(string)]
-			[NOLABel]
+			[NOLabel]
 			[ignore]
 		;
 	#d cr
@@ -161,7 +163,7 @@ program define ipacheckcorrections, rclass
 			}
 		}
 		else {
-		    noi disp "No observations in replacement file. Skipping readreplace"
+		    noi disp "No observations in replacement file. Skipping ipacheckcorrections"
 			loc failed_cnt 0
 		}
 		

@@ -1,4 +1,5 @@
-*! version 4.0.0 Innovations for Poverty Action 25apr2022
+*! version 4.0.0 11may2022
+*! Innovations for Poverty Action
 * ipacheckids: Outputs duplicates in survey id
 
 program ipacheckids, rclass
@@ -15,6 +16,7 @@ program ipacheckids, rclass
 			[KEEPvars(varlist)]
 			[SHEETMODify SHEETREPlace]
 			[NOLABel replace]
+			[force]
 		;
 	#d cr
 		
@@ -27,10 +29,17 @@ program ipacheckids, rclass
 		
 		* save a de-duplicated dataset
 		if "`save'" ~= "" {
-		    duplicates drop `varlist', force
-			save "`save'", replace
+			if "`force'" ~= "" {
+				duplicates drop `varlist', force
+				save "`save'", replace
 			
-			restore, preserve
+				restore, preserve
+			}
+			else {
+				disp as err "force option required with save() option"
+				ex 198
+			}
+		    
 		}
  		
 		ipagettd `datevar'
