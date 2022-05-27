@@ -111,7 +111,7 @@ program define ipacheckcorrections, rclass
 			if `str_id' {
 				cap confirm string var `id'
 				if _rc == 7 {
-					tostring deviceid, replace format(%100.0f)
+					tostring `id', replace format(%100.0f)
 				}
 			}
 			else {
