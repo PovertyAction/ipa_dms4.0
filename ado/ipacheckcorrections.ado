@@ -22,11 +22,21 @@ program define ipacheckcorrections, rclass
 		* preserve
 		preserve
 		
-		tempvar tmv_status
+		tempvar tmv_status tmv_id_check
 		
 		tempfile tmf_main_data
 		
 		isid `id'
+		
+		* gen id format
+		cap confirm string var `id'
+		if !_rc {
+			loc str_id 1
+		}
+		else {
+			loc str_id 0
+		}
+		
 		save "`tmf_main_data'", replace
 		
 		* Get file extension
@@ -64,7 +74,7 @@ program define ipacheckcorrections, rclass
 			}
 		}
 		
-		* Clean data and check for errors
+		* Clean data, check for errors and make replacements
 		keep if !missing(`id')
 		loc rep_cnt `c(N)'
 		if `rep_cnt' > 0 {
@@ -97,6 +107,26 @@ program define ipacheckcorrections, rclass
 				ex 9
 			}
 			
+			* check that id variable matches format of main dataset
+			if `str_id' {
+				cap confirm string var `id'
+				if _rc == 7 {
+					tostring deviceid, replace format(%100.0f)
+				}
+			}
+			else {
+				cap confirm numeric var `id'
+				if _rc == 7 {
+					destring `id', replace
+					cap confirm numeric var `id'
+					if _rc == 7 {
+						disp as err "ID column (`id') in using file cannot be converted to numeric. Contains non-numeric chars at the following"
+						gen `tmv_id_check' = trim(itrim(regexs(`id', "[0-9]+", "")))
+						noi list `id' if length(`tmv_id_check') > 0
+					}
+				}
+			}
+			
 			gen str12 `tmv_status' = ""
 			cap frames drop frm_repfile
 			frames put *, into(frm_repfile)
@@ -108,8 +138,19 @@ program define ipacheckcorrections, rclass
 			cap gen _hfcokayvar	= "/"
 	
 			forval i = 1/`rep_cnt' {
-			    frame frm_repfile: loc var = variable[`i'] 
-			    cap assert `var' == _frval(frm_repfile, value, `i') if `id' == _frval(frm_repfile, `id', `i')
+				loc var 	= _frval(frm_repfile, variable, `i')
+				loc val		= _frval(frm_repfile, value, `i') 
+				
+				cap confirm string var `var' 
+				if !_rc {
+					loc str_var 1
+				}
+				else {
+					loc str_var 0
+				}
+			    
+			    if `str_var' cap assert `var' == "`val'" if `id' == _frval(frm_repfile, `id', `i')
+				else 		 cap assert `var' == `val' 	 if `id' == _frval(frm_repfile, `id', `i')
 				if _rc == 9 {
 					frame frm_repfile: replace `tmv_status' = "failed" in `i'
 				}
@@ -128,7 +169,9 @@ program define ipacheckcorrections, rclass
 						replace _hfcokayvar = "`var'/"	if `id' == _frval(frm_repfile, `id', `i')
 					}
 					else if "`action_type'" == "replace" {
-					    replace `var' = _frval(frm_repfile, newvalue, `i') if `id' == _frval(frm_repfile, `id', `i')
+						loc newval	= _frval(frm_repfile, newvalue, `i') 
+					    if `str_var' replace `var' = "`newval'" if `id' == _frval(frm_repfile, `id', `i')
+						else		 replace `var' = `newval' 	if `id' == _frval(frm_repfile, `id', `i')
 					}
 					else {
 					    drop if `id' == _frval(frm_repfile, `id', `i')
