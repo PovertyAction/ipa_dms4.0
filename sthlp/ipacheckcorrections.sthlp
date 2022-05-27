@@ -1,12 +1,10 @@
 {smcl}
-
 {* *! version 4.0.0 25apr2022}{...}
-
 {title:Title}
-
 {phang}
 {cmd:ipacheckcorrections} {hline 2}
-Make replacements, drop observations, or marks as okay observations that are specified in an external dataset.
+Make replacements, drop observations, or mark as okay observations that are specified 
+in an external dataset.
 
 {marker syntax}{...}
 {title:Syntax}
@@ -22,7 +20,7 @@ Make replacements, drop observations, or marks as okay observations that are spe
 {synoptline}
 {syntab:Main}
 
-{synopt:*{opth sheet:name(string)}}vExcel worksheet to load{p_end}
+{synopt:*{opth sheet:name(string)}}Excel worksheet to load{p_end}
 {synopt:*{opth id(varname)}}variables for matching observations with
 the corrections specified in the using dataset{p_end}
 
@@ -52,66 +50,82 @@ or mark a value in an observation as "okay". The action to "okay" a value is onl
 when {cmd:ipacheckcorrections} is used within IPA's Data Management System. When 
 an observation is "okay", the {help ipacheckoutliers} check no longer flags the value as an outlier. 
 
-{pstd}
-It is recommended to use a truly unique value (such as "key" if SurveyCTO is used to collect data) when using {cmd:ipacheckcorrections} to drop duplicates in your observation.
-
 {marker options}{...}
 {title:Options}
 
 {dlgtab:Main}
 
 {phang}
-{opt sheetname("sheetname")} imports the worksheet named sheetname in the corrections file. This is required if the correction file is {opt .xls} or {opt .xlsx} formats. option {opt sheetname()} is ignored if correction file is {opt .csv} or {opt .dta} file.
+{opt sheetname("sheetname")} imports the worksheet named sheetname in the 
+corrections file. This is required if the correction file is {opt .xls} or 
+{opt .xlsx} formats. option {opt sheetname()} is ignored if correction file is 
+{opt .csv} or {opt .dta} file.
 
 {phang}
-{opt id} specifies the id variable for matching observations between the corrections file and the dataset in memory.
+{opt id} specifies the id variable for matching observations between the corrections 
+file and the dataset in memory.
 
 {dlgtab:Specifications}
 
 {phang}
-{opt logfile("filename.xlsx")} exports a corrections logfile to the {opt filename.xlsx}. The default is to not export a corrections log file. The corrections logfile saves information about the status of each correction specified in the using file. Note that the log file will also include all the data in the corrections file.    
+{opt logfile("filename.xlsx")} exports a corrections logfile to the {opt filename.xlsx}. 
+The default is to not export a corrections log file. The corrections logfile saves 
+information about the status of each correction specified in the using file. 
+Note that the log file will also include all the data in the corrections file.    
 
 {phang}
-{opt logsheet("sheetname")} exports the corrections log to the {opt "sheetname"} of the {opt "filename.xlsx"} workbook. {opt logsheet()} is required if {opt logfile()} is specified.
+{opt logsheet("sheetname")} exports the corrections log to the {opt "sheetname"} 
+of the {opt "filename.xlsx"} workbook. {opt logsheet()} is required if {opt logfile()} 
+is specified.
 
 {phang}
 {opt nolabel} exports the underlying numeric values instead of the value labels.
 
 {phang}
-{opt ignore} suppresses error if correction fails. Default behaviour is to return an error code of 198. {opt ignore} is useful when used with {opt logfile()}. 
+{opt ignore} suppresses error if correction fails. Default behaviour is to return 
+an error code of 198. {opt ignore} is useful when used with {opt logfile()}. 
 
 {marker remarks}{...}
 {title:Remarks}
 
 {pstd}
 {cmd:ipacheckcorrections} changes the contents of existing variables by
-making corrections that are specified in a external dataset. The corrections file should contain one row per correction. Corrections are described by a "variable" column/variable that contains
-the name of the variable to change, a "value" column/variable that contains the current value, a "newvalue" column/variable that contains the correct value (or is missing if action is "okay" or "drop") and an "action" variable/column that contains the action to take ie. "replace", "drop" or "okay".  The corrections file should also store
-variables shared by the dataset in memory that indicate
-the subset of the data for which each correction is intended;
-these are specified to option {opt id()}, and are used to match
-observations in memory to the corrections in the correction file.
+making corrections that are specified in a external dataset. The corrections file 
+should contain one row per correction. Corrections are described by a "variable" 
+column/variable that contains the name of the variable to change, a "value" 
+column/variable that contains the current value, a "newvalue" column/variable that 
+contains the correct value (or is missing if action is "okay" or "drop") and an 
+"action" variable/column that contains the action to take ie. "replace", "drop" 
+or "okay".  The corrections file should also store variables shared by the dataset 
+in memory that indicate the subset of the data for which each correction is intended; 
+these are specified to option {opt id()}, and are used to match observations in 
+memory to the corrections in the correction file.{p_end}
 
 {pstd}
 Below, an example corrections file is shown with additional optional variables:
-{cmd:hhid}, to be specified to {opt id()},
-{cmd:variable}, {cmd: value}, {cmd:newvalue}, {cmd:action}. The correction file may also include additional variables which contain information that are useful for tracking. Although additional variables will not be used, they will be included in the corrections logfile if the logfile option is used.
+{cmd:hhid}, to be specified to {opt id()}, {cmd:variable}, {cmd: value}, 
+{cmd:newvalue}, {cmd:action}. The correction file may also include additional 
+variables which contain information that are useful for tracking. Although additional 
+variables will not be used, they will be included in the corrections logfile if 
+the logfile option is used.{p_end}
 
 {cmd}{...}
-    {c TLC}{hline 10}{c -}{hline 12}{c -}{hline 14}{c -}{hline 14}{c -}{hline 12}{c -}{hline 18}{c TRC}
-    {c |}  hhid        variable            value        newvalue   action       comments      {c |}
-    {c LT}{hline 10}{c -}{hline 12}{c -}{hline 14}{c -}{hline 14}{c -}{hline 12}{c -}{hline 18}{c RT}
-    {c |}      105     district             12             13      replace      enum comment  {c |}
-    {c |}      125          age              1              2      replace      enum mistake  {c |}
-    {c |}      138       gender              0                     okay         checked       {c |}
-    {c |}      199     district             31                     drop         duplicate     {c |}
-    {c |}      112   am_failure              1              3      replace      enum mistake  {c |}
-    {c BLC}{hline 10}{c -}{hline 12}{c -}{hline 14}{c -}{hline 14}{c -}{hline 12}{c -}{hline 18}{c BRC}
+    {c TLC}{hline 10}{c -}{hline 12}{c -}{hline 14}{c -}{hline 14}{c -}{hline 12}{c -}{hline 27}{c TRC}
+    {c |}  hhid        variable            value        newvalue   action       comments               {c |}
+    {c LT}{hline 10}{c -}{hline 12}{c -}{hline 14}{c -}{hline 14}{c -}{hline 12}{c -}{hline 27}{c RT}
+    {c |}      105     district             12             13      replace      respondent relocated   {c |}
+    {c |}      125          age              1              2      replace      enum mistake           {c |}
+    {c |}      138       gender              0                     okay         checked                {c |}
+    {c |}      199     district             31                     drop         duplicate              {c |}
+    {c |}      112   am_failure              1              3      replace      enum mistake           {c |}
+    {c BLC}{hline 10}{c -}{hline 12}{c -}{hline 14}{c -}{hline 14}{c -}{hline 12}{c -}{hline 27}{c BRC}
 {txt}{...}
 
 {pstd}
-For each observation of the corrections file,
-{cmd:ipacheckcorrections} validates the current value by verifying that the value specified in "value" matches the value for the variable and id specified. The correction fails if there is a mismatch and the command returns and error unless the option {opt: ignore} is specified. 
+For each observation of the corrections file, {cmd:ipacheckcorrections} validates 
+the current value by verifying that the value specified in "value" matches the 
+value for the variable and id specified. The correction fails if there is a mismatch 
+and the command returns and error unless the option {opt: ignore} is specified. 
 
 {pstd}
 For each observation of the corrections file,
@@ -142,7 +156,7 @@ Similarly, for the {opt drop} option, {ipacheckreadreplace} essentially runs:
 The variable specified to {opt value()} may be numeric or string.
 
 {pstd}
-It is recommended to use the corrections.xlsxm template file from IPA's 
+It is recommended to use the corrections.xlsm template file from IPA's 
 Data Management System. See {help ipacheck} for information on how to download
 this file. {cmd:ipacheckcorrections} also accepts .xlsx, .xls, .csv & .dta files.
 
@@ -154,12 +168,10 @@ this file. {cmd:ipacheckcorrections} also accepts .xlsx, .xls, .csv & .dta files
 much the same way as {helpb replace},
 promoting storage types according to these rules:
 
-{phang2}1.  Storage types are only promoted;
-they are never {help compress:compressed}.{p_end}
+{phang2}1.  Storage types are only promoted; they are never {help compress:compressed}.{p_end}
 {phang2}2.  The storage type of {cmd:float} variables is never changed.{p_end}
-{phang2}3.  If a variable of
-integer type ({cmd:byte}, {cmd:int}, or {cmd:long}) is replaced with
-a noninteger value, its storage type is changed to
+{phang2}3.  If a variable of integer type ({cmd:byte}, {cmd:int}, or {cmd:long}) is replaced with
+a non-integer value, its storage type is changed to
 {cmd:float} or {cmd:double} according to
 the current {helpb set type} setting.{p_end}
 {phang2}4.  If a variable of integer type is replaced with an integer value that
@@ -171,20 +183,18 @@ a longer {cmd:str}{it:#} type or to {cmd:strL}.{p_end}
 {marker examples}{...}
 {title:Examples}
 
-{pstd}
-Mark corrections using the sample corrections dataset above. Do not create a logfile. 
+{synoptline}
+  {text:Setup}
+	{phang}{com}   . use "https://raw.githubusercontent.com/PovertyAction/ipa_dms4.0/final/data/household_survey.dta", clear{p_end}
+	{phang}{com}   . copy "https://raw.githubusercontent.com/PovertyAction/ipa_dms4.0/final/excel/corrections_example.xlsm" "corrections_example.xlsm", replace{p_end}
 
-{p 8}. {cmd:ipacheckcorrections using "corrections.xlsm", id(hhid)}
-
-{pstd}
-Mark corrections using the sample corrections dataset above. Create a logfile. 
-
-{p 8}. {cmd:ipacheckcorrections using "corrections.xlsm", id(hhid) logfile("corrections_log.xlsx") logsheet("hh corrections")}
-
-{pstd}
-Mark corrections using the sample corrections dataset above. Create a logfile and suppress errors if correction fails. 
-
-{p 8}. {cmd:ipacheckcorrections using "corrections.xlsm", id(hhid) logfile("corrections_log.xlsx") logsheet("hh corrections") ignore}
+  {text:Apply changes in duplicates sheet}
+	{phang}{com}   .ipacheckcorrections using "corrections_example.xlsm", id(key) sheet("duplicates") logf("corrections_log.xlsx") logs("duplicates"){p_end}
+	
+  {text:Apply changes in other issues sheet ignoring failed corrections}
+	{phang}{com}   .ipacheckcorrections using "corrections_example.xlsm", id(hhid) sheet("other issues") logf("corrections_log.xlsx") logs("other issues") ignore{p_end}
+	
+{synoptline}
 
 {text}{...}
 {marker stored_results}{...}
@@ -196,7 +206,7 @@ Mark corrections using the sample corrections dataset above. Create a logfile an
 {syntab:{opt Scalars}}
 {synopt:{cmd: r(N_obs)}}number of observations in correction file{p_end}
 {synopt:{cmd: r(N_succesful)}}number of successful corrections{p_end}
-{synopt:{cmd: r(N_succesful)}}number of failed corrections{p_end}
+{synopt:{cmd: r(N_failed)}}number of failed corrections{p_end}
 {p2colreset}{...}
 
 {txt}{...}
