@@ -32,8 +32,8 @@ program ipacheckversions, rclass
 		}
 
 		* set outsheet: default to form versions if not specified
-		if "`outsheet1'" == "" loc outsheet 		"form versions"
-		if "`outsheet1'" == "" loc outdated_sheet 	"outdated"
+		if "`outsheet1'" == "" loc outsheet1 	"form versions"
+		if "`outsheet2'" == "" loc outsheet2 	"outdated"
 		
 		ipagettd `datevar'
 		
