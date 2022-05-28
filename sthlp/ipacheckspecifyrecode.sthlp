@@ -1,7 +1,5 @@
 {smcl}
-
-{* *! version 4.0.0 25apr2022}{...}
-
+{* *! version 4.0.0 11may2022}{...}
 {title:Title}
 
 {phang}
@@ -100,7 +98,7 @@ It is recommended to use the specifyrecode.xlsxm template file from IPA's Data M
 {title:Remarks for advanced users}
 
 {pstd}
-{cmd:ipacheckspecifyrecode} uses {help regex:regular} expressions when {cmd:match_type} "contains", "begins width" & "ends with" are used. Advanced users can therefore use regular expression functions in the {cmd:match_text} column/variable when needed. This also means that users will need to escape regular expression characters if they want {cmd:ipacheckspecifyrecode} to assume them as literal text. 
+{cmd:ipacheckspecifyrecode} uses {help regex:regular expressions} when {cmd:match_type} "contains", "begins width" & "ends with" are used. Advanced users can therefore use regular expression functions in the {cmd:match_text} column/variable when needed. This also means that users will need to escape regular expression characters if they want {cmd:ipacheckspecifyrecode} to assume them as literal text. 
 
 {marker examples}{...}
 {title:Examples}
