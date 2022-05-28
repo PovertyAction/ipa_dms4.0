@@ -11,11 +11,12 @@ Recode other specify values of the dataset in memory using an external dataset.
 
 {p 8 10 2}
 {cmd:ipacheckspecifyrecode using} {it:{help filename}}{cmd:,}
-{opth sheet:name(string)} 
+{opth sheet:name("sheetname")} 
 {opth id(varlist)} 
-[{it:options}]
+[{it:{help ipacheckspecifyrecode##options:options}}]
 
-{synoptset 20 tabbed}{...}
+{marker options}
+{synoptset 26 tabbed}{...}
 {synopthdr}
 {synoptline}
 {syntab:Main}
@@ -25,8 +26,8 @@ Recode other specify values of the dataset in memory using an external dataset.
 
 {syntab:Specifications}
 
-{synopt:{opth logf:ile(filename)}}option to produce log of changes{p_end}
-{synopt:{opth logs:heet(string)}}save logfile to excel worksheet{p_end}
+{synopt:{opt logf:ile("filename.xlsx")}}option to produce log of changes{p_end}
+{synopt:{opt logs:heet("sheetname")}}save logfile to excel worksheet{p_end}
 {synopt:{opth keep:vars(varlist)}}variables in survey data to keep log file{p_end}
 {synopt:{opt nol:abel}}export values instead of value labels to logfile{p_end}
 {synoptline}
@@ -135,3 +136,9 @@ Innovations for Poverty Action{p_end}
 {pstd}For questions or suggestions, submit a
 {browse "https://github.com/PovertyAction/high-frequency-checks/issues":GitHub issue}
 or e-mail researchsupport@poverty-action.org.{p_end}
+
+{title:Also see}
+
+{psee}
+User-written:  {helpb ipacheckspecify}, {helpb ipacheckcorrections}, {helpb readreplace}
+{p_end}

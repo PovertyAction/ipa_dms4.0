@@ -189,10 +189,10 @@ a longer {cmd:str}{it:#} type or to {cmd:strL}.{p_end}
 	{phang}{com}   . copy "https://raw.githubusercontent.com/PovertyAction/ipa_dms4.0/final/excel/corrections_example.xlsm" "corrections_example.xlsm", replace{p_end}
 
   {text:Apply changes in duplicates sheet}
-	{phang}{com}   .ipacheckcorrections using "corrections_example.xlsm", id(key) sheet("duplicates") logf("corrections_log.xlsx") logs("duplicates"){p_end}
+	{phang}{com}   .ipacheckcorrections using "corrections_example.xlsm", sheet("duplicates") id(key) logf("corrections_log.xlsx") logs("duplicates"){p_end}
 	
   {text:Apply changes in other issues sheet ignoring failed corrections}
-	{phang}{com}   .ipacheckcorrections using "corrections_example.xlsm", id(hhid) sheet("other issues") logf("corrections_log.xlsx") logs("other issues") ignore{p_end}
+	{phang}{com}   .ipacheckcorrections using "corrections_example.xlsm", sheet("other issues") id(hhid) logf("corrections_log.xlsx") logs("other issues") ignore{p_end}
 	
 {synoptline}
 
@@ -231,5 +231,5 @@ or e-mail researchsupport@poverty-action.org.{p_end}
 {title:Also see}
 
 {psee}
-User-written:  {helpb cfout}, {helpb bcstats}, {helpb readreplace}
+User-written:  {helpb ipacheckspecifyrecode}, {helpb readreplace}
 {p_end}
