@@ -111,7 +111,7 @@ It is recommended to use the specifyrecode.xlsxm template file from IPA's Data M
 	{phang}{com}   . copy "https://raw.githubusercontent.com/PovertyAction/ipa_dms4.0/final/excel/specifyrecode_example.xlsm" "specifyrecode_example.xlsm", replace{p_end}
 
   {text:Apply changes in duplicates sheet}
-	{phang}{com}   .ipacheckspecifyrecode using "specifyrecode_example.xlsm", id(key) logf("specifyrecode_log.xlsx") logs("household survey"){p_end}
+	{phang}{com}   .ipacheckspecifyrecode using "specifyrecode_example.xlsm", sheet("other specify recode") id(key) logf("specifyrecode_log.xlsx") logs("household survey"){p_end}
 	
 {synoptline}
 
