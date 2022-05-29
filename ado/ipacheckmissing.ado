@@ -8,10 +8,10 @@ program ipacheckmissing, rclass
 
 	#d;
 	syntax 	varlist,
-        	[IMPortantvars(varlist)] 
+        	[PRiority(varlist)] 
         	OUTFile(string)
         	[show(string)]
-        	[OUTSheet(string)]  
+        	[OUTSHeet(string)]  
 			[SHEETMODify SHEETREPlace]
 		;	
 	#d cr
@@ -50,13 +50,13 @@ program ipacheckmissing, rclass
 		#d cr
 
 		* list important vars
-		if "`importantvars'" ~= "" unab importantvars: `importantvars'
+		if "`priority'" ~= "" unab priority: `priority'
 
 		* unabbrev varlist
 		unab vars: `varlist'
 
 		* list vars to check
-		loc vars: list vars | importantvars
+		loc vars: list vars | priority
 
 		* create & post stats for each variable
 		foreach var of varlist `vars' {
@@ -67,7 +67,7 @@ program ipacheckmissing, rclass
 			qui tab `var'
 			loc unique_cnt `r(r)'
 
-			if "`importantvars'" ~= "" loc important_var: list var in importantvars
+			if "`priority'" ~= "" loc important_var: list var in priority
 
 			* post results to frame
 			frames post ///
