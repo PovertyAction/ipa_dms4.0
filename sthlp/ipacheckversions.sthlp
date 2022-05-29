@@ -45,6 +45,55 @@ a list of all observations that are using a form beside the most recent form ver
 available by date. Optionally, the user can specify additional variables to show in 
 {opt outsheet2}. 
 
+{title:Options}
+
+{dlgtab:Main}
+
+{pstd}
+{opt enumerator(varname)} specifies the enumerator variable for the dataset. {cmd:enumerator()} is 
+required and is automatically included in the output. 
+
+{pstd}
+{opt date(varname)} specifies the date or datetime variable indicating the date of 
+survey. Reommended variables are Survey start, end or submission dates. This option 
+expects a %td date variable or a %tc/%tC datetime variable. If variable specified 
+is a datetime variable, the output will show the correspondent date instead of 
+datetime. {cmd:date()} is required. 
+
+{pstd}
+{opt outfile(varname)} specifies Excel workbook to export the duplicate report into. 
+{cmd:outfile()} is required. Excel formats xls and xlsx are supported in {cmd:outfile()}. 
+If a file extension is not specified with {cmd:outfile()}, .xls is assumed, because 
+this format is more common and is compatible with more applications that also can read from Excel files.
+
+{dlgtab:Specifications}
+
+{pstd}
+{opt outsheet1("sheetname1")} specifies Excel sheet to export summary report of 
+version control. The default is to save to Excel sheet {cmd:"form versions"}.
+
+{pstd}
+{opt outsheet2("sheetname2")} specifies Excel sheet to export details of surveys 
+submitted with outdated form versions. A form version is considered outdated if it was
+not the current version on day that it was used. The default is to save to Excel 
+sheet {cmd:"outdated"}.
+
+{pstd}
+{opth keep(varlist)} specifies additional variables that should be included 
+in output sheet. The Survey ID and the variables specified in the {cmd:enumerator()} 
+and {cmd:date} will automatically be added to the output.   
+
+{pstd}
+{opt sheetmodify} specifies that the output sheet should only be modified 
+but not be replaced if it already exist.  
+
+{pstd}
+{opt sheetreplace} specifies that the output sheet should be replaced if 
+it already exist.  
+
+{pstd}
+{opt nolabel} nolabel exports the underlying numeric values instead of the value labels.
+
 {title:Remarks}
 
 {pstd}

@@ -69,7 +69,7 @@ is a datetime variable, the output will show the correspondent date instead of
 datetime. {cmd:date()} is required. 
 
 {pstd}
-{opt outfile(varname)} specifies Excel workbook to export the duplicate reports to. 
+{opt outfile(varname)} specifies Excel workbook to export the duplicate report into. 
 {cmd:outfile()} is required. Excel formats xls and xlsx are supported in {cmd:outfile()}. 
 If a file extension is not specified with {cmd:outfile()}, .xls is assumed, because 
 this format is more common and is compatible with more applications that also can read from Excel files.
@@ -112,7 +112,7 @@ to use the Data Management System.
 	{phang}{com}   . use "https://raw.githubusercontent.com/PovertyAction/ipa_dms4.0/final/data/household_survey.dta", clear{p_end}
 
   {text:Flag and export duplicates in phone_number variable}
-	{phang}{com}   . ipacheckdups phone_number, id(hhid) enum(a_enum_id) date(starttime) keep(a_enum_name a_pl_hhh_fn submissiondate endtime) outfile("hfc_outputs.xlsx"){p_end}
+	{phang}{com}   . ipacheckdups phone_number, id(hhid) enum(a_enum_id) date(starttime) keep(a_enum_name a_pl_hhh_fn submissiondate endtime) outf("hfc_outputs.xlsx"){p_end}
 	
 {synoptline}
 
