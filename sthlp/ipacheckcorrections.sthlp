@@ -1,5 +1,5 @@
 {smcl}
-{* *! version 4.0.0 25apr2022}{...}
+{* *! version 4.0.0 11may2022}{...}
 {title:Title}
 {phang}
 {cmd:ipacheckcorrections} {hline 2}
@@ -15,19 +15,19 @@ in an external dataset.
 {opth id(varlist)} 
 [{it:options}]
 
-{synoptset 20 tabbed}{...}
+{synoptset 26 tabbed}{...}
 {synopthdr}
 {synoptline}
 {syntab:Main}
 
-{synopt:*{opth sheet:name(string)}}Excel worksheet to load{p_end}
+{synopt:*{opth sh:eet(string)}}Excel worksheet to load{p_end}
 {synopt:*{opth id(varname)}}variables for matching observations with
 the corrections specified in the using dataset{p_end}
 
 {syntab:Specifications}
 
 {synopt:{opth logf:ile(filename)}}option to produce log of changes{p_end}
-{synopt:{opth logs:heet(string)}}save logfile to excel worksheet{p_end}
+{synopt:{opth logsh:eet(string)}}save logfile to excel worksheet{p_end}
 {synopt:{opt nol:abel}}export values instead of value labels to logfile{p_end}
 {synopt:{opt ignore}}suppress error if correction fails{p_end}
 {synoptline}
@@ -56,9 +56,9 @@ an observation is "okay", the {help ipacheckoutliers} check no longer flags the 
 {dlgtab:Main}
 
 {phang}
-{opt sheetname("sheetname")} imports the worksheet named sheetname in the 
+{opt sheet("sheetname")} imports the worksheet named sheetname in the 
 corrections file. This is required if the correction file is {opt .xls} or 
-{opt .xlsx} formats. option {opt sheetname()} is ignored if correction file is 
+{opt .xlsx} formats. option {opt sheet()} is ignored if correction file is 
 {opt .csv} or {opt .dta} file.
 
 {phang}

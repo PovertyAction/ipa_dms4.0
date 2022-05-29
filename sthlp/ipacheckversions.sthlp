@@ -1,19 +1,18 @@
 {smcl}
-{* *! version 3.0.0 Innovations for Poverty Action 30oct2018}{...}
+{* *! version 4.0.0 Innovations for Poverty Action 11may2022}{...}
 {title:Title}
 
 {phang}
 {cmd:ipacheckversions} {hline 2}
 Create a summary sheet detailing versions used by day, and flags interviews using outdated form versions. 
 
-{marker syntax}{...}
 {title:Syntax}
 
 {p 8 10 2}
 {cmd:ipacheckversions} {it:{help varname}}{cmd:,}
 {opth enum:erator(varname)}
-{opth date:var(varname)}
-{opth outfile("filename.xlsx")}
+{opth date(varname)}
+{opt outf:ile("filename.xlsx")}
 [{it:{help ipacheckversions##options:options}}]
 
 {marker options}
@@ -22,20 +21,20 @@ Create a summary sheet detailing versions used by day, and flags interviews usin
 {synoptline}
 {syntab:Main}
 {synopt:* {opth enum:erator(varname)}}enumerator variable{p_end}
-{synopt:* {opth date:var(varname)}}date/datetime variable indicating date of survey. {p_end}
-{synopt:* {opth outf:ile("filename.xlsx")}}save output to Excel workbook{p_end}
+{synopt:* {opth date(varname)}}date/datetime variable indicating date of survey. {p_end}
+{synopt:* {opt outf:ile("filename.xlsx")}}save output to Excel workbook{p_end}
 
 {syntab:Specifications}
 {synopt:{opt outsheet1("sheetname1")}}save "version control" summary to excel sheet{p_end}
 {synopt:{opt outsheet2("sheetname2")}}save observations with "outdated form versions" to excel sheet{p_end}
-{synopt:{opth keep:vars(varlist)}}additional variables to export to {opt outsheet2}{p_end}
+{synopt:{opth keep(varlist)}}additional variables to export to {opt outsheet2}{p_end}
 {synopt:{opt sheetmod:ify}}modify {cmd:outsheet1} & {cmd:outsheet2}{p_end}
 {synopt:{opt sheetrep:lace}}replace {cmd:outsheet1} & {cmd:outsheet2}{p_end}
 {synopt:{opt nol:abel}}export values instead of value labels to {opt sheetname2}{p_end}
 
 {synoptline}
 {p2colreset}{...}
-{p 4 6 2}* {opt enumerator()}, {opt datevar()} and {opt outfile()} are required.
+{p 4 6 2}* {opt enumerator()}, {opt date()} and {opt outfile()} are required.
 
 
 {title:Description}
@@ -46,7 +45,6 @@ a list of all observations that are using a form beside the most recent form ver
 available by date. Optionally, the user can specify additional variables to show in 
 {opt outsheet2}. 
 
-{marker remarks}{...}
 {title:Remarks}
 
 {pstd}
@@ -58,7 +56,6 @@ It is important to note that ipacheckversions was written to take advantage
 of the SurveyCTO form versions format and therefore experts that the form versions 
 values are numeric and in ascending order from the oldest to the most recent form.
 
-{marker examples}{...}
 {title:Examples}
 
 {synoptline}
@@ -66,18 +63,17 @@ values are numeric and in ascending order from the oldest to the most recent for
 	{phang}{com}   . use "https://raw.githubusercontent.com/PovertyAction/ipa_dms4.0/final/data/household_survey.dta", clear{p_end}
 
   {text:Run check}
-	{phang}{com}   .ipacheckversions formdef_version, enum(a_enum_id) date(starttime) outfile("hfc_outputs.xlsx") keep(a_enum_name hhid a_pl_hhh_fn) sheetreplace{p_end}
+	{phang}{com}   . ipacheck formdef_version, enum(a_enum_id) date(starttime) outfile("hfc_outputs.xlsx") keep(a_enum_name hhid a_pl_hhh_fn) sheetreplace{p_end}
 	
 {synoptline}
 
 {txt}{...}
-{marker acknowledgement}{...}
 {title:Acknowledgement}
 
 {pstd}
-{cmd:ipacheckversions} is is based on {help ipatrackversions} written by Chris Boyer of Innovations for Poverty Action.
+{cmd:ipacheckversions} is is based on {help ipatrackversions} written by Chris Boyer 
+of Innovations for Poverty Action.
 	
-{marker authors}{...}
 {title:Authors}
 
 {pstd}

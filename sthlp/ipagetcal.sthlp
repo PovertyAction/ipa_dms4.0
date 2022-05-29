@@ -17,7 +17,9 @@
 The resulting dataset includes the variable {cmd:index} which contains the number 
 for the current observation, {cmd:varname}, which contains the day date as well 
 as {cmd:week}, {cmd:month} and {cmd:year} which contains the week month and year 
-respectively for each date.  
+respectively for each date.  Note that the dates created are contineous from the 
+first to the last date value in {cmd:varname}. {cmd:ipagetcal} expectes a 
+date/datetime variable of %td, %tc or %tC format. 
  
 {hline}
 
@@ -30,6 +32,15 @@ respectively for each date.
   {text:create a calendar dataset from submissiondate}
 	{phang}{com}   . ipagetcal submissiondate{p_end}
 {synoptline}
+
+{title:Stored results}
+
+{p 6} {cmd:ipagetcal} stores the following in r():{p_end}
+
+{synoptset 25 tabbed}{...}
+{syntab:{opt Scalars}}
+{synopt:{cmd: r(N_days)}}number number of days from first to last date{p_end}
+{p2colreset}{...}
 
 {text}
 {title:Author}
