@@ -6,12 +6,12 @@ program define ipacheckspecifyrecode, rclass
 	
 	#d;
 	syntax using/, 
-			[SHEETname(string)]
+			[SHeet(string)]
 			id(varname)
-			[KEEPvars(varlist)]
+			[KEEP(varlist)]
 			[LOGFile(string)]
 			[LOGSheet(string)]
-			[NOLABel]
+			[NOLabel]
 		;
 	#d cr
 	
@@ -34,11 +34,11 @@ program define ipacheckspecifyrecode, rclass
 		loc ext = substr("`using'", -(strpos(reverse("`using'"), ".")), .)
 		* if extension is valid, import data
 		if "`ext'" == ".xlsx" | "`ext'" == ".xls" | "`ext'" == ".xlsm" {
-		    if "`sheetname'" == "" {
-			    disp as err "sheetname option required with .xlsx, .xls or .xlsm files"
+		    if "`sheet'" == "" {
+			    disp as err "sheet option required with .xlsx, .xls or .xlsm files"
 				ex 198
 			}
-			import excel using "`using'", sheet("`sheetname'") firstrow clear
+			import excel using "`using'", sheet("`sheet'") firstrow clear
 		}
 		else if "`ext'" == ".csv" {
 			import delim using "`using'", clear varnames(1)
@@ -86,7 +86,7 @@ program define ipacheckspecifyrecode, rclass
 			use "`tmf_main_data'", clear
 			
 			* expand keepvars
-			if "`keepvars'" ~= "" unab keepvars: `keepvars'
+			if "`keep'" ~= "" unab keep: `keep'
 			
 			gen `tmv_modified' 	= 0
 			gen `tmv_oldval'   	= ""
@@ -175,7 +175,7 @@ program define ipacheckspecifyrecode, rclass
 						count if `tmv_modified'
 						if `r(N)' > 0 {
 							cap frames drop frm_recodelog
-							frames put `id' `keepvars' `tmv_oldval' `tmv_oldval_lab' `tmv_newval' `tmv_newval_lab' `pvar' `cvar' if `tmv_modified', into(frm_recodelog)
+							frames put `id' `keep' `tmv_oldval' `tmv_oldval_lab' `tmv_newval' `tmv_newval_lab' `pvar' `cvar' if `tmv_modified', into(frm_recodelog)
 							replace `cvar' = "" if `tmv_modified'
 							
 							frame frm_recodelog {
@@ -202,16 +202,16 @@ program define ipacheckspecifyrecode, rclass
 				use "`tmf_recodelog'", clear	
 				
 				if `c(N)' > 0 {
-					order `id' `keepvars' parent parent_lab child child_lab child_value recode_from recode_from_lab recode_to recode_to_lab
+					order `id' `keep' parent parent_lab child child_lab child_value recode_from recode_from_lab recode_to recode_to_lab
 				
-					foreach var of varlist `id' `keepvars' child_value {
+					foreach var of varlist `id' `keep' child_value {
 						lab var `var' "`var'"
 					}
 					foreach var of varlist parent child recode_from recode_to {
 						lab var `var'_lab "`var' label"
 					}
 					
-					if "`keepvars'" ~= "" ipalabels `id' `keepvars', `nolabel'
+					if "`keep'" ~= "" ipalabels `id' `keep', `nolabel'
 					
 					export excel using "`logfile'", sheet("`logsheet'") first(varl) replace
 					mata: colwidths("`logfile'", "`logsheet'")

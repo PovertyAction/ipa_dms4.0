@@ -8,12 +8,12 @@ program ipacheckdups, rclass
 	syntax varlist, 
 		id(varname) 
 		ENUMerator(varname) 
-		DATEvar(varname) 
+		date(varname) 
 		OUTFile(string) 
-		[OUTSheet(string)]
-		[KEEPvars(varlist)]
+		[OUTSHeet(string)]
+		[keep(varlist)]
 		[SHEETMODify SHEETREPlace]
-		[NOLABel]
+		[NOLabel]
 		;
 	#d cr
 
@@ -37,9 +37,9 @@ program ipacheckdups, rclass
 		if "`outsheet'" == "" loc outsheet "duplicates"
 		
 		* keep variables of interest
-		keep `datevar' `varlist' `id' `enumerator' `datevar' `keepvars'
+		keep `date' `varlist' `id' `enumerator' `date' `keep'
 		
-		ipagettd `datevar'
+		ipagettd `date'
 		
 		* check for duplicates 
 		gen `tmv_dv_check' = 0
@@ -140,10 +140,10 @@ program ipacheckdups, rclass
 			}
 			frame drop frm_subset
 			
-			keep `tmv_serial' `datevar' `id' `enumerator' `tmv_variable' `tmv_label' _v `keepvars'
-			order `tmv_serial' `datevar' `id' `enumerator' `tmv_variable' `tmv_label' _v `keepvars'
+			keep `tmv_serial' `date' `id' `enumerator' `tmv_variable' `tmv_label' _v `keep'
+			order `tmv_serial' `date' `id' `enumerator' `tmv_variable' `tmv_label' _v `keep'
 			
-			if "`keepvars'" ~= "" ipalabels `keepvars', `nolabel'
+			if "`keep'" ~= "" ipalabels `keep', `nolabel'
 			ipalabels `id' `enumerator', `nolabel'
 						
 			export excel using "`outfile'", sheet("`outsheet'") first(varl) `sheetmodify' `sheetreplace'

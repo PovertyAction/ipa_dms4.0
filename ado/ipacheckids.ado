@@ -7,15 +7,15 @@ program ipacheckids, rclass
 	#d;
 	syntax varname, 
 			ENUMerator(varname) 
-			DATEvar(varname) 
+			date(varname) 
 			key(varname) 
 			OUTFile(string) 
-			[OUTSheet(string)]
+			[OUTSHeet(string)]
 			[DUPFile(string)]
-			[save(string)]
-			[KEEPvars(varlist)]
+			[SAve(string)]
+			[keep(varlist)]
 			[SHEETMODify SHEETREPlace]
-			[NOLABel replace]
+			[NOLabel replace]
 			[force]
 		;
 	#d cr
@@ -42,7 +42,7 @@ program ipacheckids, rclass
 		    
 		}
  		
-		ipagettd `datevar'
+		ipagettd `date'
 		
 		* set default outsheet
 		if "`outsheet'" == "" loc outsheet "id duplicates"
@@ -59,9 +59,9 @@ program ipacheckids, rclass
 			* save duplicates dta
 			if "`dupfile'" ~= "" save "`dupfile'", replace
 			
-			bysort `varlist' (`datevar') : gen `tmv_serial' = _n
+			bysort `varlist' (`date') : gen `tmv_serial' = _n
 
-			ds `varlist' `datevar' `key' `tmv_serial', not 
+			ds `varlist' `date' `key' `tmv_serial', not 
 			loc compvars `r(varlist)'
 			gen `tmv_compared' = `:word count `compvars''
 
@@ -96,17 +96,17 @@ program ipacheckids, rclass
 			lab var `tmv_serial' 		"serial"
 			
 			* export data 
-			keep  `enumerator' `keepvars' `tmv_serial' `datevar' `key' `varlist' `tmv_compared' `tmv_diffs' `tmv_perc_diffs'
-			order `enumerator' `keepvars' `tmv_serial' `datevar' `key' `varlist' `tmv_compared' `tmv_diffs' `tmv_perc_diffs'
+			keep  `enumerator' `keep' `tmv_serial' `date' `key' `varlist' `tmv_compared' `tmv_diffs' `tmv_perc_diffs'
+			order `enumerator' `keep' `tmv_serial' `date' `key' `varlist' `tmv_compared' `tmv_diffs' `tmv_perc_diffs'
 			
-			if "`keepvars'" ~= "" ipalabels `keepvars', `nolabel'
+			if "`keep'" ~= "" ipalabels `keep', `nolabel'
 			ipalabels `id' `key' `enumerator', `nolabel'
 			
 			export excel using "`outfile'", first(varl) sheet("`outsheet'") `sheetreplace' `sheetmodify'
 			mata: colwidths("`outfile'", "`outsheet'")
 			mata: colformats("`outfile'", "`outsheet'", "`tmv_perc_diffs'", "percent_d2")	
 			mata: colformats("`outfile'", "`outsheet'", ("`tmv_diffs'", "`tmv_compared'"), "number_sep")
-			mata: colformats("`outfile'", "`outsheet'", "`datevar'", "date_d_mon_yy")	
+			mata: colformats("`outfile'", "`outsheet'", "`date'", "date_d_mon_yy")	
 			mata: setheader("`outfile'", "`outsheet'")
 			
 			* get row numbers for seperator line

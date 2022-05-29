@@ -9,11 +9,11 @@ program ipacheckversions, rclass
 	#d;
 	syntax 	varname,
 			ENUMerator(varname)
-        	DATEvar(varname)
+        	date(varname)
         	OUTFile(string)
         	[outsheet1(string)] 
 			[outsheet2(string)]
-			[KEEPvars(varlist)]
+			[keep(varlist)]
 			[SHEETMODify SHEETREPlace]
 			[NOLABel]
 		;	
@@ -35,7 +35,7 @@ program ipacheckversions, rclass
 		if "`outsheet1'" == "" loc outsheet1 	"form versions"
 		if "`outsheet2'" == "" loc outsheet2 	"outdated"
 		
-		ipagettd `datevar'
+		ipagettd `date'
 		
 		* create output frame
 		cap frame drop frm_version
@@ -52,7 +52,7 @@ program ipacheckversions, rclass
 		loc curr_ver `r(max)'
 
 		* get first date of latest version
-		summ `datevar' if `varlist' == `curr_ver'
+		summ `date' if `varlist' == `curr_ver'
 		loc   curr_ver_fdate `r(min)'
 
 		* get form versions
@@ -66,11 +66,11 @@ program ipacheckversions, rclass
 			loc submitted `r(N)'
 
 			* get number of outdated submissions for version
-			count if `varlist' == `ver' & `datevar' >= `curr_ver_fdate'
+			count if `varlist' == `ver' & `date' >= `curr_ver_fdate'
 			loc outdated `r(N)'
 
 			* get first and last dates for each version
-			summ `datevar' if `varlist' == `ver'
+			summ `date' if `varlist' == `ver'
 			loc firstdate `r(min)'
 			loc lastdate  `r(max)'
 
@@ -85,7 +85,7 @@ program ipacheckversions, rclass
 		}
 
 		* get stats for totals row
-		count if `datevar' >= `curr_ver_fdate' & `varlist' != `curr_ver'
+		count if `date' >= `curr_ver_fdate' & `varlist' != `curr_ver'
 		loc outdated `r(N)'
 
 		* post totals
@@ -130,19 +130,19 @@ program ipacheckversions, rclass
 
 		* export a list of outdate forms: ***
 		if `outdated' > 0 {
-			keep if `varlist' ~= `curr_ver' & `datevar' >= `curr_ver_fdate'
-			keep `datevar' `enumerator' `keepvars' `varlist'
+			keep if `varlist' ~= `curr_ver' & `date' >= `curr_ver_fdate'
+			keep `date' `enumerator' `keep' `varlist'
 			
-			foreach var of varlist `datevar' `enumerator' `keepvars' `varlist' {
+			foreach var of varlist `date' `enumerator' `keep' `varlist' {
 				lab var `var' "`var'"
 			}
 			
-			if "`keepvars'" ~= "" ipalabels `keepvars', `nolabel'
+			if "`keep'" ~= "" ipalabels `keep', `nolabel'
 			ipalabels `enumerator', `nolabel'
 			export excel using "`outfile'", first(varl) sheet("`outsheet2'") `sheetreplace'
 			
 			mata: colwidths("`outfile'", "`outsheet2'")
-			mata: colformats("`outfile'", "`outsheet2'", ("`datevar'"), "date_d_mon_yy")
+			mata: colformats("`outfile'", "`outsheet2'", ("`date'"), "date_d_mon_yy")
 			mata: setheader("`outfile'", "`outsheet2'")
 		}
 

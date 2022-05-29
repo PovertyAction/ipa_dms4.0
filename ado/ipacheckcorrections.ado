@@ -6,10 +6,10 @@ program define ipacheckcorrections, rclass
 	
 	#d;
 	syntax using/, 
-			[SHEETname(string)]
+			[SHeet(string)]
 			id(varname)
 			[LOGFile(string)]
-			[LOGSheet(string)]
+			[LOGSHeet(string)]
 			[NOLabel]
 			[ignore]
 		;
@@ -43,11 +43,11 @@ program define ipacheckcorrections, rclass
 		loc ext = substr("`using'", -(strpos(reverse("`using'"), ".")), .)
 		* if extension is valid, import data
 		if "`ext'" == ".xlsx" | "`ext'" == ".xls" | "`ext'" == ".xlsm" {
-		    if "`sheetname'" == "" {
-			    disp as err "sheetname option required with .xlsx, .xls or .xlsm files"
+		    if "`sheet'" == "" {
+			    disp as err "sheet option required with .xlsx, .xls or .xlsm files"
 				ex 198
 			}
-			import excel using "`using'", sheet("`sheetname'") firstrow clear
+			import excel using "`using'", sheet("`sheet'") firstrow clear
 		}
 		else if "`ext'" == ".csv" {
 			import delim using "`using'", clear varnames(1)
