@@ -9,12 +9,12 @@ program ipacheckoutliers, rclass
 
 	#d;
 	syntax 	using/,
-			SHEETname(string)
+			SHeet(string)
         	OUTFile(string)
         	[OUTSheet(string)]  
 			id(varname) 
         	ENUMerator(varname) 
-        	DATEvar(varname) 
+        	date(varname) 
 			[SHEETMODify SHEETREPlace] 
 			[NOLABel]
 		;	
@@ -26,11 +26,14 @@ program ipacheckoutliers, rclass
 		
 		tempvar tmv_flag tmv_dups
 		
+		* set default insheet values
+		if "`sheet'" == "" loc sheet "outliers"
+		
 		* set default outsheet values
 		if "`outsheet'" == "" loc outsheet "outliers"
 
 		* import input data	
-		import excel using "`using'", clear sheet("`sheetname'") first case(l) allstr
+		import excel using "`using'", clear sheet("`sheet'") first case(l) allstr
 
 		* check for duplicates in variable comlumn
 		drop if missing(variable)
