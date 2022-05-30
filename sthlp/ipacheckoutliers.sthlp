@@ -151,7 +151,7 @@ and outputs are formatted in a .xlsx file or used directly from the command wind
 	{phang}{com}   . gen j_land_value_acre = j_land_value/j_land_size{p_end}
 
   {text:Run check}
-	{phang}{com}   . ipacheckoutliers using "hfc_inputs_example.xlsm", enum(a_enum_id) date(starttime) outf("hfc_outputs.xlsx") sheetrep{p_end}
+	{phang}{com}   . ipacheckoutliers using "hfc_inputs_example.xlsm", id(hhid) enum(a_enum_id) date(starttime) outf("hfc_outputs.xlsx") sheetrep{p_end}
 	
 {synoptline}
 
