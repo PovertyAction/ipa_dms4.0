@@ -24,8 +24,8 @@ Checks for outliers among numeric survey variables.
 {synoptline}
 {syntab:Main}
 {synopt:* {opth sh:eet(filename)}}Excel worksheet to load{p_end}
-{synopt:* {opth enum:erator(varname)}}enumerator variable{p_end}
 {synopt:* {opth id(varname)}}unique Survey ID variable{p_end}
+{synopt:* {opth enum:erator(varname)}}enumerator variable{p_end}
 {synopt:* {opth date(varname)}}date/datetime variable indication date of survey{p_end}
 {synopt:* {opt outf:ile("filename.xlsx")}}save output to Excel workbook{p_end}
 
@@ -147,6 +147,7 @@ and outputs are formatted in a .xlsx file or used directly from the command wind
 	{phang}{com}   . use "https://raw.githubusercontent.com/PovertyAction/ipa_dms4.0/final/data/household_survey.dta", clear{p_end}
 	{phang}{com}   . copy "https://raw.githubusercontent.com/PovertyAction/ipa_dms4.0/final/excel/hfc_inputs_example.xlsm" "hfc_inputs_example.xlsm", replace{p_end}
 	{phang}{com}   . destring j_land_size j_land_value duration, replace{p_end}
+	{phang}{com}   . recode j_land_size j_land_value (.999 -999 .888 -888 = .){p_end}
 	{phang}{com}   . gen j_land_value_acre = j_land_value/j_land_size{p_end}
 
   {text:Run check}
