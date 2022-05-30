@@ -101,7 +101,7 @@ program ipacheckspecify, rclass sortpreserve
 		frame drop frm_inputs
 	
 		* keep only variables that are needed for check
-		keep `id' `enumerator' `datevar' `keep' `unab_child' `unab_parent'
+		keep `id' `enumerator' `date' `keep' `unab_child' `unab_parent'
 		
 		loc child_cnt = wordcount("`unab_child'")
 
@@ -276,7 +276,7 @@ program ipacheckspecify, rclass sortpreserve
 			ipalabels `id' `enumerator', `nolabel'
 			export excel using "`outfile'", sheet("`outsheet1'") first(varl) `sheetreplace' `sheetmodify'
 			mata: colwidths("`outfile'", "`outsheet1'")
-			mata: colformats("`outfile'", "`outsheet1'", "`datevar'", "date_d_mon_yy")
+			mata: colformats("`outfile'", "`outsheet1'", "`date'", "date_d_mon_yy")
 			mata: setheader("`outfile'", "`outsheet1'")
 			
 			tab child
