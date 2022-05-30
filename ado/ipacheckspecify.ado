@@ -31,8 +31,8 @@ program ipacheckspecify, rclass sortpreserve
 		if "`sheet'" == "" loc sheet "other specify"
 		
 		* check that output sheet is specified. If not assume "other specify"
-		if "`outsheet1'" ~= "" loc outsheet1 "other specify"
-		if "`outsheet2'" ~= "" loc outsheet2 "other specify (choices)"
+		if "`outsheet1'" == "" loc outsheet1 "other specify"
+		if "`outsheet2'" == "" loc outsheet2 "other specify (choices)"
 		
 		* create frame for choice_list
 		cap frame drop frm_choice_list
