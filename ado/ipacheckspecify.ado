@@ -132,7 +132,7 @@ program ipacheckspecify, rclass sortpreserve
 
 			if !mi("`p_var_vallab'") {
 				* get values in actual label.
-				qui lab list 		`p_var'
+				qui lab list 		`p_var_vallab'
 					loc list_min  	`r(min)'
 					loc list_max  	`r(max)'
 					loc list_miss 	`r(hasemiss)'
