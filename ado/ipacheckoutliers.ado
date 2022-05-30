@@ -111,7 +111,7 @@ program ipacheckoutliers, rclass
 			frames frm_inputs: replace variable = "`vars`i''" in `i'
 
 			* check that the variable specified is not also a keep var
-			if "`keepvars'" ~= "" {
+			if "`keep'" ~= "" {
 				loc viol: list vars`i' in keepvars
 				if `viol' {
 					disp as err "Variables in varlist and keepvars are mutually exclusive. `vars`i'' is in both"
@@ -138,7 +138,7 @@ program ipacheckoutliers, rclass
 		}
 		
 		* keep only relevant variables
-		keep `id' `enumerator' `datevar' `keepvars' `byvars' ovvalue_* ovname_* ovlabel_*
+		keep `id' `enumerator' `date' `keep' `byvars' ovvalue_* ovname_* ovlabel_*
 
 		gen reshape_id = _n
 
@@ -261,7 +261,7 @@ program ipacheckoutliers, rclass
 		
 		if `c(N)' > 0 {
 
-			ipagettd `datevar'
+			ipagettd `date'
 			
 			gen method_value = cond(method == "iqr", iqr, value_sd)
 			gen range = "Range for " + string(multiplier, "%15.2f") + " * " + method + ///
@@ -279,19 +279,19 @@ program ipacheckoutliers, rclass
 			lab var value_min 		"min"
 			lab var value_max 		"max"
 			
-			keep 	`enumerator' `keepvars' `datevar' `id'  variable varlabel ///
+			keep 	`enumerator' `keep' `date' `id'  variable varlabel ///
 					byvar `byvars' combine value value_count value_min value_mean value_max range 
 
-			order 	`enumerator' `keepvars' `datevar' `id'  variable varlabel ///
+			order 	`enumerator' `keep' `date' `id'  variable varlabel ///
 					byvar `byvars' combine value value_count value_min value_mean value_max range 
 					
-			if "`keepvars'" ~= "" ipalabels `keepvars', `nolabel'
+			if "`keep'" ~= "" ipalabels `keep', `nolabel'
 			ipalabels `id' `enumerator', `nolabel'
 			export excel using "`outfile'", first(varl) sheet("`outsheet'") `sheetreplace'
 
 			mata: colwidths("`outfile'", "`outsheet'")
 			mata: colformats("`outfile'", "`outsheet'", ("value", "value_min", "value_mean", "value_max"), "number_sep_d2")	
-			mata: colformats("`outfile'", "`outsheet'", ("`datevar'"), "date_d_mon_yy")
+			mata: colformats("`outfile'", "`outsheet'", ("`date'"), "date_d_mon_yy")
 			mata: setheader("`outfile'", "`outsheet'")
 			
 			tab variable
