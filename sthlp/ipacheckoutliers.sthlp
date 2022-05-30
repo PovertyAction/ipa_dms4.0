@@ -11,83 +11,94 @@ Checks for outliers among numeric survey variables.
 
 {p 8 10 2}
 {cmd:ipacheckoutliers using} {it:{help filename}}{cmd:,}
-{opt sheet:name("sheetname")}  
+{opt sh:eet("sheetname")}  
 {opth enum:erator(varname)}  
-{opth date:var(varname)} 
+{opth date(varname)} 
 {opth id(varname)} 
-{opth outfile(filename)}
-[{it:options}]
+{opt outf:ile("filename.xlsx")}
+[{it:{help ipacheckoutliers##options:options}}]
 
+{marker options}{...}
 {synoptset 26 tabbed}{...}
 {synopthdr}
 {synoptline}
 {syntab:Main}
-{synopt:* {opth sheet:name(filename)}}Excel worksheet to load{p_end}
+{synopt:* {opth sh:eet(filename)}}Excel worksheet to load{p_end}
 {synopt:* {opth enum:erator(varname)}}enumerator variable{p_end}
 {synopt:* {opth id(varname)}}unique Survey ID variable{p_end}
-{synopt:* {opth date:var(varname)}}date/datetime variable indication date of survey{p_end}
-{synopt:* {opth outf:ile(filename)}}save output to Excel workbook{p_end}
+{synopt:* {opth date(varname)}}date/datetime variable indication date of survey{p_end}
+{synopt:* {opt outf:ile("filename.xlsx")}}save output to Excel workbook{p_end}
 
 {syntab:Specifications}
-{synopt:{opt outsheet("sheetname")}}save summary of duplicates to excel sheet{p_end}
+{synopt:{opt outsh:eet("sheetname")}}save summary of duplicates to excel sheet{p_end}
 {synopt:{opt sheetmod:ify}}modify excel sheet {cmd:outsheet}{p_end}
 {synopt:{opt sheetrep:lace}}overwrite excel sheet {cmd:outsheet}{p_end}
 {synopt:{opt nolab:el}}export variable values instead of value labels{p_end}
 
 {synoptline}
 {p2colreset}{...}
-{p 4 6 2}* {opt enumerator()}, {opt id()}, {opt datevar()} and {opt outfile()} are required.{p_end}
-{p 4 6 2}* Variables {opt variable}, {opt by}, {opt method}, {opt multiplier}, {opt combine} and optare required.{p_end}
+{p 4 6 2}* {opt enumerator()}, {opt id()}, {opt date()} and {opt outfile()} are required.{p_end}
+{p 4 6 2}* Variables {opt variable} is required is required in using data.{p_end}
 
-{marker description}{...}
 {title:Description}
 
 {pstd}
-{cmd:ipacheckoutliers} checks for outliers among numeric survey variables. 
+{cmd:ipacheckoutliers} checks for outliers in numeric survey variables. 
 
-{marker options}{...}
 {title:Options}
 
 {dlgtab:Main}
 
 {phang}
-{opt sheetname("sheetname")} specifies the Excel worksheet to load from the {help using} file. This is required if the using file is {opt .xls} or {opt .xlsx} formats. option {opt sheetname()} is ignored if the using file is {opt .csv} or {opt .dta} file.
+{opt sheet("sheetname")} specifies the Excel worksheet to load from the {help using} file. This is required if the using file is {opt .xls} or {opt .xlsx} formats. option {opt sheet()} is ignored if the using file is {opt .csv} or {opt .dta} file.
 
-{phang}
-{opt id} specifies the id variable for matching observations between the corrections file and the dataset in memory.
+{pstd}
+{opt id(varname)} specifies the id variable for the dataset. {cmd:id()} is required 
+and the variable specified with {cmd:id()} must contain unique values only. 
+The id variable is automatically included in the output.
 
-{phang}
-{opth enumerator(varname)} specifies the enumerator variable for the dataset in memory. This variable must have non-missing values for all observations and can either be {help string} or {help numeric}. The {opt enumerator()} variable is automatically included in the output file. 
+{pstd}
+{opth enumerator(varname)} specifies the enumerator variable for the dataset. {cmd:enumerator()} is 
+required and is automatically included in the output. 
 
-{phang}
-{opth date:var(varname)} specifies a date or datetime variable for the dataset in memory. This variable must have non-missing values for all observations and must either be in {help %td} or {help %tc} formats. The {opt enumerator()} variable is automatically included in the output file. 
+{pstd}
+{opt date(varname)} specifies the date or datetime variable indicating the date of 
+survey. Reommended variables are Survey start, end or submission dates. This option 
+expects a %td date variable or a %tc/%tC datetime variable. If variable specified 
+is a datetime variable, the output will show the correspondent date instead of 
+datetime. {cmd:date()} is required. 
 
-{phang}
-{opth out:file(filename)} specifies the Excel workbook for saving the output of the {cmd ipacheckoutliers check}. 
-
+{pstd}
+{opt outfile(varname)} specifies Excel workbook to export the duplicate report into. 
+{cmd:outfile()} is required. Excel formats xls and xlsx are supported in {cmd:outfile()}. 
+If a file extension is not specified with {cmd:outfile()}, .xls is assumed, because 
+this format is more common and is compatible with more applications that also can read from Excel files.
 
 {dlgtab:Specifications}
 
 {pstd}
-{opt outsheet("sheetname")} specifies the Excel worksheet Excel sheet to export the output to for the {opt outfile()} specified. The default is to save to Excel sheet "outliers".
+{opt outsheet("sheetname")} specifies the Excel worksheet Excel sheet to export the 
+output to for the {opt outfile()} specified. The default is to save to Excel sheet "outliers".
 
 {pstd}
-{opt sheetmodify} option specifies that the output sheet should only be modified but not be replaced if it already exist.  
+{opt sheetmodify} specifies that the output sheet should only be modified 
+but not be replaced if it already exist.  
 
 {pstd}
-{opt sheetreplace} option specifies that the output sheet should be replaced if it already exist.  
+{opt sheetreplace} specifies that the output sheet should be replaced if 
+it already exist.  
 
-{phang}
-{opt nolabel} exports the underlying numeric values instead of the value labels.
+{pstd}
+{opt nolabel} nolabel exports the underlying numeric values instead of the value labels.
 
-
-{marker remarks}{...}
 {title:Remarks}
 
 {pstd}
 {cmd:ipacheckoutliers} is one of the checks run in IPA's Data Management System. 
-It can be run within IPA's Data Management System, where inputs are entered into a globals do-file 
-and outputs are formatted in a .xlsx file or used directly from the command window or other do-files. See {help ipacheck} for more details on how to use the Data Management System. 
+It can be run within IPA's Data Management System, where inputs are entered into an Excel inputs sheet 
+and outputs are formatted in a .xlsx file or used directly from the command window 
+or other do-files. See {help ipacheck} for more details on how to use the 
+Data Management System. 
 
 {pstd}
 Below, an example {opt inputs file} is shown with additional optional variables:
@@ -133,27 +144,24 @@ and outputs are formatted in a .xlsx file or used directly from the command wind
 {marker examples}{...}
 {title:Examples}
 
-{pstd}
-Check for duplicates in dateset using inputs in the input file hfc_inputs.xlsm:
-{p_end}{cmd}{...}
+{title:Examples}
 
-{phang2}
-.  ipacheckoutliers using "hfc_inputs.xlsm", 
-    id(hhid)
-    enum(enum_id)
-    date(submissiondate)
-    outfile("hfc_output.xlsx")
-    sheetreplace 
-    nolabel
+{synoptline}
+  {text:Setup}
+	{phang}{com}   . use "https://raw.githubusercontent.com/PovertyAction/ipa_dms4.0/final/data/household_survey.dta", clear{p_end}
+
+  {text:Run check}
+	{phang}{com}   . ipacheckoutliers using "hfc_inputs_example.xlsm", enum(a_enum_id) date(starttime) outf("hfc_outputs.xlsx") sheetrep{p_end}
+	
+{synoptline}
+
 {txt}{...}
 	
-{marker acknowledgement}{...}
 {title:Acknowledgement}
 
 {pstd}
 {cmd:ipacheckoutliers} is based on previous versions written by Chris Boyer of Innovations for Poverty Action.
 
-{marker authors}{...}
 {title:Authors}
 
 {pstd}
@@ -164,3 +172,6 @@ Ishmail Azindoo Baako
 {browse "https://github.com/PovertyAction/high-frequency-checks/issues":GitHub issue}
 or e-mail researchsupport@poverty-action.org.{p_end}
 
+{title:Also see}
+
+User-written: {helpb ipacheckcorrections:ipacheckcorrections}, {helpb extremes:extremes}
