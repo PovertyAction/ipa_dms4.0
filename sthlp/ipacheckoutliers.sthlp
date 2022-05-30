@@ -33,7 +33,7 @@ Checks for outliers among numeric survey variables.
 {synopt:{opt outsh:eet("sheetname")}}save summary of duplicates to excel sheet{p_end}
 {synopt:{opt sheetmod:ify}}modify excel sheet {cmd:outsheet}{p_end}
 {synopt:{opt sheetrep:lace}}overwrite excel sheet {cmd:outsheet}{p_end}
-{synopt:{opt nolab:el}}export variable values instead of value labels{p_end}
+{synopt:{opt nol:abel}}export variable values instead of value labels{p_end}
 
 {synoptline}
 {p2colreset}{...}
@@ -140,17 +140,14 @@ The variabels {cmd:variable}, {cmd:by}, {cmd:method}, {cmd:multiplier}, {cmd:com
 It can be run within IPA's Data Management System, where inputs are entered into a globals do-file 
 and outputs are formatted in a .xlsx file or used directly from the command window or other do-files. See {help ipacheck} for more details on how to use the Data Management System.
 
-
-{marker examples}{...}
-{title:Examples}
-
 {title:Examples}
 
 {synoptline}
   {text:Setup}
 	{phang}{com}   . use "https://raw.githubusercontent.com/PovertyAction/ipa_dms4.0/final/data/household_survey.dta", clear{p_end}
-	{phang}{com}   . destring j_land_size j_land_value duration, replace
-	{phang}{com}   . gen j_land_value_acre = j_land_value/j_land_size
+	{phang}{com}   . copy "https://raw.githubusercontent.com/PovertyAction/ipa_dms4.0/final/excel/hfc_inputs_example.xlsm" "hfc_inputs_example.xlsm", replace{p_end}
+	{phang}{com}   . destring j_land_size j_land_value duration, replace{p_end}
+	{phang}{com}   . gen j_land_value_acre = j_land_value/j_land_size{p_end}
 
   {text:Run check}
 	{phang}{com}   . ipacheckoutliers using "hfc_inputs_example.xlsm", enum(a_enum_id) date(starttime) outf("hfc_outputs.xlsx") sheetrep{p_end}
