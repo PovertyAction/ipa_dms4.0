@@ -9,7 +9,7 @@ program ipacheckoutliers, rclass
 
 	#d;
 	syntax 	using/,
-			SHeet(string)
+			[SHeet(string)]
         	OUTFile(string)
         	[OUTSheet(string)]  
 			id(varname) 
@@ -55,7 +55,7 @@ program ipacheckoutliers, rclass
 
 		* save variables, by and keep vars locals
 		levelsof variable, loc (vars) clean
-		levelsof by, clean (byvars) clean
+		levelsof by, loc (byvars) clean
 		levelsof keepvars, loc(keepvars) clean
 		
 		* keep only relevant vars
