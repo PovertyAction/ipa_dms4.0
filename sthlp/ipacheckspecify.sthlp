@@ -145,7 +145,7 @@ The variabels {cmd:parent}, {cmd:child} and {cmd:keepvars} are required. The inp
 	{phang}{com}   . copy "https://raw.githubusercontent.com/PovertyAction/ipa_dms4.0/final/excel/hfc_inputs_example.xlsm" "hfc_inputs_example.xlsm", replace{p_end}
 
   {text:Check for other specify values}
-	{phang}{com}   . ipacheckspecify using "hfc_inputs_example.xlsm", sheet("other specify") id(hhid) enum(a_enum_id) date(starttime) keep(a_enum_name a_pl_hhh_fn) outf("hfc_outputs.xlsx"){p_end}
+	{phang}{com}   . ipacheckspecify using "hfc_inputs_example.xlsm", sh("other specify") id(hhid) enum(a_enum_id) date(starttime) outf("hfc_outputs.xlsx"){p_end}
 	
 {synoptline}
 
