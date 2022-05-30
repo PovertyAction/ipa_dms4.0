@@ -9,15 +9,15 @@ program ipacheckspecify, rclass sortpreserve
 
 	#d ;
 	syntax 	using/,
-			[sheetname(string)]
+			[SHeet(string)]
 			id(varname)
 			ENUMerator(varname)
-			DATEvar(varname)
+			date(varname)
 	    	OUTFile(string) 
 			[outsheet1(string)]
 			[outsheet2(string)]
 			[SHEETMODify SHEETREPlace] 
-			[NOLABel]
+			[NOLabel]
 		;	
 	#d cr
 
@@ -26,13 +26,13 @@ program ipacheckspecify, rclass sortpreserve
 		preserve
 		
 		tempfile tmf_choices
-
-		* check that input sheetname is specified. If not assume "other specify"
-		if "`sheetname1'" ~= "" loc sheetname1 "other specify"
-		if "`sheetname2'" ~= "" loc sheetname2 "other specify (choices)"
 		
-		* set default outsheet
-		if "`outsheet'" == "" loc outsheet "other specify"
+		* set default insheet
+		if "`sheet'" == "" loc sheet "other specify"
+		
+		* check that output sheet is specified. If not assume "other specify"
+		if "`outsheet1'" ~= "" loc outsheet1 "other specify"
+		if "`outsheet2'" ~= "" loc outsheet2 "other specify (choices)"
 		
 		* create frame for choice_list
 		cap frame drop frm_choice_list
@@ -45,9 +45,9 @@ program ipacheckspecify, rclass sortpreserve
 		#d cr	
 		
 		* get inputs from inputs sheet if using is specified	
-		import excel using "`using'", sheet("`sheetname'") first clear allstr case(l)
+		import excel using "`using'", sheet("`sheet'") first clear allstr case(l)
 		drop if missing(child) & missing(parent)
-		levelsof keep, loc(keepvars) clean
+		levelsof keepvars, loc(keep) clean
 
 		* get child and parent vars
 		keep child parent
@@ -73,8 +73,8 @@ program ipacheckspecify, rclass sortpreserve
 		* change to main data
 		restore, preserve
 	
-		* expand keepvars
-		if "`keepvars'" == "" unab keepvars: `keepvars'
+		* expand keep
+		if "`keep'" == "" unab keep: `keep'
 
 		* For each pair, check that # of children and parents match after expansion
 		forval i = 1/`osp_N' {
@@ -101,7 +101,7 @@ program ipacheckspecify, rclass sortpreserve
 		frame drop frm_inputs
 	
 		* keep only variables that are needed for check
-		keep `id' `enumerator' `datevar' `keepvars' `unab_child' `unab_parent'
+		keep `id' `enumerator' `datevar' `keep' `unab_child' `unab_parent'
 		
 		loc child_cnt = wordcount("`unab_child'")
 
@@ -250,16 +250,16 @@ program ipacheckspecify, rclass sortpreserve
 				replace child_label 	= "`c_var_lab`i''" if index == `i'
 			}
 
-			sort parent child child_value `datevar'
+			sort parent child child_value `date'
 
 			drop reshape_id index
 
 			compress
 			
-			ipagettd `datevar'
+			ipagettd `date'
 		
-			keep 	`enumerator' `keepvars' `datevar' `id'  parent parent_label parent_value child child_label child_value
-			order 	`enumerator' `datevar' `keepvars' `id' parent parent_label parent_value child child_label child_value 
+			keep 	`enumerator' `keep' `date' `id'  parent parent_label parent_value child child_label child_value
+			order 	`enumerator' `date' `keep' `id' parent parent_label parent_value child child_label child_value 
 
 			foreach var of varlist _all {
 				lab var `var' ""
@@ -272,7 +272,7 @@ program ipacheckspecify, rclass sortpreserve
 			label var child_label 	"child label"
 			label var child_value 	"child value"
 			
-			if "`keepvars'" ~= "" ipalabels `keepvars', `nolabel'
+			if "`keep'" ~= "" ipalabels `keep', `nolabel'
 			ipalabels `id' `enumerator', `nolabel'
 			export excel using "`outfile'", sheet("`outsheet1'") first(varl) `sheetreplace' `sheetmodify'
 			mata: colwidths("`outfile'", "`outsheet1'")
