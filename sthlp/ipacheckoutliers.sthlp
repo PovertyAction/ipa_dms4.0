@@ -149,6 +149,8 @@ and outputs are formatted in a .xlsx file or used directly from the command wind
 {synoptline}
   {text:Setup}
 	{phang}{com}   . use "https://raw.githubusercontent.com/PovertyAction/ipa_dms4.0/final/data/household_survey.dta", clear{p_end}
+	{phang}{com}   . destring j_land_size j_land_value duration, replace
+	{phang}{com}   . gen j_land_value_acre = j_land_value/j_land_size
 
   {text:Run check}
 	{phang}{com}   . ipacheckoutliers using "hfc_inputs_example.xlsm", enum(a_enum_id) date(starttime) outf("hfc_outputs.xlsx") sheetrep{p_end}
