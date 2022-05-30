@@ -38,24 +38,29 @@ program ipacheckoutliers, rclass
 		if _rc == 459 {
 			duplicates tag variable, gen (`tmv_dups')
 			di as err "Duplicates found in inputs sheet:"
-			noi list variable label by combine keep method multiplier if dups
+			noi list variable by method multiplier combine if dups
 			exit 459 
 		}
+		
+		* check and insert optionally needed required columns
+		foreach var in by method multiplier combine keepvars {
+			cap confirm var `var'
+			if _rc == 111 {
+				gen `var' = ""
+			}
+		}
 
-		* save keep variables in local and drop
-		levelsof keepvars, clean loc(keepvars)
-
-		* save a list of variables
-		levelsof variable, clean loc (vars)
-
-		* save byvars 
-		levelsof by, clean loc (byvars)
-
-		keep variable by combine method multiplier
+		* save variables, by and keep vars locals
+		levelsof variable, loc (vars) clean
+		levelsof by, clean (byvars) clean
+		levelsof keepvars, loc(keepvars) clean
+		
+		* keep only relevant vars
+		keep variable by method multiplier combine
 
 		* include default values method and multiplier
 			* if no method is supplied, assume iqr
-			* if no multiplied is supplied, assume 1.5 for iqr & 3 for SD
+			* if no multiplier is supplied, assume 1.5 for iqr & 3 for SD
 
 		replace method = "iqr" if missing(method)
 		replace multiplier = cond(method == "iqr" & missing(multiplier), "1.5", ///
