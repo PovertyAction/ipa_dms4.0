@@ -109,6 +109,7 @@ program ipachecktextaudit, rclass
 					gen `tmv_fmt' = string(`stat'), after(`stat')
 					drop `stat'
 					ren `tmv_fmt' `stat'
+					destring `stat', replace
 				}
 			}
 					 
@@ -159,6 +160,7 @@ program ipachecktextaudit, rclass
 				gen `tmv_fmt' = string(`var'), after(`var')
 				drop `var'
 				ren `tmv_fmt' `var'
+				destring `var', replace
 			}
 			
 			export excel using "`outfile'", sheet("field average by enumerator") first(varl)
@@ -223,6 +225,7 @@ program ipachecktextaudit, rclass
 						gen `tmv_fmt' = string(`stat'), after(`stat')
 						drop `stat'
 						ren `tmv_fmt' `stat'
+						destring `var', replace
 					}
 				}
 				
@@ -288,6 +291,7 @@ program ipachecktextaudit, rclass
 					gen `tmv_fmt' = string(`var'), after(`var')
 					drop `var'
 					ren `tmv_fmt' `var'
+					destring `var', replace
 				}
 			
 				export excel using "`outfile'", sheet("group average by enumerator") first(varl)
