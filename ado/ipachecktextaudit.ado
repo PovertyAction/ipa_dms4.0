@@ -19,7 +19,7 @@ program ipachecktextaudit, rclass
 	    
 		preserve
 
-		tempvar tmv_index tmv_row
+		tempvar tmv_index tmv_row tmv_fmt
 
 		tempfile tmf_main_data tmf_ta_data tmf_ta tmf_ta_group_stats
 		
@@ -104,17 +104,25 @@ program ipachecktextaudit, rclass
 					 
 			foreach stat of loc all_stats {
 				if !`:list stat in stats' drop `stat'
+				else {
+					replace `stat' = round(`stat', 0.01)
+					gen `tmv_fmt' = string(`stat'), after(`stat')
+					drop `stat'
+					ren `tmv_fmt' `stat'
+				}
 			}
 					 
 			export excel using "`outfile'", sheet("field stats") first(var) replace
 			mata: colwidths("`outfile'", "field stats")
 			mata: setheader("`outfile'", "field stats")
+			/*
 			foreach stat of loc all_stats {
 				if `:list stat in stats' {
 					if inlist("`stat'", "count", "min", "max") mata: colformats("`outfile'", "field stats", "`stat'", "number_sep")
 					else mata: colformats("`outfile'", "field stats", "`stat'", "number_d2")
 				}
 			}
+			*/
 			
 			*** FIELD AVERAGE BY ENUMERATOR ***
 			
@@ -144,10 +152,19 @@ program ipachecktextaudit, rclass
 					
 			lab var `enumerator' "`enumerator'"
 			ipalabels `enumerator', `nolabel'
+			
+			ds `enumerator', not
+			foreach var of varlist `r(varlist)' {
+				replace `var' = round(`var', 0.01)
+				gen `tmv_fmt' = string(`var'), after(`var')
+				drop `var'
+				ren `tmv_fmt' `var'
+			}
+			
 			export excel using "`outfile'", sheet("field average by enumerator") first(varl)
 			mata: colwidths("`outfile'", "field average by enumerator")
 			mata: setheader("`outfile'", "field average by enumerator")
-			mata: colformats("`outfile'", "field average by enumerator", st_varname(2..st_nvar()), "number_sep_d2")		
+			* mata: colformats("`outfile'", "field average by enumerator", st_varname(2..st_nvar()), "number_sep_d2")		
 			
 			*** GROUP STATS ***
 			
@@ -199,9 +216,20 @@ program ipachecktextaudit, rclass
 				
 				sort group
 				
+				foreach stat of loc all_stats {
+					if !`:list stat in stats' drop `stat'
+					else {
+						replace `stat' = round(`stat', 0.01)
+						gen `tmv_fmt' = string(`stat'), after(`stat')
+						drop `stat'
+						ren `tmv_fmt' `stat'
+					}
+				}
+				
 				export excel using "`outfile'", sheet("group stats") first(var)
 				mata: colwidths("`outfile'", "group stats")
 				mata: setheader("`outfile'", "group stats")
+				/*
 				foreach stat of loc all_stats {
 					if `:list stat in stats' {
 						if inlist("`stat'", "count", "min", "max") {
@@ -212,6 +240,7 @@ program ipachecktextaudit, rclass
 						}
 					}
 				}
+				*/
 				
 				*** GROUP AVERAGE BY ENUMERATOR ***
 				use "`tmf_ta'", clear
@@ -252,10 +281,19 @@ program ipachecktextaudit, rclass
 						
 				lab var `enumerator' "`enumerator'"
 				ipalabels `enumerator', `nolabel'
+				
+				ds `enumerator', not
+				foreach var of varlist `r(varlist)' {
+					replace `var' = round(`var', 0.01)
+					gen `tmv_fmt' = string(`var'), after(`var')
+					drop `var'
+					ren `tmv_fmt' `var'
+				}
+			
 				export excel using "`outfile'", sheet("group average by enumerator") first(varl)
 				mata: colwidths("`outfile'", "group average by enumerator")
 				mata: setheader("`outfile'", "group average by enumerator")
-				mata: colformats("`outfile'", "group average by enumerator", st_varname(2..st_nvar()), "number_d2")
+				* mata: colformats("`outfile'", "group average by enumerator", st_varname(2..st_nvar()), "number_d2")
 			}
 		}
 		
