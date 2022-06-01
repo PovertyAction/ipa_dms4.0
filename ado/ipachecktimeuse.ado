@@ -7,11 +7,11 @@ program ipachecktimeuse, rclass sortpreserve
 	#d;
 	syntax varname, 
 			ENUMerator(varname) 
-			STARTTIMEvar(varname)
+			STARTtime(varname)
 			TEXTAUDITdata(string)
 			OUTFile(string)
 			[SHEETMODify SHEETREPlace]
-			[NOLABel]
+			[NOlabel]
 		;
 	#d cr
 		
