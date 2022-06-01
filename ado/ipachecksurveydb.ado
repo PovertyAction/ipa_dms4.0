@@ -411,8 +411,7 @@ program ipachecksurveydb, rclass
 			if `_dur'   mata: colformats("`outfile'", "summary (grouped)", ("duration_min", "duration_mean", "duration_median", "duration_max"), "number_sep")
 						mata: colformats("`outfile'", "summary (grouped)", ("enumerators", "formversion", "days"), "number_sep")
 						mata: colformats("`outfile'", "summary (grouped)", ("firstdate", "lastdate"), "date_d_mon_yy")
-						
-			mata: settotal("`outfile'", "summary (grouped)")
+					
 		}
 		
 		*** productivity ***
@@ -518,7 +517,7 @@ program ipachecksurveydb, rclass
 			mata: colwidths("`outfile'", "`period' productivity (grouped)")
 			mata: setheader("`outfile'", "`period' productivity (grouped)")
 			mata: colformats("`outfile'", "`period' productivity (grouped)", st_varname(2..st_nvar()), "number_sep")
-			
+			mata: settotal("`outfile'", "`period' productivity (grouped)")
 		}
 	}
 	
