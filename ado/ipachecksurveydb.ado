@@ -9,7 +9,7 @@ program ipachecksurveydb, rclass
 	#d;
 	syntax 	,
         	[by(varlist max = 2)]
-        	DATEvar(varname)
+        	DATE(varname)
         	[PERiod(string)]
         	ENUMerator(varname)
         	[CONSent(string)]
@@ -101,7 +101,7 @@ program ipachecksurveydb, rclass
 			loc other_count 0
 		}
 		
-		ipagettd `datevar'
+		ipagettd `date'
 		
 		* save main dateset
 		save "`tmf_main_data'"
@@ -114,7 +114,7 @@ program ipachecksurveydb, rclass
 		}
 		else if "`period'" == "" loc period "auto"
 		if "`period'" == "auto" {
-		    su `datevar'
+		    su `date'
 			loc min_date `r(min)'
 			loc max_date `r(max)'
 			loc days = `max_date' - `min_date'
@@ -181,13 +181,13 @@ program ipachecksurveydb, rclass
 		
 		* create additional statistics
 		
-		count if `datevar' == today()
+		count if `date' == today()
 		loc today = `r(N)'												// total submissions from today
-		count if week(`datevar') == week(today()) & 	///
-			year(`datevar') == year(today())
+		count if week(`date') == week(today()) & 	///
+			year(`date') == year(today())
 		loc week = `r(N)'												// total submissions for current calendar week
-		count if month(`datevar') == month(today()) & 	///
-			year(`datevar') == year(today())
+		count if month(`date') == month(today()) & 	///
+			year(`date') == year(today())
 		loc month = `r(N)'												// total submissions for current calendar month
 		su `tmv_consent_yn'
 		loc consent_rate `r(mean)'										// consent rate
@@ -236,10 +236,10 @@ program ipachecksurveydb, rclass
 		loc enum_count 		  = `r(r)'
 		tab `formversion'
 		loc formversion_count = `r(r)'
-		su `datevar'
+		su `date'
 		loc firstdate 		  = string(`r(min)', "%td")
 		loc lastdate  		  = string(`r(max)', "%td")
-		tab `datevar'
+		tab `date'
 		loc days_count 		  =	`r(r)'
 		
 
@@ -331,7 +331,7 @@ program ipachecksurveydb, rclass
 					replace `tmv_enum' 			= `r(r)' 	if `by' == "`group'"
 					tab `formversion' 						if `by' == "`group'"
 					replace `tmv_formversion' 	= `r(r)' 	if `by' == "`group'"
-					tab `datevar'							if `by' == "`group'"
+					tab `date'							if `by' == "`group'"
 					replace `tmv_days' 			= `r(r)' 	if `by' == "`group'"
 				}
 			}
@@ -342,7 +342,7 @@ program ipachecksurveydb, rclass
 					replace `tmv_enum' 			= `r(r)' 	if `by' == `group'
 					tab `formversion' 						if `by' == `group'
 					replace `tmv_formversion' 	= `r(r)' 	if `by' == `group'
-					tab `datevar'							if `by' == `group'
+					tab `date'							if `by' == `group'
 					replace `tmv_days' 			= `r(r)' 	if `by' == `group'
 				}
 			}
@@ -361,8 +361,8 @@ program ipachecksurveydb, rclass
 					 (max)	 	duration_max   	= `tmv_dur'
 					 (first) 	enumerators 	= `tmv_enum'
 					 (first) 	formversion 	= `tmv_formversion'
-					 (min)   	firstdate 		= `datevar'
-					 (max)   	lastdate		= `datevar'
+					 (min)   	firstdate 		= `date'
+					 (max)   	lastdate		= `date'
 					 (first) 	days 			= `tmv_days'
 					 ,
 					 by(`by')
@@ -416,9 +416,9 @@ program ipachecksurveydb, rclass
 		
 		* generate a calendar dataset
 		use "`tmf_main_data'", clear
-		ipagetcal `datevar'
+		ipagetcal `date'
 		
-		merge 1:m `datevar' using "`tmf_main_data'", keepusing(`datevar' `by') gen(datematch)
+		merge 1:m `date' using "`tmf_main_data'", keepusing(`date' `by') gen(datematch)
 		gen weight = cond(datematch == 3, 1, 0)
 		drop datematch
 		
@@ -426,18 +426,18 @@ program ipachecksurveydb, rclass
 		save "`tmf_datecal'"
 		
 		if "`period'" == "daily" {
-		    collapse (sum) submissions = weight, by(`datevar')
+		    collapse (sum) submissions = weight, by(`date')
 			gen day = _n
-			order day `datevar' submissions
+			order day `date' submissions
 		}
 		else if "`period'" == "weekly" {
-		    collapse (min) startdate = `datevar' (max) enddate = `datevar' (sum) submissions = weight, by(year week)
+		    collapse (min) startdate = `date' (max) enddate = `date' (sum) submissions = weight, by(year week)
 			replace week = _n
 			order 	week startdate enddate submissions
 			keep 	week startdate enddate submissions
 		}
 		else {
-		    collapse (min) startdate = `datevar' (max) enddate = `datevar' (sum) submissions = weight, by(year month)
+		    collapse (min) startdate = `date' (max) enddate = `date' (sum) submissions = weight, by(year month)
 			replace month = _n
 			order 	month startdate enddate submissions
 			keep 	month startdate enddate submissions
@@ -448,7 +448,7 @@ program ipachecksurveydb, rclass
 		mata: setheader("`outfile'", "`period' productivity")
 		if "`period'" == "daily" {
 			mata: colformats("`outfile'", "`period' productivity", ("day", "submissions"), "number_sep")
-			mata: colformats("`outfile'", "`period' productivity", ("`datevar'"), "date_d_mon_yy")
+			mata: colformats("`outfile'", "`period' productivity", ("`date'"), "date_d_mon_yy")
 		}
 		else if "`period'" == "weekly" {
 			mata: colformats("`outfile'", "`period' productivity", ("week", "submissions"), "number_sep")
@@ -464,8 +464,8 @@ program ipachecksurveydb, rclass
 			use "`tmf_datecal'", clear
 			
 			if "`period'" == "daily" {
-				collapse (sum) submissions = weight, by(`by' `datevar')
-				ren `datevar' jvar
+				collapse (sum) submissions = weight, by(`by' `date')
+				ren `date' jvar
 			}
 			else if "`period'" == "weekly" {
 				collapse (sum) submissions = weight, by(`by' year week)
@@ -473,7 +473,7 @@ program ipachecksurveydb, rclass
 				egen jvar = group(year week)
 			}
 			else {
-				collapse `datevar' (sum) submissions = weight, by(`by' year month)
+				collapse `date' (sum) submissions = weight, by(`by' year month)
 				sort month
 				egen jvar = group(year month)
 			}
