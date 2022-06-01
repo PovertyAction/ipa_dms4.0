@@ -25,7 +25,7 @@ program ipacheckcomments, rclass
 		tempfile tmf_main_data tmf_comm
 		
 		* set outsheet
-		if "`outsheet'" ~= "" loc outsheet "field comments"
+		if "`outsheet'" == "" loc outsheet "field comments"
 		
 		* keep only relevant variables and observations
 		keep `varlist' `enumerator' `keepvars'
