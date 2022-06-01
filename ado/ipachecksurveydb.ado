@@ -416,7 +416,7 @@ program ipachecksurveydb, rclass
 		
 		* generate a calendar dataset
 		use "`tmf_main_data'", clear
-		ipagetcal `date'
+		ipagetcal `date', clear
 		
 		merge 1:m `date' using "`tmf_main_data'", keepusing(`date' `by') gen(datematch)
 		gen weight = cond(datematch == 3, 1, 0)
