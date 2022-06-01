@@ -25,8 +25,8 @@ program ipachecktimeuse, rclass sortpreserve
 		tempfile tmf_timeuse 
 		
 		* check  : format timeevar in %tc, %tC format
-		if lower("`:format `starttimevar''") ~= "%tc"	{
-			disp as err "`starttimevar' is not a datetime variable"
+		if lower("`:format `starttime''") ~= "%tc"	{
+			disp as err "`starttime' is not a datetime variable"
 			exit 181
 		}
 		
@@ -41,7 +41,7 @@ program ipachecktimeuse, rclass sortpreserve
 		}	
 		
 		* keep only relevant variables and observations
-		keep `varlist' `enumerator' `starttimevar'
+		keep `varlist' `enumerator' `starttime'
 		keep if !missing(`varlist')
 		loc obs_cnt 	= `c(N)'
 		
@@ -73,12 +73,12 @@ program ipachecktimeuse, rclass sortpreserve
 			* keep only needed variables 
 			cap confirm var devicetime 
 			if !_rc {
-				keep fieldname formtime `varlist' `starttimevar' `enumerator'
+				keep fieldname formtime `varlist' `starttime' `enumerator'
 				ren (formtime) (firstappeared)
 				destring firstappeared, replace
 			}
 			else {
-				keep fieldname firstappeared `varlist' `starttimevar' `enumerator'
+				keep fieldname firstappeared `varlist' `starttime' `enumerator'
 				ren (firstappeared) (firstappeared)
 				destring firstappeared, replace
 				gen tt = firstappeared
@@ -92,10 +92,10 @@ program ipachecktimeuse, rclass sortpreserve
 			save "`tmf_ta'", replace
 		
 			* generate actual time for firstappeared
-			gen double time = `starttimevar' + firstappeared
+			gen double time = `starttime' + firstappeared
 			gen hour 		= hh(time)
 			format %tc time
-			gen date = dofc(`starttimevar')
+			gen date = dofc(`starttime')
 			format %td date
 		
 			duplicates drop `varlist' hour, force
@@ -121,7 +121,7 @@ program ipachecktimeuse, rclass sortpreserve
 			order hh*, sequential after(date)
 			
 			export excel date using "`outfile'", sheet("timeuse by date") cell(B4) `sheetreplace' `sheetmodify'
-			mata: format_timeuse("`outfile'", "timeuse by date", "Active survey hours by `starttimevar'", 1)
+			mata: format_timeuse("`outfile'", "timeuse by date", "Active survey hours by `starttime'", 1)
 
 			*** timeuse by enumerator ***
 			use "`tmf_ta'", clear
