@@ -2,7 +2,7 @@
 *! Innovations for Poverty Action
 * ipagetcal: Generate date calendar data
 
-program define ipagetcal 
+program define ipagetcal, rclass
 
 	syntax varname, clear
 	
