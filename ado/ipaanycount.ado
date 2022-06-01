@@ -44,7 +44,7 @@ program define ipaanycount
 		   
 		}
 		else if !missing("`numval'") {
-			forval val of numlist `numval' {
+			foreach val of numlist `numval' {
 				replace `tmv_gen_check' = 	1 if ///
 											!`tmv_gen_check' & ///
 											`var' == `val'
