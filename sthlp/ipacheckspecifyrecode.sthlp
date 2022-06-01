@@ -25,9 +25,11 @@ Recode other specify values of the dataset in memory using an external dataset.
 
 {syntab:Specifications}
 
-{synopt:{opt logf:ile("filename.xlsx")}}option to produce log of changes{p_end}
+{synopt:{opt logf:ile("filename.xlsx")}}produce log of changes{p_end}
 {synopt:{opt logsh:eet("sheetname")}}save logfile to excel worksheet{p_end}
-{synopt:{opth keep(varlist)}}variables in survey data to keep log file{p_end}
+{synopt:{opth keep(varlist)}}additional variables in survey data export to log file{p_end}
+{synopt:{opt sheetmod:ify}}modify Excel worksheet {cmd:outsheet}{p_end}
+{synopt:{opt sheetrep:lace}}overwrite Excel worksheet {cmd:outsheet}{p_end}
 {synopt:{opt nol:abel}}export values instead of value labels to logfile{p_end}
 {synoptline}
 {p2colreset}{...}
@@ -57,6 +59,14 @@ Recode other specify values of the dataset in memory using an external dataset.
 
 {phang}
 {opt logsheet("sheetname")} exports the other specify log to Excel sheetname {opt "sheetname"} of the {opt "filename.xlsx"} Excel workbook. {opt logsheet()} is required if {opt logfile()} is specified.
+
+{pstd}
+{opt sheetmodify} specifies that the log sheet should only be modified 
+but not be replaced if it already exist.  
+
+{pstd}
+{opt sheetreplace} specifies that the log sheet should be replaced if 
+it already exist.  
 
 {phang}
 {opt nolabel} exports the underlying numeric values instead of the value labels.
@@ -126,7 +136,7 @@ they want {cmd:ipacheckspecifyrecode} to assume them as literal text.
 	{phang}{com}   . copy "https://raw.githubusercontent.com/PovertyAction/ipa_dms4.0/final/excel/specifyrecode_example.xlsm" "specifyrecode_example.xlsm", replace{p_end}
 
   {text:Recode other specify using "other specify recode" sheet of "specify_recode_example.xlsm"}
-	{phang}{com}   .ipacheckspecifyrecode using "specifyrecode_example.xlsm", sheet("other specify recode") id(key) logf("specifyrecode_log.xlsx") logs("household survey"){p_end}
+	{phang}{com}   .ipacheckspecifyrecode using "specifyrecode_example.xlsm", sheet("other specify recode") id(key) logf("specifyrecode_log.xlsx") logs("household survey") sheetrep{p_end}
 	
 {synoptline}
 

@@ -76,7 +76,7 @@ the text audit or comments files.
 
 {title:Stored results}
 
-{p 6} {cmd:ipasctocollect} stores the following in r():{p_end}
+{p 6} {cmd:ipasctocollate} stores the following in r():{p_end}
 
 {synoptset 25 tabbed}{...}
 {syntab:{opt Scalars}}

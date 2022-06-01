@@ -1,5 +1,5 @@
 {smcl}
-{* *! version 4.0.0 Innovations for Poverty Action 25apr2022}{...}
+{* *! version 4.0.0 Innovations for Poverty Action 11may2022}{...}
 {title:Title}
 
 {phang}
@@ -19,7 +19,7 @@ Create statistics or missingness and distinctness of variables.
 {synopthdr}
 {synoptline}
 {syntab:Main}
-{synopt:* {opth outf:ile(filename)}}save output to Excel workbook{p_end}
+{synopt:* {opt outf:ile("filename.xlsx")}}save output to Excel workbook{p_end}
 
 {syntab:Specifications}
 {synopt:{opt outsh:eet("sheetname")}}save summary of duplicates to excel sheet{p_end}
@@ -92,7 +92,7 @@ or other do-files. See {help ipacheck} for more details on how to use the Data M
 	{phang}{com}   . use "https://raw.githubusercontent.com/PovertyAction/ipa_dms4.0/final/data/household_survey.dta", clear{p_end}
 
   {text:Check missingness of all variables}
-	{phang}{com}   . ipacheckmissing _all, outf("hfc_outputs.xlsx"){p_end}
+	{phang}{com}   . ipacheckmissing _all, outf("hfc_outputs.xlsx") sheetrep{p_end}
 	
 {synoptline}
 
@@ -112,3 +112,7 @@ Ishmail Azindoo Baako
 {pstd}For questions or suggestions, submit a
 {browse "https://github.com/PovertyAction/high-frequency-checks/issues":GitHub issue}
 or e-mail researchsupport@poverty-action.org.{p_end}
+
+{title:Also see}
+
+Help: {helpb misstable:[R] misstable}

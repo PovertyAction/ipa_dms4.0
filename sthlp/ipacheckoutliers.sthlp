@@ -69,7 +69,7 @@ is a datetime variable, the output will show the correspondent date instead of
 datetime. {cmd:date()} is required. 
 
 {pstd}
-{opt outfile(varname)} specifies Excel workbook to export the duplicate report into. 
+{opt outfile("filename.xlsx")} specifies Excel workbook to export the duplicate report into. 
 {cmd:outfile()} is required. Excel formats xls and xlsx are supported in {cmd:outfile()}. 
 If a file extension is not specified with {cmd:outfile()}, .xls is assumed, because 
 this format is more common and is compatible with more applications that also can read from Excel files.
@@ -156,6 +156,16 @@ and outputs are formatted in a .xlsx file or used directly from the command wind
 {synoptline}
 
 {txt}{...}
+
+{title:Stored results}
+
+{p 6} {cmd:ipacheckoutliers} stores the following in r():{p_end}
+
+{synoptset 25 tabbed}{...}
+{syntab:{opt Scalars}}
+{synopt:{cmd: r(N_outliers)}}number of outliers values found{p_end}
+{synopt:{cmd: r(N_vars)}}number variables with outlier values{p_end}
+{p2colreset}{...}
 	
 {title:Acknowledgement}
 
@@ -167,6 +177,7 @@ and outputs are formatted in a .xlsx file or used directly from the command wind
 {pstd}
 Ishmail Azindoo Baako
 (Innovations for Poverty Action){p_end}
+{pstd}{it:Last updated: May 11, 2022}{p_end}
 
 {pstd}For questions or suggestions, submit a
 {browse "https://github.com/PovertyAction/high-frequency-checks/issues":GitHub issue}

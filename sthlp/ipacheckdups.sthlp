@@ -55,10 +55,10 @@ with the same value for the ID variable.
 {pstd}
 {opt id(varname)} specifies the id variable for the dataset. {cmd:id()} is required 
 and the variable specified with {cmd:id()} must contain unique values only. 
-The id variable is automatically included in the output
+The id variable is automatically included in the output.
 
 {pstd}
-{opt enumerator(varname)} specifies the enumerator variable for the dataset. {cmd:enumerator()} is 
+{opth enumerator(varname)} specifies the enumerator variable for the dataset. {cmd:enumerator()} is 
 required and is automatically included in the output. 
 
 {pstd}
@@ -112,11 +112,16 @@ to use the Data Management System.
 	{phang}{com}   . use "https://raw.githubusercontent.com/PovertyAction/ipa_dms4.0/final/data/household_survey.dta", clear{p_end}
 
   {text:Flag and export duplicates in phone_number variable}
-	{phang}{com}   . ipacheckdups phone_number, id(hhid) enum(a_enum_id) date(starttime) keep(a_enum_name a_pl_hhh_fn submissiondate endtime) outf("hfc_outputs.xlsx"){p_end}
+	{phang}{com}   . ipacheckdups phone_number, id(hhid) enum(a_enum_id) date(starttime) keep(a_enum_name a_pl_hhh_fn submissiondate endtime) outf("hfc_outputs.xlsx") sheetrep{p_end}
 	
 {synoptline}
 
 {txt}{...}
+
+{title:Acknowledgement}
+
+{pstd}
+{cmd:ipacheckdups} is based on previous versions of {cmd:ipacheckdups} written by Chris Boyer of Innovations for Poverty Action.
 
 {title:Authors}
 

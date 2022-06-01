@@ -29,7 +29,6 @@ missing, and other useful statistics.
 
 {syntab:Specifications}
 {synopt:* {opth by(varname)}} group statistics by variable{p_end}
-{synopt:{opt team(varname)}}team variable{p_end}
 {synopt:{opt period(period)}}report by specified period eg. daily, weekly, monthly or auto.{p_end}
 {synopt:{opt cons:ent({help varname}, {help numlist})}}consent variable and values{p_end}
 {synopt:{opt dontk:now(#, "string")}}numeric and string values for don't know{p_end}
@@ -91,9 +90,6 @@ this format is more common and is compatible with more applications that also ca
 {opth by(varname)} specifies that the output shows a disggregation based on the values 
 of the variable specified with the {cmd:by()} option. eg. by(district), by(treatment_status). 
 
-{phang}
-{opth team(varname)} specifies the team variable for the dataset in memory. 
-
 {pstd}
 {opt period(period)} option specifies the time frame for showing summaries and statistics 
 in the daashboard. The daily option shows summary by day, weekly by week and monthly by month. 
@@ -147,7 +143,10 @@ how to use the Data Management System.
 	{phang}{com}   . destring duration, replace
 		
   {text:Run ipachecksurveydb}
-    {phang}{com}   . ipachecksurveydb, formv(formdef_version) dur(duration) cons(c_consent, 1) dontk(.999 -999, "-999") ref(.888 -888, "888") other(*_osp*) enum(a_enum_name) date(starttime) outf("surveydb.xlsx") sheetrep{p_end}
+    {phang}{com}   . ipachecksurveydb, formv(formdef_version) dur(duration) cons(c_consent, 1) dontk(-999, "-999") ref(-888, "888") other(*_osp*) enum(a_enum_name) date(starttime) outf("surveydb.xlsx") sheetrep{p_end}
+	
+  {text:Run ipachecksurveydb, disggregate by district}
+    {phang}{com}   . ipachecksurveydb, by(a_district) formv(formdef_version) dur(duration) cons(c_consent, 1) dontk(-999, "-999") ref(-888, "888") other(*_osp*) enum(a_enum_name) date(starttime) outf("surveydb_grouped.xlsx") sheetrep{p_end}
 	
 {synoptline}
 	

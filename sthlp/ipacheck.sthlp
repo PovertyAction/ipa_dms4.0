@@ -161,12 +161,13 @@ The {cmd:ipacheck} package contains the following commands:
 {syntab:Main programs}
 {synopt:{help ipacheckcorrections}}makes corrections to data{p_end}
 {synopt:{help ipacheckspecifyrecode}}recodes other specify values{p_end}
-{synopt:{help ipacheckversions}}export number of surveys form version and flags outdated survey submissions{p_end}
+{synopt:{help ipacheckversions}}analyze and report on survey form version{p_end}
 {synopt:{help ipacheckids}}export duplicates in survey ID{p_end}
 {synopt:{help ipacheckdups}}export duplicates in non-ID variables{p_end}
 {synopt:{help ipacheckmissing}}export statistics on missingness & distinctness for each variable{p_end}
 {synopt:{help ipacheckspecify}}export all values specified for variables with an 'other' category{p_end}
 {synopt:{help ipacheckoutliers}}export outliers in numeric variables{p_end}
+{synopt:{help ipacheckcomments}}export field comments generated with SurveyCTO's comments field type{p_end}
 {synopt:{help ipachecktextaudit}}export field duration statistics using the SurveyCTO's text audit files{p_end}
 {synopt:{help ipachecktimeuse}}export statistics on hours of engagement using the SurveyCTO's text audit files{p_end}
 {synopt:{help ipachecksurveydb}}export general statistics about dataset{p_end}

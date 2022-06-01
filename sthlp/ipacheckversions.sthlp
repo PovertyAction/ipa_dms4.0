@@ -112,7 +112,7 @@ values are numeric and in ascending order from the oldest to the most recent for
 	{phang}{com}   . use "https://raw.githubusercontent.com/PovertyAction/ipa_dms4.0/final/data/household_survey.dta", clear{p_end}
 
   {text:Run check}
-	{phang}{com}   . ipacheck formdef_version, enum(a_enum_id) date(starttime) outfile("hfc_outputs.xlsx") keep(a_enum_name hhid a_pl_hhh_fn) sheetreplace{p_end}
+	{phang}{com}   . ipacheckversions formdef_version, enum(a_enum_id) date(starttime) outfile("hfc_outputs.xlsx") keep(a_enum_name hhid a_pl_hhh_fn) sheetrep{p_end}
 	
 {synoptline}
 
