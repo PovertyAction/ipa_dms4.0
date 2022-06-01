@@ -9,13 +9,13 @@ program ipachecksurveydb, rclass
 	#d;
 	syntax 	,
         	[by(varlist max = 2)]
-        	DATE(varname)
+        	date(varname)
         	[PERiod(string)]
         	ENUMerator(varname)
         	[CONSent(string)]
         	[DONTKnow(string)]
 			[REFuse(string)]
-			[OTHERvars(varlist)]
+			[OTHERspecify(varlist)]
         	[DURation(varname)]
         	FORMVersion(varname)
         	OUTFile(string)
@@ -50,7 +50,7 @@ program ipachecksurveydb, rclass
 		loc _cons 	= "`consent'" 	~= ""
 		loc _dk 	= "`dontknow'" 	~= ""
 		loc _ref 	= "`refuse'" 	~= ""
-		loc _other 	= "`othervars'" ~= ""
+		loc _other 	= "`otherspecify'" ~= ""
 		loc _dur 	= "`duration'" 	~= ""
 		
 		* check for dk, ref. Generate dummies if not specified
@@ -92,9 +92,9 @@ program ipachecksurveydb, rclass
 		else gen `tmv_ref' = 0
 	
 		if `_other' {
-			unab othervars: `othervars'
-			loc other_count = wordcount("`othervars'")
-			egen `tmv_other' = rownonmiss(`othervars'), strok
+			unab othervars: `otherspecify'
+			loc other_count = wordcount("`otherspecify'")
+			egen `tmv_other' = rownonmiss(`otherspecify'), strok
 		}
 		else {
 			gen `tmv_other' = 0
