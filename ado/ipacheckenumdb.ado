@@ -21,7 +21,7 @@ program ipacheckenumdb, rclass sortpreserve
         	FORMVersion(varname)
         	OUTFile(string)
 			[SHEETREPlace SHEETMODify]
-			[NOLABel]
+			[NOLabel]
 		;	
 	#d cr
 
@@ -334,7 +334,7 @@ program ipacheckenumdb, rclass sortpreserve
 			
 			*label variables
 			lab var enumerators     "# of enums"
-			lab var team 			"team"
+			lab var `team' 			"team"
 			lab var submissions 	"# of submissions"
 			lab var consent_rate 	"% of consent"
 			lab var missing_rate   	"% missing"
