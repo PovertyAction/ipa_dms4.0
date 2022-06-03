@@ -521,11 +521,11 @@ program ipacheckenumdb, rclass sortpreserve
 			* check that all rows have at least one stats specification
 			egen syntax_check = rowmiss(min mean median sd max)
 			
-			count if syntax_check == 4
+			count if syntax_check == 5
 			if `r(N)' > 0 {
 				disp as err "missing stats specification for `r(N)' rows"
 				gen row = _n + 1
-				noi list if syntax_check == 4
+				noi list if syntax_check == 5
 				ex 198
 			}
 						
