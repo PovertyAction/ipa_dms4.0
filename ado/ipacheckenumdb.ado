@@ -375,7 +375,7 @@ program ipacheckenumdb, rclass sortpreserve
 		
 		* generate a calendar dataset
 		use "`tmf_main_data'", clear
-		ipagetcal `datevar'
+		ipagetcal `datevar', clear
 		
 		merge 1:m `datevar' using "`tmf_main_data'", keepusing(`datevar' `enumerator' `team') gen(datematch)
 		gen weight = cond(datematch == 3, 1, 0)
