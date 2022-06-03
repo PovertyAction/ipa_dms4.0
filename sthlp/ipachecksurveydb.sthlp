@@ -28,9 +28,9 @@ missing, and other useful statistics.
 {synopt:* {opth outf:ile(filename)}}save output to Excel workbook{p_end}
 
 {syntab:Specifications}
-{synopt:* {opth by(varname)}} group statistics by variable{p_end}
-{synopt:{opt period(period)}}report by specified period eg. daily, weekly, monthly or auto.{p_end}
-{synopt:{opt cons:ent({help varname}, {help numlist})}}consent variable and values{p_end}
+{synopt:{opth by(varname)}} group statistics by variable{p_end}
+{synopt:{opth per:iod(ipachecksurveydb##period:period)}}report by specified period eg. daily, weekly, monthly or auto{p_end}
+{synopt:{opt cons:ent}{cmd:(}{help varname}{cmd:, }{help numlist}{cmd:)}}}consent variable and values{p_end}
 {synopt:{opt dontk:now(#, "string")}}numeric and string values for don't know{p_end}
 {synopt:{opt ref:use(#, "string")}}numeric and string values for refuse to answer{p_end}
 {synopt:{opth other:specify(varlist)}}other specify variables{p_end}
@@ -91,11 +91,20 @@ this format is more common and is compatible with more applications that also ca
 of the variable specified with the {cmd:by()} option. eg. by(district), by(treatment_status). 
 
 {pstd}
-{opt period(period)} option specifies the time frame for showing summaries and statistics 
-in the daashboard. The daily option shows summary by day, weekly by week and monthly by month. 
-The auto option auto adjust the period based on the number of days ie. using days 
-if number of days are less than or equal to 40, weeks if the number of days more than 
-40 and months if the number of months are greater than 40 weeks.    
+{cmd:period(}{help ipachecksurveydb##period:period}{cmd:)} specifies the time frame for showing summaries and statistics 
+in the daashboard. eg. {opt period(daily)} {p_end}
+
+{marker period}{...}
+{synoptset 26 tabbed}{...}
+{synopthdr}
+{synoptline}
+{syntab:Main}
+{synopt:{opt daily}}show daily summaries.{p_end}
+{synopt:{opt weekly}}show weekly summaries. Week is Sunday to Saturday{p_end}
+{synopt:{opt monthly}}show monthly summaries. Month is based on calendar month{p_end}
+{synopt:{opt auto}}Auto adjust period. The auto option auto adjust the period based on the number of days ie. using days if number of days are less than or equal to 40, weeks if the number of days more than 40 and months if the number of months are greater than 40 weeks{p_end}
+{synoptline}
+{p2colreset}{...}
 
 {pstd}
 {opt consent({help varname},{help numlist})} option specifies variable and the 
@@ -110,7 +119,7 @@ these values to indicate a valid consent.
 {opt ref:use(numlist, "string")} option specifies values for refuse to answer responses. eg. dontknow(-999, "-999") or consent(-999, "Dont Know").  
 
 {pstd}
-{opth other(varlist} option specifies other specify child variables. If specified, {cmd:ipacheckenumdb} will show statistics on percentage of times enumerator used the other specify option.   
+{opth otherspecify(varlist)} option specifies other specify child variables. If specified, {cmd:ipacheckenumdb} will show statistics on percentage of times enumerator used the other specify option.   
 
 {pstd}
 {opth duration(varname)} option specifies the duration variable. If specified, {cmd:ipacheckenumdb} will show statistics on minimimum, maximum, mean and median duration per enumerator.   
