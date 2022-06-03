@@ -255,7 +255,7 @@ program ipacheckenumdb, rclass sortpreserve
 		if !`_dur' 		drop duration_*
 
 		ipalabels `enumerator', `nolabel'
-		export excel using "`outfile'", first(varl) sheet("summary") `replace'
+		export excel using "`outfile'", first(varl) sheet("summary") `sheetreplace' `sheetmodify'
 		mata: colwidths("`outfile'", "summary")
 		mata: setheader("`outfile'", "summary")
 		if `_cons' 	mata: colformats("`outfile'", "summary", ("consent_rate", "missing_rate"), "percent_d2")
@@ -358,7 +358,7 @@ program ipacheckenumdb, rclass sortpreserve
 			if !`_dur' 		drop duration_*
 
 			ipalabels `team', `nolabel'
-			export excel using "`outfile'", first(varl) sheet("summary (team)")
+			export excel using "`outfile'", first(varl) sheet("summary (team)") `sheetreplace' `sheetmodify'
 			mata: colwidths("`outfile'", "summary (team)")
 			mata: setheader("`outfile'", "summary (team)")
 			if `_cons' 	mata: colformats("`outfile'", "summary (team)", ("consent_rate", "missing_rate"), "percent_d2")
@@ -433,7 +433,7 @@ program ipacheckenumdb, rclass sortpreserve
 		replace submissions = scalar(sum) in `add'
 		
 		ipalabels `enumerator', `nolabel'
-		export excel using "`outfile'", first(varl) sheet("`period' productivity")
+		export excel using "`outfile'", first(varl) sheet("`period' productivity") `sheetreplace' `sheetmodify'
 		mata: colwidths("`outfile'", "`period' productivity")
 		mata: setheader("`outfile'", "`period' productivity")
 		mata: colformats("`outfile'", "`period' productivity", st_varname(2..st_nvar()), "number_sep")
@@ -493,7 +493,7 @@ program ipacheckenumdb, rclass sortpreserve
 			replace submissions = scalar(sum) in `add'
 			
 			ipalabels `team', `nolabel'
-			export excel using "`outfile'", first(varl) sheet("`period' productivity (team)")
+			export excel using "`outfile'", first(varl) sheet("`period' productivity (team)") `sheetreplace' `sheetmodify'
 			mata: colwidths("`outfile'", "`period' productivity (team)")
 			mata: setheader("`outfile'", "`period' productivity (team)")
 			mata: colformats("`outfile'", "`period' productivity (team)", st_varname(2..st_nvar()), "number_sep")
@@ -706,7 +706,7 @@ program ipacheckenumdb, rclass sortpreserve
 			frames drop frm_enumstats
 			
 			ipalabels `enumerator', `nolabel'
-			export excel using "`outfile'", first(varl) sheet("enumstats") cell(A2)
+			export excel using "`outfile'", first(varl) sheet("enumstats") cell(A2) `sheetreplace' `sheetmodify'
 			mata: colwidths("`outfile'", "enumstats")
 			mata: format_edb_stats("`outfile'", "enumstats", labs, percentcols)
 		}
