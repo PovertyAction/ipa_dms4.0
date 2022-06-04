@@ -129,7 +129,7 @@ program ipatracksurvey, rclass
 			destring `target', replace
 			cap confirm numeric var `target'
 			if _rc == 7 {
-			    disp as err "'`target'' found where numeric variable expected at target"
+			    disp as err "`target' found where numeric variable expected at target"
 				ex 9
 			}
 			
@@ -380,7 +380,15 @@ program ipatracksurvey, rclass
 				keep if _master_merge == 2
 				if `c(N)' > 0 {
 				    keep `id' `date' `keepsurvey'
-					if "`keepsurvey'" ~= "" ipalabels `keepsurvey', `nolabel'
+					if "`keepsurvey'" ~= "" {
+						ipalabels `keepsurvey', `nolabel'
+						foreach var in varlist `keepsurvey' {
+							cap confirm var `var'
+							if !_rc {
+								ren `var' "`var'"
+							}
+						}
+					}
 					ipalabels `id', `nolabel'
 					export excel using "`outfile'", sheet("Unmatched IDs from Survey") first(varl)
 					mata: colwidths("`outfile'", "Unmatched IDs from Survey")
@@ -422,11 +430,19 @@ program ipatracksurvey, rclass
 					foreach group in `groups' {
 						use "`tmf_summary'", clear
 						keep if `by' == `group'
-						if "`keepsurvey'`keepmaster'" ~= "" ipalabels `keepsurvey' `keepmaster', `nolabel'
+						if "`keepsurvey'`keepmaster'" ~= "" {
+							ipalabels `keepsurvey' `keepmaster', `nolabel'
+							foreach var in varlist `keepsurvey' `keepmaster' {
+								cap confirm var `var'
+								if !_rc {
+									ren `var' "`var'"
+								}
+							}
+						}
 						ipalabels `by' `id', `nolabel'
 						if "`workbooks'" ~= "" {
 							cap rm "`filename'_`group'.xlsx"
- 							export excel using "`filename'_`group'.xlsx", first(varl) sheet("status") replace
+ 							export excel using "`filename'_`group'.xlsx", first(varl) sheet("status") replace 
 							loc file 	"`filename'_`group'.xlsx"
 							loc sheet 	"status"
 						}
@@ -453,7 +469,15 @@ program ipatracksurvey, rclass
 					foreach group in `groups' {
 						use "`tmf_summary'", clear
 						keep if `by' == "`group'"
-						if "`keepsurvey'`keepmaster'" ~= "" ipalabels `keepsurvey' `keepmaster', `nolabel'
+						if "`keepsurvey'`keepmaster'" ~= "" {
+							ipalabels `keepsurvey' `keepmaster', `nolabel'
+							foreach var in varlist `keepsurvey' `keepmaster' {
+								cap confirm var `var'
+								if !_rc {
+									ren `var' "`var'"
+								}
+							}
+						}
 						ipalabels `by', `nolabel'
 						if "`workbooks'" ~= "" {
 							cap rm "`filename'_`group'.xlsx"
