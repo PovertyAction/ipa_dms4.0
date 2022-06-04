@@ -101,7 +101,7 @@ program ipacheckmissing, rclass
 			
 			lab var number_missing 	"# missing"
 			lab var percent_missing "% missing"
-			lab var important_var 	"important var?"
+			lab var important_var 	"priority?"
 			lab var number_unique   "# distinct"
 
 			* convert important_var to string

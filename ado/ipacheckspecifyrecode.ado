@@ -11,6 +11,7 @@ program define ipacheckspecifyrecode, rclass
 			[KEEP(varlist)]
 			[LOGFile(string)]
 			[LOGSheet(string)]
+			[SHEETMODify SHEETREPlace]
 			[NOLabel]
 		;
 	#d cr
@@ -213,7 +214,7 @@ program define ipacheckspecifyrecode, rclass
 					
 					if "`keep'" ~= "" ipalabels `id' `keep', `nolabel'
 					
-					export excel using "`logfile'", sheet("`logsheet'") first(varl) replace
+					export excel using "`logfile'", sheet("`logsheet'") first(varl) `sheetreplace' `sheetmodify'
 					mata: colwidths("`logfile'", "`logsheet'")
 					mata: setheader("`logfile'", "`logsheet'")
 				}

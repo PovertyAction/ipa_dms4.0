@@ -6,24 +6,25 @@ program ipatracksurvey, rclass
 	
 	#d;
 	syntax, 					
-		Surveydata(string)
+		[Surveydata(string)]
 		[ID(name)]
-		DATEvar(name)
-		[by(name)]
-		[MASTERdata(string)]
-		[TRACKingdata(string)]
+		date(name)
+		by(name)
+		[Masterdata(string)]
+		[Trackingdata(string)]
 		[KEEPMaster(namelist)]
 		[KEEPTracking(namelist)]
 		[KEEPSurvey(namelist)]
 		[masterid(name)]
-		[OUTFile(string)]
+		OUTFile(string)
 		[TARGet(name)]
 		[OUTCome(string)]
 		[save(string)]		
 		[SUMMARYonly]
-		[WORKbooks]
+		[WORKBooks]
 		[SURVEYok]
-		[NOLABel]
+		[NOLabel]
+		replace
 	;
 	#d cr
 		
@@ -38,7 +39,7 @@ program ipatracksurvey, rclass
 		tempvar tmv_fdate tmv_ldate tmv_subdate tmv_target tmv_status
 
 		* tempfiles
-		tempfile tmf_main_data tmf_input_data tmf_summary tmf_summary_master tmf_surveyonly
+		tempfile tmf_main_data tmf_input_data tmf_summary tmf_summary_master tmf_surveyonly tmf_surveydata
 		
 		* check syntax
 		if "`trackingdata'`masterdata'" == "" {
@@ -59,9 +60,15 @@ program ipatracksurvey, rclass
 		loc tracking = "`trackingdata'" ~= ""
 		loc master   = "`masterdata'"   ~= ""
 		
+		* save data in memory as Surveydata if not specified
+		if "`surveydata'" == "" {
+		    save "`tmf_surveydata'"
+			loc surveydata "`tmf_surveydata'"
+		}
+		
 		use "`surveydata'", clear
 			
-		ipagettd `datevar'
+		ipagettd `date'
 		
 		if "`outcome'" ~= "" {
 			token "`outcome'", parse(",")
@@ -85,12 +92,12 @@ program ipatracksurvey, rclass
 		
 		cap assert !missing(`by')
 		if _rc == 9 {
-			disp as err "variable `by' in option by should never be missing"
+			disp as err "variable `by' in option by() should never be missing"
 			ex 9
 		}
 		
 		if "`keepsurvey'" ~= "" unab keepsurvey: `keepsurvey' 
-		keep `datevar' `id' `tmv_complete' `by' `keepsurvey'
+		keep `date' `id' `tmv_complete' `by' `keepsurvey'
 		
 		save "`tmf_main_data'"
 			
@@ -136,8 +143,8 @@ program ipatracksurvey, rclass
 			
 			gen `tmv_survey' = 1
 			collapse 	(sum) `tmv_survey' `tmv_complete' 	///
-						(min) `tmv_fdate' = `datevar' 		///
-						(max) `tmv_ldate' = `datevar', by(`by')
+						(min) `tmv_fdate' = `date' 		///
+						(max) `tmv_ldate' = `date', by(`by')
 								
 			format %td `tmv_fdate' `tmv_ldate'
 			save "`tmf_main_data'", replace
@@ -223,7 +230,7 @@ program ipatracksurvey, rclass
 				merge 1:m `by' using "`tmf_surveyonly'", gen (_surveyonly_merge)
 				keep if _surveyonly_merge == 2
 				if `c(N)' > 0 {
-					keep `id' `datevar' `keepsurvey'
+					keep `id' `date' `keepsurvey'
 					if "`keepsurvey'" ~= "" ipalabels `keepsurvey', `nolabel'
 					ipalabels `id', `nolabel'
 					export excel using "`outfile'", sheet("Unmatched IDs from Survey") first(varl)
@@ -269,8 +276,8 @@ program ipatracksurvey, rclass
 			* generate summary page
 			gen `tmv_survey' = 1
 			collapse 	(sum) `tmv_survey' `tmv_complete' 	///
-						(min) `tmv_fdate' = `datevar' 		///
-						(max) `tmv_ldate' = `datevar', by(`by') 
+						(min) `tmv_fdate' = `date' 		///
+						(max) `tmv_ldate' = `date', by(`by') 
 			
 			save "`tmf_summary'", replace
 			
@@ -359,20 +366,20 @@ program ipatracksurvey, rclass
 			}
 			
 			use "`tmf_input_data'", clear
-			merge 1:1 `id' using "`tmf_main_data'", gen (_master_merge) keepusing(`datevar' `keepsurvey')
+			merge 1:1 `id' using "`tmf_main_data'", gen (_master_merge) keepusing(`date' `keepsurvey')
 			save "`tmf_summary_master'", replace
 			if "`save'" ~= "" {
 			    gen _survey_status = cond(_master_merge == 3, "submitted", cond(_master_merge == 1, "master data only", "survey data only"))
 				lab var _survey_status "status"
-				keep `by' `keepmaster' `id' `tmv_status' `datevar' `keepsurvey' 
-				order `by' `keepmaster' `id' `tmv_status' `datevar' `keepsurvey'
+				keep `by' `keepmaster' `id' `tmv_status' `date' `keepsurvey' 
+				order `by' `keepmaster' `id' `tmv_status' `date' `keepsurvey'
 				save "`save'", replace
 			}
 			if "`surveyok'" ~= "" {
 				use "`tmf_summary_master'", clear
 				keep if _master_merge == 2
 				if `c(N)' > 0 {
-				    keep `id' `datevar' `keepsurvey'
+				    keep `id' `date' `keepsurvey'
 					if "`keepsurvey'" ~= "" ipalabels `keepsurvey', `nolabel'
 					ipalabels `id', `nolabel'
 					export excel using "`outfile'", sheet("Unmatched IDs from Survey") first(varl)
@@ -388,9 +395,9 @@ program ipatracksurvey, rclass
 			keep if inlist(_master_merge, 1, 3)
 			gen `tmv_status' = cond(_master_merge == 3, "submitted", "not submitted")
 			lab var `tmv_status' "status"
-			gsort `by' `tmv_status' `datevar'
-			keep `by' `keepmaster' `id' `tmv_status' `datevar' `keepsurvey'
-			order `by' `keepmaster' `id' `tmv_status' `datevar' `keepsurvey'
+			gsort `by' `tmv_status' `date'
+			keep `by' `keepmaster' `id' `tmv_status' `date' `keepsurvey'
+			order `by' `keepmaster' `id' `tmv_status' `date' `keepsurvey'
 			save "`tmf_summary'", replace
 			
 			if "`summaryonly'" == "" {

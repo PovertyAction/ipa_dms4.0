@@ -4,7 +4,7 @@
 
 program define ipalabels
 	
-	syntax varlist [, NOLABel]
+	syntax varlist [, NOLabel]
 	
 	tempvar tmv_varlb
 	

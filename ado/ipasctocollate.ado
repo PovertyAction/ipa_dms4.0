@@ -15,6 +15,13 @@ program ipasctocollate, rclass
 	qui {
 		
 		preserve
+		
+		* verify that folder exist
+		mata: st_local("direxist", strofreal(direxists("`folder'")))
+		if !`direxist' {
+			disp as err `"folder `folder' not found"'
+			ex 601
+		}
 	    
 		* mark sample
 		marksample touse, strok

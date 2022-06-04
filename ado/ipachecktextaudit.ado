@@ -262,7 +262,7 @@ program ipachecktextaudit, rclass
 				export excel using "`outfile'", sheet("group average by enumerator") first(varl)
 				mata: colwidths("`outfile'", "group average by enumerator")
 				mata: setheader("`outfile'", "group average by enumerator")
-				mata: colformats("`outfile'", "group average by enumerator", st_varname(2..st_nvar()), "number_d2")
+				* mata: colformats("`outfile'", "group average by enumerator", st_varname(2..st_nvar()), "number_d2")
 			}
 		}
 		
