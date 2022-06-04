@@ -191,6 +191,7 @@ to use the Data Management System.
 {synoptline}
   {text:Setup}
 	{phang}{com}   . use "https://raw.githubusercontent.com/PovertyAction/ipa_dms4.0/final/data/household_survey.dta", clear{p_end}
+	{phang}{com}   . duplicates drop hhid, force
 	{phang}{com}   . copy "https://raw.githubusercontent.com/PovertyAction/ipa_dms4.0/final/data/household_preloads.xlsx" "household_preloads.xlsx", replace{p_end}
 	{phang}{com}   . copy "https://raw.githubusercontent.com/PovertyAction/ipa_dms4.0/final/data/respondent_targets.xlsx" "respondent_targets.xlsx", replace{p_end}
 		
@@ -198,10 +199,10 @@ to use the Data Management System.
     {phang}{com}   . ipatracksurvey, m("household_preloads.xlsx") date(submissiondate) id(hhid) by(a_kg) keepm(district) surveyok outfile("tracksurvey.xlsx") nol summary replace{p_end}
 	
   {text:Run ipatracksurveys with masterdata showing summary & tracking sheets per kg}
-   {phang}{com}   . ipatracksurvey, m("household_preloads.xlsx") date(submissiondate) id(hhid) keeps(a_pl_hhh_fn a_pl_ch_fn a_pl_age a_enum_name consent) by(a_kg) surveyok outfile("tracksurvey_sheets.xlsx") nol workb replace{p_end}
+   {phang}{com}   . ipatracksurvey, m("household_preloads.xlsx") date(submissiondate) id(hhid) keeps(a_pl_hhh_fn a_pl_ch_fn a_pl_ch_age a_enum_name c_consent) by(a_kg) surveyok outfile("tracksurvey_sheets.xlsx") nol workb replace{p_end}
 	
   {text:Run ipatracksurveys with trackingdata}
-    {phang}{com}   . ipatracksurvey, t("household_preloads.xlsx") by(a_kg) keept(district) outfile("tracksurvey.xlsx") nol replace{p_end}
+    {phang}{com}   . ipatracksurvey, t("respondent_targets.xlsx") date(submissiondate) target(hh_count) by(a_kg) keept(district) outfile("tracksurvey.xlsx") nol replace{p_end}
 
 {txt}{...}
 
