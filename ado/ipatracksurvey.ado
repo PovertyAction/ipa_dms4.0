@@ -117,7 +117,7 @@ program ipatracksurvey, rclass
 		
 		if `tracking' {
 		    
-			unab keeplist: `keeptracking'
+			if "`keeptracking'" ~= "" unab keeplist: `keeptracking'
 			keep `by' `keeplist' `target'
 			cap isid `by'
 			if _rc == 459 {
@@ -262,7 +262,7 @@ program ipatracksurvey, rclass
 			
 			save "`tmf_input_data'"
 			
-			unab keepmaster: `keepmaster'
+			if "`keepmaster'" ~= "" unab keepmaster: `keepmaster'
 		
 			bys `by': gen `tmv_target' = _N
 			bys `by': keep if _n == _N
