@@ -27,7 +27,7 @@ Exports comments from SurveyCTO's {it:comment} field type.
 
 {syntab:Specifications}
 {synopt:{opt outsheet("sheetname")}}save comments to Excel worksheet{p_end}
-{synopt:{opth keep:vars(varlist)}}additional variables to export to Excel worksheet{p_end}
+{synopt:{opth keep(varlist)}}additional variables to export to Excel worksheet{p_end}
 {synopt:{opt sheetmod:ify}}modify Excel worksheet{p_end}
 {synopt:{opt sheetrep:lace}}overwrite Excel worksheet{p_end}
 {synopt:{opt nol:abel}}export variable values instead of value labels{p_end}

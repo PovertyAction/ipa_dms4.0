@@ -13,7 +13,7 @@ missing, and other by enumerator, and variable statistics by enumerator.
 {cmd:ipacheckenumdb [using]} {it:{help filename}}{cmd:,}
 {opt sh:eet("sheetname")}
 {opth enum:erator(varname)}
-{opth date(filename)}  
+{opth date(varname)}
 {opth outf:ile(filename)} 
 [{it:{help ipacheckenumdb##options:options}}]
 
@@ -54,6 +54,8 @@ missing, and other by enumerator, and variable statistics by enumerator.
 {phang2}.  "productivity": number of surveys by days/weeks/months. Excel worksheet "productivity (team)" showing productivity at team level will be included if {opt team()} is specified.{p_end}
 {phang2}.  "enumstats": Summary statistics of numeric variables per enumerator. Excel worksheet "enumstats (team)" showing summary at team level will be included if {opt team()} is specified.{p_end}
 
+{title:Options}
+
 {dlgtab:Main}
 
 {phang}
@@ -68,7 +70,7 @@ ignored if the using file is {opt csv} or {opt dta} file.
 
 {pstd}
 {opt date(varname)} specifies the date or datetime variable indicating the date of 
-survey. Reommended variables are Survey start, end or submission dates. This option 
+survey. Recommended variables are Survey start, end or submission dates. This option 
 expects a %td date variable or a %tc/%tC datetime variable. If variable specified 
 is a datetime variable, the output will show the correspondent date instead of 
 datetime. {cmd:date()} is required. 
@@ -185,14 +187,15 @@ and outputs are formatted in a .xlsx file or used directly from the command wind
 {synoptline}
   {text:Setup}
 	{phang}{com}   . use "https://raw.githubusercontent.com/PovertyAction/ipa_dms4.0/final/data/household_survey.dta", clear{p_end}
-	{phang}{com}   . copy "https://raw.githubusercontent.com/PovertyAction/ipa_dms4.0/final/excel/hfc_inputs_example.xlsm" "hfc_inputs_example.xlsm", replace{p_end}
 	{phang}{com}   . destring duration, replace
 		
   {text:Run ipacheckenumdb without enumstats}
     {phang}{com}   . ipacheckenumdb, formv(formdef_version) dur(duration) cons(c_consent, 1) dontk(-999, "-999") ref(-888, "888") other(*_osp*) enum(a_enum_name) team(a_team_name) date(starttime) outf("enumdb.xlsx") sheetrep{p_end}
 	
   {text:Run ipacheckenumdb with enumstats}
-    {phang}{com}   . ipacheckenumdb using "hfc_inputs_example.xlsm", formv(formdef_version) dur(duration) cons(c_consent, 1) dontk(-999, "-999") ref(-888, "888") other(*_osp*) enum(a_enum_name) team(a_team_name) date(starttime) outf("enumdb.xlsx") sheetrep{p_end}
+  	{phang}{com}   . destring f_hr_rpt_count, replace{p_end}
+	{phang}{com}   . copy "https://raw.githubusercontent.com/PovertyAction/ipa_dms4.0/final/excel/hfc_inputs_example.xlsm" "hfc_inputs_example.xlsm", replace{p_end}
+    {phang}{com}   . ipacheckenumdb using "hfc_inputs_example.xlsm", formv(formdef_version) dur(duration) cons(c_consent, 1) dontk(-999, "-999") ref(-888, "888") other(*_osp*) enum(a_enum_name) team(a_team_name) date(starttime) outf("enumdb_enumstats.xlsx") sheetrep{p_end}
 	
 {synoptline}
 
@@ -200,7 +203,10 @@ and outputs are formatted in a .xlsx file or used directly from the command wind
 	
 {title:Authors}
 
-{pstd}Innovations for Poverty Action{p_end}
+{pstd}
+Ishmail Azindoo Baako
+(Innovations for Poverty Action){p_end}
+{pstd}{it:Last updated: May 11, 2022}{p_end}
 
 {pstd}For questions or suggestions, submit a
 {browse "https://github.com/PovertyAction/high-frequency-checks/issues":GitHub issue}

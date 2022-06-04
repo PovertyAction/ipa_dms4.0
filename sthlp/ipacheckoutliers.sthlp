@@ -19,7 +19,7 @@ Checks for outliers among numeric survey variables.
 [{it:{help ipacheckoutliers##options:options}}]
 
 {marker options}{...}
-{synoptset 26 tabbed}{...}
+{synoptset 30 tabbed}{...}
 {synopthdr}
 {synoptline}
 {syntab:Main}

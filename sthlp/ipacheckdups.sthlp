@@ -63,7 +63,7 @@ required and is automatically included in the output.
 
 {pstd}
 {opt date(varname)} specifies the date or datetime variable indicating the date of 
-survey. Reommended variables are Survey start, end or submission dates. This option 
+survey. Recommended variables are Survey start, end or submission dates. This option 
 expects a %td date variable or a %tc/%tC datetime variable. If variable specified 
 is a datetime variable, the output will show the correspondent date instead of 
 datetime. {cmd:date()} is required. 
