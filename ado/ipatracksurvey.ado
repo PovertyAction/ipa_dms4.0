@@ -361,7 +361,7 @@ program ipatracksurvey, rclass
 				mata: colformats("`outfile'", "summary", ("`tmv_survey_perc'", "`tmv_complete_perc'"), "percent_d2")
 			}
 			else {
-			    mata: colformats("`outfile'", "summary", ("`tmv_survey'"), "number_sep")
+			    mata: colformats("`outfile'", "summary", ("`tmv_target'", "`tmv_survey'"), "number_sep")
 				mata: colformats("`outfile'", "summary", ("`tmv_survey_perc'"), "percent_d2")
 			}
 			
