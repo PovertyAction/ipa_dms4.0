@@ -16,29 +16,25 @@
 **# drop unwanted variables
 *------------------------------------------------------------------------------*
 
+	* NB: Edit this section to include variables as needed
+
 	#d;
 	drop deviceid 
 		 subscriberid 
 		 simid 
 		 devicephonenum 
 		 username
-		 tmp_*
-		 *_label*
-		 *_add_*
-		 *_join
-		 *_dsp_*
 		 ;
 	#d cr
 	
 **# destring numeric variables
 *------------------------------------------------------------------------------*
 
+	* NB: Edit this section to include variables as needed
+
 	#d;
 	destring ${duration}
-			 *_yn_*
-			 *_ind_*
-			 *_age_*
-			 phu_id
+			 			 
 			 , 
 			 replace
 		 ;
@@ -103,6 +99,8 @@
 		* Jan 1, 2018 
 *------------------------------------------------------------------------------*
 	
+	* NB: Edit this section to include other date & datetime variables as needed
+	
 	qui {
 		foreach var of varlist starttime endtime submissiondate {
 			count if missing(`var')
@@ -137,16 +135,9 @@
 **# Drop observations with date before dec 2021
 *------------------------------------------------------------------------------*
 
-	drop if startdate <= date("01jan2021", "DMY")
-	
-	
-**# === FOR TESTING ONLY ===
-*------------------------------------------------------------------------------*
+	* NB: Edit this section to change the date as needed
 
-	gen outcome_rand 	= runiform()
-	gen outcome 		= cond(outcome_rand <= 0.9, 1, cond(outcome_rand <= 0.95, 2, 0))
-	lab define outcome 0 "Not complete" 1 "Fully complete" 2 "Partially completed"
-	lab var outcome outcome
+	drop if startdate <= date("01jan2021", "DMY")
 	
 **# save data
 *------------------------------------------------------------------------------*

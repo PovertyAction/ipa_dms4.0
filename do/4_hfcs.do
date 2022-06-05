@@ -35,7 +35,7 @@
    
 	if $run_correction {
 		ipacheckcorrections using "${corrfile}",		///
-			sheetname("${cr_dupsheet}")					///
+			sheet("${cr_dupsheet}")						///
 			id(${key}) 									///
 			logfile("${cr_output}")						///
 			logsheet("${cr_dupsheet}")					///
@@ -48,11 +48,11 @@
    if $run_ids {
 	   ipacheckids ${id},								///
 				enumerator(${enum}) 					///	
-				datevar(${id_date}) 					///
+				date(${date})	 						///
 				key(${key}) 							///
 				outfile("${hfc_output}") 				///
 				outsheet("id duplicates")				///
-				keepvars(${id_keepvars}) 				///
+				keep(${id_keepvars})	 				///
 				dupfile("${id_dups_output}")			///
 				save("${checkeddata}")					///
 				${id_nolabel}							///
@@ -70,7 +70,7 @@
    
    if $run_corrections {		
 		ipacheckcorrections using "${corrfile}", 		///
-			sheetname("${corr_othersheet}")				///
+			sheet("${corr_othersheet}")					///
 			id(${id}) 									///
 			logfile("${cr_output}")						///
 			logsheet("${cr_othersheet}")				///
@@ -83,7 +83,7 @@
    
    if $run_specifyrecode {		
 		ipacheckspecifyrecode using "$recodefile",		///
-			sheetname("$rc_sheet")						///
+			sheet("$rc_sheet")							///
 			id($id)										///
 			logfile("$rc_output")						///
 			logsheet("$rc_logsheet")					///
@@ -97,11 +97,11 @@
    if $run_version {
 		ipacheckversion ${formversion}, 				///
 				enumerator(${enum}) 					///	
-				datevar(${vs_date})						///
+				date(${date})							///
 				outfile("${hfc_output}") 				///
 				outsheet1("form versions")				///
 				outsheet2("outdated")					///
-				keepvars(${vs_keepvars})				///
+				keep(${vs_keepvars})					///
 				sheetreplace							///
 				$vs_nolabel
    }
@@ -112,10 +112,10 @@
 	   ipacheckdups ${dups_vars},						///
 				id(${id})								///
 				enumerator(${enum}) 					///	
-				datevar(${dp_date}) 					///
+				date(${date})	 						///
 				outfile("${hfc_output}") 				///
 				outsheet("duplicates")					///
-				keepvars(${dp_keepvars}) 				///
+				keep(${dp_keepvars})	 				///
 				${dp_nolabel}							///
 				sheetreplace
    }
@@ -124,7 +124,7 @@
    
    if $run_missing {
 		ipacheckmissing ${ms_vars}, 					///
-			importantvars(${ms_imp_vars})				///
+			priority(${ms_pr_vars})						///
 			outfile("${hfc_output}") 					///
 			outsheet("missing")							///
 			sheetreplace
@@ -136,8 +136,8 @@
 		ipacheckoutliers using "${inputfile}",			///
 			id(${id})									///
 			enumerator(${enum}) 						///	
-			datevar(${ol_date}) 						///
-			sheetname("outliers")						///
+			date(${date})	 							///
+			sheet("outliers")							///
         	outfile("${hfc_output}") 					///
 			outsheet("outliers")						///
 			${ol_nolabel}								///
@@ -150,8 +150,8 @@
 		ipacheckspecify using "${inputfile}",			///
 			id(${id})									///
 			enumerator(${enum})							///	
-			datevar(${os_date}) 						///
-			sheetname("other specify")					///
+			date(${date})	 							///
+			sheet("other specify")						///
         	outfile("${hfc_output}") 					///
 			outsheet1("other specify")					///
 			outsheet2("other specify (choices)")		///
@@ -163,30 +163,27 @@
    
     if $run_comments {
 
-		ipaimportsctomedia comments, 					///
-			mediavar(${fieldcomments})					///
-			mediafolder("${media_folder}")				///
-			save("${cm_save}")							///
+		ipaimportsctomedia comments ${fieldcomments}, 	///
+			folder("${media_folder}")					///
+			save("${commentsdata}")						///
 			replace
 		
 		ipacheckcomments ${fieldcomments},				///
 			enumerator(${enum}) 						///	
-			commentsdata("${cm_save}")					///
+			commentsdata("${commentsdata}")				///
         	outfile("${hfc_output}") 					///
 			outsheet("field comments")					///
-			keepvars(${cm_keepvars})					///
+			keep(${cm_keepvars})						///
 			${cm_nolabel}								///
 			sheetreplace
-			
    }
    
    *======================== text audit & time use ============================* 
  
    if $run_textaudit | $run_timeuse {
-       ipaimportsctomedia textaudit, 					///
-			mediavar(${textaudit})						///
-			mediafolder("${media_folder}")				///
-			save("${ta_save}")							///
+       ipaimportsctomedia textaudit ${textaudit}, 		///
+			folder("${media_folder}")					///
+			save("${textauditdata}")					///
 			replace
    }
   
@@ -204,7 +201,7 @@
    if $run_timeuse {
 		ipachecktimeuse ${textaudit}, 					///
 			enumerator(${enum})							///	
-			starttimevar(${tu_timevar})					///
+			starttime(${tu_timevar})					///
 			textauditdata("${ta_save}")					///
         	outfile("${timeuse_output}")				///
 			${tu_nolabel} 								///
@@ -217,12 +214,12 @@
 		ipachecksurveydb,			 					///
 			by(${sv_by})								///
 			enumerator(${enum}) 						///
-			datevar(${sv_date})							///
+			date(${date})								///
 			period("${sv_period}")						///
 			consent(${consent}, ${cons_vals})			///
 			dontknow(.d, ${dk_str})						///
 			refuse(.r, ${ref_str})						///
-			othervars(`r(childvarlist)')				///
+			otherspecify(`r(childvarlist)')				///
 			duration(${duration})						///
 			formversion(${formversion})					///
         	outfile("${surveydb_output}")				///
@@ -237,12 +234,12 @@
 			sheetname("enumstats")						///		
 			enumerator(${enum})							///
 			team(${team})								///
-			datevar(${en_date})							///
+			date(${date})								///
 			period("${en_period}")						///
 			consent($consent, ${cons_vals})				///
 			dontknow(.d, ${dk_str})						///
 			refuse(.r, ${ref_str})						///
-			othervars(`r(childvarlist)')				///
+			otherspecify(`r(childvarlist)')				///
 			duration(${duration})						///
 			formversion(${formversion})					///
         	outfile("${enumdb_output}")					///
@@ -257,7 +254,7 @@
        ipatracksurvey,									///
 			surveydata("$checkeddata")					///
 			id(${id})									///
-			datevar(${st_date})							///
+			date(${date})								///
 			by(${tr_by})								///
 			outcome(${tr_outcome})						///
 			target(${tr_target})						///
