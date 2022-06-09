@@ -16,121 +16,129 @@ program ipacheck, rclass
 			[BRanch(name)]
 			;
 	#d cr
-	
-	if !inlist("`subcmd'", "new", "version", "update") {
-		disp as err "illegal ipacheck sub command. Sub commands are:"
-		di as txt 	"{cmd:ipacheck new}"
-		di as txt 	"{cmd:ipacheck update}"
-		di as txt 	"{cmd:ipacheck version}"
-		ex 198
-	}
-	if inlist("`subcmd'", "update", "version") {
-		if "`surveys'" ~= "" {
-			disp as error "subccommand `subcmd' and surveys options are mutually exclusive"
+
+	qui {
+		if !inlist("`subcmd'", "new", "version", "update") {
+			disp as err "illegal ipacheck sub command. Sub commands are:"
+			di as txt 	"{cmd:ipacheck new}"
+			di as txt 	"{cmd:ipacheck update}"
+			di as txt 	"{cmd:ipacheck version}"
 			ex 198
 		}
-		if "`folder'" ~= "" {
-			disp as error "sub command `subcmd' and folder options are mutually exclusive"
-			ex 198
-		}
-		if "`subfolders'" ~= "" {
-			disp as error "sub command `subcmd' and subfolders options are mutually exclusive"
-			ex 198
-		}
-		if "`filesonly'" ~= "" {
-			disp as error "sub command `subcmd' and files options are mutually exclusive"
-			ex 198
-		}
-		if "`exercise'" ~= "" {
-			disp as error "sub command `subcmd' and exercise options are mutually exclusive"
-			ex 198
-		}
- 	}
-	else if "`subcmd'" == "new" {
-		if "`surveys'" == "" & "`subfolders'" ~= "" {
-			disp as err "subfolders option & survey options must be specified together"
-			ex 198
-		}
-		if "`exercise'" ~= "" {
+		if inlist("`subcmd'", "update", "version") {
+			if "`surveys'" ~= "" {
+				disp as error "subccommand `subcmd' and surveys options are mutually exclusive"
+				ex 198
+			}
+			if "`folder'" ~= "" {
+				disp as error "sub command `subcmd' and folder options are mutually exclusive"
+				ex 198
+			}
 			if "`subfolders'" ~= "" {
-				disp as err "exercise and subfolders options are mutually exclusive"
+				disp as error "sub command `subcmd' and subfolders options are mutually exclusive"
 				ex 198
 			}
 			if "`filesonly'" ~= "" {
-				disp as err "exercise and filesonly options are mutually exclusive"
+				disp as error "sub command `subcmd' and files options are mutually exclusive"
 				ex 198
 			}
+			if "`exercise'" ~= "" {
+				disp as error "sub command `subcmd' and exercise options are mutually exclusive"
+				ex 198
+			}
+	 	}
+		else if "`subcmd'" == "new" {
+			if "`surveys'" == "" & "`subfolders'" ~= "" {
+				disp as err "subfolders option & survey options must be specified together"
+				ex 198
+			}
+			if "`exercise'" ~= "" {
+				if "`subfolders'" ~= "" {
+					disp as err "exercise and subfolders options are mutually exclusive"
+					ex 198
+				}
+				if "`filesonly'" ~= "" {
+					disp as err "exercise and filesonly options are mutually exclusive"
+					ex 198
+				}
+			}
+		}
+		
+		loc url 	= "https://raw.githubusercontent.com/PovertyAction/ipa_dms4.0"
+
+		if "`subcmd'" == "new" {
+			ipacheck_new, surveys(`surveys') folder("`folder'") `subfolders' `filesonly' url("`url'") branch(`branch')
+			ex
+		}
+		else {
+			noi ipacheck_`subcmd', branch(`branch') url(`url')
+			ex
 		}
 	}
-	
-	loc url 	= "https://raw.githubusercontent.com/PovertyAction/ipa_dms4.0"
-
-	if "`subcmd'" == "new" {
-		ipacheck_new, surveys(`surveys') folder("`folder'") `subfolders' `filesonly' url("`url'") branch(`branch')
-		ex
-	}
-	else {
-		ipacheck_`subcmd', branch(`branch') url(`url')
-		ex
-	}
-	
 end
 
 program define ipacheck_update
 	
 	syntax, [branch(name)] url(string)
-	loc branch 	= cond("`branch'" ~= "", "`branch'", "master")
-	net install ipacheck, replace from("`url'/`branch'")
-	qui do "`url'/`branch'/do/ipacheckmata.do"
-	noi disp "Mata library lipadms installed"
-	noi mata mata mlib index
+	
+	qui {
+		loc branch 	= cond("`branch'" ~= "", "`branch'", "master")
+		net install ipacheck, replace from("`url'/`branch'")
+		qui do "`url'/`branch'/do/ipacheckmata.do"
+		noi disp "Mata library lipadms installed"
+		noi mata mata mlib index
+	}
 	
 end
 
 program define ipacheck_version
 	
-	#d;
-	local 	programs          
-			ipacheckcorrections	
-			ipacheckspecifyrecode
-			ipacheckversions
-			ipacheckids
-			ipacheckdups
-			ipacheckmissing
-			ipacheckoutliers
-			ipacheckspecify
-			ipacheckcomments
-			ipachecktextaudit
-			ipachecktimeuse
-			ipachecksurveydb
-			ipacheckenumdb
-			ipatracksurvey
-			ipacodebook
-			ipasctocollate
-			ipalabels
-			ipagettd
-			ipagetcal
-			ipaanycount
-		;
-	#d cr
+	qui {
+		#d;
+		local 	programs          
+				ipacheckcorrections	
+				ipacheckspecifyrecode
+				ipacheckversions
+				ipacheckids
+				ipacheckdups
+				ipacheckmissing
+				ipacheckoutliers
+				ipacheckspecify
+				ipacheckcomments
+				ipachecktextaudit
+				ipachecktimeuse
+				ipachecksurveydb
+				ipacheckenumdb
+				ipatracksurvey
+				ipacodebook
+				ipasctocollate
+				ipalabels
+				ipagettd
+				ipagetcal
+				ipaanycount
+			;
+		#d cr
 
-	cap frames drop frm_verdate
-	frames create frm_verdate str32 (program version date)
+		cap frames drop frm_verdate
+		frames create frm_verdate str32 (program version date)
 
-	foreach prg in `programs' {
-		cap which `prg'
-		if !_rc {
-			mata: get_version("`c(sysdir_plus)'i/`prg'.ado")
-			loc vers_num 	= regexs(0) if regexm("`verdate'", "4\.[0-9]+\.[0-9]+")
-			loc vers_date 	= regexs(0) if regexm("`verdate'", "[0-9]+[a-zA-Z]+[0-9]+")
+		foreach prg in `programs' {
+			cap which `prg'
+			if !_rc {
+				mata: get_version("`c(sysdir_plus)'i/`prg'.ado")
+				di regexm("`verdate'", "4\.[0-9]+\.[0-9]+")
+				loc vers_num 	= regexs(0)
+				di regexm("`verdate'", "[0-9]+[a-zA-Z]+[0-9]+")
+				loc vers_date 	= regexs(0)
 
-			frames post frm_verdate ("`program'") ("`vers_num'") ("`vers_date'")
+				frames post frm_verdate ("`prg'") ("`vers_num'") ("`vers_date'")
+			}
 		}
-	}
 
-	frames rm_verdate {
-		compress
-		noi list, noobs h sep(0)
+		frames frm_verdate {
+			compress
+			noi list, noobs h sep(0)
+		}
 	}
 	
 end
@@ -141,7 +149,7 @@ void get_version(string scalar program) {
 	
     fh = fopen(program, "r")
     line = fget(fh)
-    st_local("verdate", printf("  " + program + "\t\t%s\n", line)) 
+    st_local("verdate", line) 
     fclose(fh)
 }
 end
@@ -150,168 +158,170 @@ program define ipacheck_new
 	
 	syntax, [surveys(string)] [folder(string)] [SUBfolders] [filesonly] [exercise] [branch(name)] url(string)
 	
-	loc branch 	= cond("`branch'" ~= "", "`branch'", "master") 
-	
-	if "`folder'" == "" {
-		loc folder "`c(pwd)'"
-	}
-	
-	loc surveys_cnt = `word count `surveys''
-	
-	if "`filesonly'" == "" {
-		#d;
-		loc folders 
-			""0_archive"
-			"1_instruments"
-				"1_instruments/1_paper"
-				"1_instruments/2_scto_print"
-				"1_instruments/3_scto_xls"
-			"2_dofiles"
-			"3_checks"
-				"3_checks/1_inputs"
-				"3_checks/2_outputs"	
-			"4_data"
-				"4_data/1_preloads"
-				"4_data/2_survey"
-				"4_data/3_backcheck"
-				"4_data/4_monitoring"
-			"5_media"
-				"5_media/1_audio"
-				"5_media/2_images"
-				"5_media/3_video"
-			"6_documentation"
-			"7_field_manager"
-			"8_reports""
-			;
-		#d cr
+	qui {
+		loc branch 	= cond("`branch'" ~= "", "`branch'", "master") 
 		
-		noi disp
-		noi disp "Setting up folders ..."
-		noi disp
-
-		foreach f in `folders' {
-			mata : st_numscalar("exists", direxists("`folder'/`f'"))
-			if scalar(exists) == 1 {
-				noi disp "{red:Skipped}: Folder `f' already exists"
-			}
-			else {
-				mkdir "`folder'/`f'"
-				noi disp "Successful: Folder `f' created"
-			}
+		if "`folder'" == "" {
+			loc folder "`c(pwd)'"
 		}
 		
-		if "`subfolders'" == "subfolders" {
-			
+		loc surveys_cnt = `word count `surveys''
+		
+		if "`filesonly'" == "" {
 			#d;
-			loc sfs
-				""3_checks/1_inputs"
-				"3_checks/2_outputs"
-				"4_data/1_preloads"
-				"4_data/2_survey"
-				"4_data/3_backcheck"
-				"4_data/4_monitoring"
-				"5_media/1_audio"
-				"5_media/2_images"
-				"5_media/3_video""
+			loc folders 
+				""0_archive"
+				"1_instruments"
+					"1_instruments/1_paper"
+					"1_instruments/2_scto_print"
+					"1_instruments/3_scto_xls"
+				"2_dofiles"
+				"3_checks"
+					"3_checks/1_inputs"
+					"3_checks/2_outputs"	
+				"4_data"
+					"4_data/1_preloads"
+					"4_data/2_survey"
+					"4_data/3_backcheck"
+					"4_data/4_monitoring"
+				"5_media"
+					"5_media/1_audio"
+					"5_media/2_images"
+					"5_media/3_video"
+				"6_documentation"
+				"7_field_manager"
+				"8_reports""
 				;
 			#d cr
 			
 			noi disp
-			noi disp "Creating subfolders ..."
+			noi disp "Setting up folders ..."
 			noi disp
-			loc i 1
-			
-			foreach survey in `surveys' {
-				loc sublab = "`i'_`survey'"
-				foreach sf in `sfs' {
-					mata : st_numscalar("exists", direxists("`folder'/`sf'/`sublab'"))
-					if scalar(exists) == 1 {
-						noi disp "{red:Skipped}: Sub-folder `sf' already exists"
-					}
-					else {
-						mkdir "`folder'/`sf'/`sublab'"
-						noi disp "Successful: Folder `sf'/`sublab' created"
-					}
+
+			foreach f in `folders' {
+				mata : st_numscalar("exists", direxists("`folder'/`f'"))
+				if scalar(exists) == 1 {
+					noi disp "{red:Skipped}: Folder `f' already exists"
 				}
-				loc ++i
+				else {
+					mkdir "`folder'/`f'"
+					noi disp "Successful: Folder `f' created"
+				}
+			}
+			
+			if "`subfolders'" == "subfolders" {
+				
+				#d;
+				loc sfs
+					""3_checks/1_inputs"
+					"3_checks/2_outputs"
+					"4_data/1_preloads"
+					"4_data/2_survey"
+					"4_data/3_backcheck"
+					"4_data/4_monitoring"
+					"5_media/1_audio"
+					"5_media/2_images"
+					"5_media/3_video""
+					;
+				#d cr
+				
+				noi disp
+				noi disp "Creating subfolders ..."
+				noi disp
+				loc i 1
+				
+				foreach survey in `surveys' {
+					loc sublab = "`i'_`survey'"
+					foreach sf in `sfs' {
+						mata : st_numscalar("exists", direxists("`folder'/`sf'/`sublab'"))
+						if scalar(exists) == 1 {
+							noi disp "{red:Skipped}: Sub-folder `sf' already exists"
+						}
+						else {
+							mkdir "`folder'/`sf'/`sublab'"
+							noi disp "Successful: Folder `sf'/`sublab' created"
+						}
+					}
+					loc ++i
+				}
 			}
 		}
-	}
-	
-	loc exp_dir "`folder'"
 		
-	noi disp
-	noi disp "Copying files to `exp_dir' ..."
-	noi disp
-	
-	cap confirm file "`exp_dir'/0_master.do"
-	if _rc == 601 {
-		copy "`url'/`branch'/do/0_master.do" "`exp_dir'/0_master.do"
-		disp "0_master.do copied to `exp_dir'"
-	}
-	else {
-		disp  "{red:Skipped}: File 0_master.do already exists"
-	}
-	
-	if "`filesonly'" == "" 	loc exp_dir "`folder'/2_dofiles"
-	else 					loc exp_dir "`folder'"
-	
-	foreach file in 1_globals 3_prep 4_hfcs {
-		if `surveys_cnt' > 0 {
-			forval i = 1/`surveys_cnt' {
-				loc exp_file = "`file'_" + word("`surveys'", `i')
-				cap confirm file "`exp_dir'/`exp_file'.do"
+		loc exp_dir "`folder'"
+			
+		noi disp
+		noi disp "Copying files to `exp_dir' ..."
+		noi disp
+		
+		cap confirm file "`exp_dir'/0_master.do"
+		if _rc == 601 {
+			copy "`url'/`branch'/do/0_master.do" "`exp_dir'/0_master.do"
+			disp "0_master.do copied to `exp_dir'"
+		}
+		else {
+			disp  "{red:Skipped}: File 0_master.do already exists"
+		}
+		
+		if "`filesonly'" == "" 	loc exp_dir "`folder'/2_dofiles"
+		else 					loc exp_dir "`folder'"
+		
+		foreach file in 1_globals 3_prep 4_hfcs {
+			if `surveys_cnt' > 0 {
+				forval i = 1/`surveys_cnt' {
+					loc exp_file = "`file'_" + word("`surveys'", `i')
+					cap confirm file "`exp_dir'/`exp_file'.do"
+					if _rc == 601 {
+						copy "`url'/`branch'/do/`file'.do" "`exp_dir'/`exp_file'.do"
+						disp "`exp_file'.do copied to `exp_dir'"
+					}
+					else {
+						disp  "{red:Skipped}: File `file'.do already exists"
+					}
+				}
+			}
+			else {
+				cap confirm file "`exp_dir'/`file'.do"
 				if _rc == 601 {
-					copy "`url'/`branch'/do/`file'.do" "`exp_dir'/`exp_file'.do"
-					disp "`exp_file'.do copied to `exp_dir'"
+					copy "`url'/`branch'/do/`file'.do" "`exp_dir'/`file'.do"
+					disp "`file'.do copied to `exp_dir'"
 				}
 				else {
 					disp  "{red:Skipped}: File `file'.do already exists"
 				}
 			}
 		}
-		else {
-			cap confirm file "`exp_dir'/`file'.do"
-			if _rc == 601 {
-				copy "`url'/`branch'/do/`file'.do" "`exp_dir'/`file'.do"
-				disp "`file'.do copied to `exp_dir'"
+		
+		if "`filesonly'" == "" 	loc exp_dir "`folder'/3_checks/1_inputs"
+		else 					loc exp_dir "`folder'"
+		
+		noi disp
+		noi disp "Copying files to `folder'/3_checks/1_inputs ..."
+		noi disp
+		
+		foreach file in hfc_inputs corrections specifyrecode {
+			if `surveys_cnt' > 0 {
+				forval i = 1/`surveys_cnt' {
+					loc exp_file = "`file'_" + word("`surveys'", `i')
+					loc exp_dirmult  = cond("`subfolders'" == "", "`exp_dir'", "`exp_dir'/`i'_" + word("`surveys'", `i'))
+					cap confirm file "`exp_dirmult'/`exp_file'.xlsm"
+					if _rc == 601 {
+						copy "`url'/`branch'/excel/`file'.xlsm" "`exp_dirmult'/`exp_file'.xlsm"
+						disp "`exp_file'.xlsm copied to `exp_dirmult'"
+					}
+					else {
+						disp "{red:Skipped}: File `file' already exists"
+					}
+				}
 			}
 			else {
-				disp  "{red:Skipped}: File `file'.do already exists"
-			}
-		}
-	}
-	
-	if "`filesonly'" == "" 	loc exp_dir "`folder'/3_checks/1_inputs"
-	else 					loc exp_dir "`folder'"
-	
-	noi disp
-	noi disp "Copying files to `folder'/3_checks/1_inputs ..."
-	noi disp
-	
-	foreach file in hfc_inputs corrections specifyrecode {
-		if `surveys_cnt' > 0 {
-			forval i = 1/`surveys_cnt' {
-				loc exp_file = "`file'_" + word("`surveys'", `i')
-				loc exp_dirmult  = cond("`subfolders'" == "", "`exp_dir'", "`exp_dir'/`i'_" + word("`surveys'", `i'))
-				cap confirm file "`exp_dirmult'/`exp_file'.xlsm"
+				cap confirm file "`exp_dir'/`file'.xlsm"
 				if _rc == 601 {
-					copy "`url'/`branch'/excel/`file'.xlsm" "`exp_dirmult'/`exp_file'.xlsm"
-					disp "`exp_file'.xlsm copied to `exp_dirmult'"
+					copy "`url'/`branch'/excel/`file'.xlsm" "`exp_dir'/`file'.xlsm"
+					disp "`file'.xlsm copied to `exp_dir'"
 				}
 				else {
 					disp "{red:Skipped}: File `file' already exists"
 				}
-			}
-		}
-		else {
-			cap confirm file "`exp_dir'/`file'.xlsm"
-			if _rc == 601 {
-				copy "`url'/`branch'/excel/`file'.xlsm" "`exp_dir'/`file'.xlsm"
-				disp "`file'.xlsm copied to `exp_dir'"
-			}
-			else {
-				disp "{red:Skipped}: File `file' already exists"
 			}
 		}
 	}
