@@ -114,11 +114,23 @@ program define ipacheck_version
 		;
 	#d cr
 
+	cap frames drop frm_verdate
+	frames create frm_verdate str32 (program version date)
+
 	foreach prg in `programs' {
 		cap which `prg'
 		if !_rc {
 			mata: get_version("`c(sysdir_plus)'i/`prg'.ado")
+			loc vers_num 	= regexs(0) if regexm("`verdate'", "4\.[0-9]+\.[0-9]+")
+			loc vers_date 	= regexs(0) if regexm("`verdate'", "[0-9]+[a-zA-Z]+[0-9]+")
+
+			frames post frm_verdate ("`program'") ("`vers_num'") ("`vers_date'")
 		}
+	}
+
+	frames rm_verdate {
+		compress
+		noi list, noobs h sep(0)
 	}
 	
 end
@@ -129,7 +141,7 @@ void get_version(string scalar program) {
 	
     fh = fopen(program, "r")
     line = fget(fh)
-    printf("  " + program + "\t\t%s\n", line) 
+    st_local("verdate", printf("  " + program + "\t\t%s\n", line)) 
     fclose(fh)
 }
 end
