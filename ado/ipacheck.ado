@@ -137,6 +137,7 @@ program define ipacheck_version
 
 		frames frm_verdate {
 			compress
+			sort program
 			noi list, noobs h sep(0)
 		}
 	}
@@ -256,10 +257,10 @@ program define ipacheck_new
 		cap confirm file "`exp_dir'/0_master.do"
 		if _rc == 601 {
 			copy "`url'/`branch'/do/0_master.do" "`exp_dir'/0_master.do"
-			disp "0_master.do copied to `exp_dir'"
+			noi disp "0_master.do copied to `exp_dir'"
 		}
 		else {
-			disp  "{red:Skipped}: File 0_master.do already exists"
+			noi disp  "{red:Skipped}: File 0_master.do already exists"
 		}
 		
 		if "`filesonly'" == "" 	loc exp_dir "`folder'/2_dofiles"
@@ -272,10 +273,10 @@ program define ipacheck_new
 					cap confirm file "`exp_dir'/`exp_file'.do"
 					if _rc == 601 {
 						copy "`url'/`branch'/do/`file'.do" "`exp_dir'/`exp_file'.do"
-						disp "`exp_file'.do copied to `exp_dir'"
+						noi disp "`exp_file'.do copied to `exp_dir'"
 					}
 					else {
-						disp  "{red:Skipped}: File `file'.do already exists"
+						noi disp  "{red:Skipped}: File `file'.do already exists"
 					}
 				}
 			}
@@ -283,10 +284,10 @@ program define ipacheck_new
 				cap confirm file "`exp_dir'/`file'.do"
 				if _rc == 601 {
 					copy "`url'/`branch'/do/`file'.do" "`exp_dir'/`file'.do"
-					disp "`file'.do copied to `exp_dir'"
+					noi disp "`file'.do copied to `exp_dir'"
 				}
 				else {
-					disp  "{red:Skipped}: File `file'.do already exists"
+					noi disp  "{red:Skipped}: File `file'.do already exists"
 				}
 			}
 		}
@@ -305,23 +306,84 @@ program define ipacheck_new
 					loc exp_dirmult  = cond("`subfolders'" == "", "`exp_dir'", "`exp_dir'/`i'_" + word("`surveys'", `i'))
 					cap confirm file "`exp_dirmult'/`exp_file'.xlsm"
 					if _rc == 601 {
-						copy "`url'/`branch'/excel/`file'.xlsm" "`exp_dirmult'/`exp_file'.xlsm"
-						disp "`exp_file'.xlsm copied to `exp_dirmult'"
+						copy "`url'/`branch'/excel/templates/`file'.xlsm" "`exp_dirmult'/`exp_file'.xlsm"
+						noi disp "`exp_file'.xlsm copied to `exp_dirmult'"
 					}
 					else {
-						disp "{red:Skipped}: File `file' already exists"
+						noi disp "{red:Skipped}: File `file' already exists"
 					}
 				}
 			}
 			else {
 				cap confirm file "`exp_dir'/`file'.xlsm"
 				if _rc == 601 {
-					copy "`url'/`branch'/excel/`file'.xlsm" "`exp_dir'/`file'.xlsm"
-					disp "`file'.xlsm copied to `exp_dir'"
+					copy "`url'/`branch'/excel/templates/`file'.xlsm" "`exp_dir'/`file'.xlsm"
+					noi disp "`file'.xlsm copied to `exp_dir'"
 				}
 				else {
-					disp "{red:Skipped}: File `file' already exists"
+					noi disp "{red:Skipped}: File `file' already exists"
 				}
+			}
+		}
+
+		if "`exercise'" ~= "" {
+
+			* copy exercise files
+
+			noi disp
+			noi disp "Copying exercise files ..."
+			noi disp
+
+			foreach file in household_survey.dta household_backcheck.dta household_preloads.xlsx respondent_targets.xlsx {
+				copy "`url'/`branch'/data/`file'" "`folder'/4_data/2_survey/`file'", replace
+				noi disp "`file' copied to 4_data/2_survey/`file'"
+			}
+
+			foreach file in corrections hfc_inputs specifyrecode {
+				copy "`url'/`branch'/excel/exercise/`file'_exercise.xlsm" "`folder'/0_archive/`file'_exercise.xlsm", replace
+				noi disp "`file'_exercise.xlsm copied to 0_archive/`file'_exercise.xlsm"
+			}
+
+			noi disp
+			noi disp "Unpacking text audit and comment files ..."
+			noi disp
+
+			mata: st_numscalar("exists", direxists("`folder'/4_data/2_survey/media"))
+			if scalar(exists) == 1 {
+				cd "`folder'/4_data/2_survey/media"
+			}
+			else {
+				mkdir "`folder'/4_data/2_survey/media"
+			} 
+
+			* unpack text audits and comment files
+			unzipfile "`url'/branch/data/media.zip", replace
+
+			cd "`folder'"
+
+			noi disp
+			noi disp "Unpacking audio audit files ..."
+			noi disp
+
+			cap frames drop frm_audio_audit
+			frames frm_audio_audit: use aud_audit using "`url'/`branch'/data/household_survey.dta"
+
+			copy "`url'/`branch'/data/m4a_sample_on_&_on.m4a" "`c(tmpdir)'/audio_file_sample.m4a", replace
+
+			frames frm_audio_audit {
+
+				loc import_cnt `c(N)'
+				
+				noi _dots 0, title(Unpacking `import_cnt' audio audit files ...) reps(`import_cnt')
+				
+				forval i = 1/`import_cnt' {
+
+					loc file = substr(aud_audit[`i'], "media\", "", 1)
+
+					copy 	"`c(tmpdir)'/audio_file_sample.m4a" "`file'", replace
+					noi _dots `i' 0
+				}
+
 			}
 		}
 	}
