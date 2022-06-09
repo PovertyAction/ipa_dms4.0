@@ -5,16 +5,16 @@ ipacheck is Innovations for Poverty Action's Stata package for running high-freq
 
 ### Main programs
 
- - `ipacheckcorrections` - makes corrections to data.
- - `ipacheckspecifyrecode` - recodes other specify values.
- - `ipacheckversions`- export number of surveys form version and flags outdated survey submissions.
+ - `ipacheckcorrections` - make corrections to data.
+ - `ipacheckspecifyrecode` - recode other specify values.
+ - `ipacheckversions`- export statistics on survey form versions & flags outdated survey submissions.
  - `ipacheckids`- export duplicates in survey ID.
  - `ipacheckdups`- export duplicates in non-ID variables.
- - `ipacheckmissing`- export missingness & distintness statistics for each variable.
+ - `ipacheckmissing`- export statistics on missingness & distintness for each variable.
  - `ipacheckoutliers` - export outliers in numeric variables.
- - `ipacheckspecify` - export all values specified for variables with an 'other' category.
+ - `ipacheckspecify` - export all values specified for variables with 'other speciy' category.
  - `ipacheckcomments` - export field comments generated with SurveyCTO's comments field type.
- - `ipachecktextaudit` - export field duration statistics using the SurveyCTO's text audit files.
+ - `ipachecktextaudit` - export statistics on duration per field using the SurveyCTO's text audit files.
  - `ipachecktimeuse` - export statistics on hours of engagement using the SurveyCTO's text audit files.
  - `ipachecksurveydb` - export general statistics about dataset.
  - `ipacheckenumdb` - export general statistics about enumerator performance.
@@ -22,12 +22,12 @@ ipacheck is Innovations for Poverty Action's Stata package for running high-freq
   
  ### Ancilliary programs
 
-- `ipacodebook` - export codebook to excel
-- `ipasctocollate` - collate and export a dataset of SurveyCTO generated text audit or comment files.
+- `ipacodebook` - export codebook to excel. Includes an option to use notes as variable labels
+- `ipasctocollate` - collate and export a dataset from SurveyCTO generated text audit or comments files.
 - `ipalabels` - remove labels or values from variables.
 - `ipagettd` - convert datetime variables to date.
 - `ipagetcal` - create a date calendar dataset.
-- `ipaanycount` - create a variable that returns the number of variables in varlist for which values are equal to any specified integer/string value
+- `ipaanycount` - create a variable that returns the number of variables in varlist for which values are equal to any specified integer/string value.
 
 ### Mata library
  
@@ -46,7 +46,7 @@ ipacheck comes with a folder structure for your project including a master do-fi
 
 ```Stata
 * ipacheck may be installed directly from GitHub
-net install ipacheck, from("https://raw.githubusercontent.com/PovertyAction/ipa_dms4.0/final") replace
+net install ipacheck, from("https://raw.githubusercontent.com/PovertyAction/ipa_dms4.0/master") replace
 ipacheck update
 
 * after initial installation ipacheck can be updated at any time via
