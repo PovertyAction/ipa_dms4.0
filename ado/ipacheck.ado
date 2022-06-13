@@ -67,7 +67,7 @@ program ipacheck, rclass
 		loc url 	= "https://raw.githubusercontent.com/PovertyAction/ipa_dms4.0"
 
 		if "`subcmd'" == "new" {
-			ipacheck_new, surveys(`surveys') folder("`folder'") `subfolders' `filesonly' url("`url'") branch(`branch')
+			noi ipacheck_new, surveys(`surveys') folder("`folder'") `subfolders' `filesonly' url("`url'") branch(`branch') `exercise'
 			ex
 		}
 		else {
@@ -84,7 +84,7 @@ program define ipacheck_update
 	qui {
 		loc branch 	= cond("`branch'" ~= "", "`branch'", "master")
 		net install ipacheck, replace from("`url'/`branch'")
-		qui do "`url'/`branch'/do/ipacheckmata.do"
+		qui do "`url'/`branch'/mlib/ipacheckmata.do"
 		noi disp "Mata library lipadms installed"
 		noi mata mata mlib index
 	}
@@ -159,232 +159,233 @@ program define ipacheck_new
 	
 	syntax, [surveys(string)] [folder(string)] [SUBfolders] [filesonly] [exercise] [branch(name)] url(string)
 	
-	qui {
-		loc branch 	= cond("`branch'" ~= "", "`branch'", "master") 
+	loc branch 	= cond("`branch'" ~= "", "`branch'", "master") 
+	
+	if "`folder'" == "" {
+		loc folder "`c(pwd)'"
+	}
+	
+	loc surveys_cnt = `:word count `surveys''
+	
+	if "`filesonly'" == "" {
+		#d;
+		loc folders 
+			""0_archive"
+			"1_instruments"
+				"1_instruments/1_paper"
+				"1_instruments/2_scto_print"
+				"1_instruments/3_scto_xls"
+			"2_dofiles"
+			"3_checks"
+				"3_checks/1_inputs"
+				"3_checks/2_outputs"	
+			"4_data"
+				"4_data/1_preloads"
+				"4_data/2_survey"
+				"4_data/3_backcheck"
+				"4_data/4_monitoring"
+			"5_media"
+				"5_media/1_audio"
+				"5_media/2_images"
+				"5_media/3_video"
+			"6_documentation"
+			"7_field_manager"
+			"8_reports""
+			;
+		#d cr
 		
-		if "`folder'" == "" {
-			loc folder "`c(pwd)'"
+		noi disp
+		noi disp "Setting up folders ..."
+		noi disp
+
+		foreach f in `folders' {
+			mata : st_numscalar("exists", direxists("`folder'/`f'"))
+			if scalar(exists) == 1 {
+				noi disp "{red:Skipped}: Folder `f' already exists"
+			}
+			else {
+				mkdir "`folder'/`f'"
+				noi disp "Successful: Folder `f' created"
+			}
 		}
 		
-		loc surveys_cnt = `word count `surveys''
-		
-		if "`filesonly'" == "" {
+		if "`subfolders'" == "subfolders" {
+			
 			#d;
-			loc folders 
-				""0_archive"
-				"1_instruments"
-					"1_instruments/1_paper"
-					"1_instruments/2_scto_print"
-					"1_instruments/3_scto_xls"
-				"2_dofiles"
-				"3_checks"
-					"3_checks/1_inputs"
-					"3_checks/2_outputs"	
-				"4_data"
-					"4_data/1_preloads"
-					"4_data/2_survey"
-					"4_data/3_backcheck"
-					"4_data/4_monitoring"
-				"5_media"
-					"5_media/1_audio"
-					"5_media/2_images"
-					"5_media/3_video"
-				"6_documentation"
-				"7_field_manager"
-				"8_reports""
+			loc sfs
+				""3_checks/1_inputs"
+				"3_checks/2_outputs"
+				"4_data/1_preloads"
+				"4_data/2_survey"
+				"4_data/3_backcheck"
+				"4_data/4_monitoring"
+				"5_media/1_audio"
+				"5_media/2_images"
+				"5_media/3_video""
 				;
 			#d cr
 			
 			noi disp
-			noi disp "Setting up folders ..."
+			noi disp "Creating subfolders ..."
 			noi disp
-
-			foreach f in `folders' {
-				mata : st_numscalar("exists", direxists("`folder'/`f'"))
-				if scalar(exists) == 1 {
-					noi disp "{red:Skipped}: Folder `f' already exists"
-				}
-				else {
-					mkdir "`folder'/`f'"
-					noi disp "Successful: Folder `f' created"
-				}
-			}
+			loc i 1
 			
-			if "`subfolders'" == "subfolders" {
-				
-				#d;
-				loc sfs
-					""3_checks/1_inputs"
-					"3_checks/2_outputs"
-					"4_data/1_preloads"
-					"4_data/2_survey"
-					"4_data/3_backcheck"
-					"4_data/4_monitoring"
-					"5_media/1_audio"
-					"5_media/2_images"
-					"5_media/3_video""
-					;
-				#d cr
-				
-				noi disp
-				noi disp "Creating subfolders ..."
-				noi disp
-				loc i 1
-				
-				foreach survey in `surveys' {
-					loc sublab = "`i'_`survey'"
-					foreach sf in `sfs' {
-						mata : st_numscalar("exists", direxists("`folder'/`sf'/`sublab'"))
-						if scalar(exists) == 1 {
-							noi disp "{red:Skipped}: Sub-folder `sf' already exists"
-						}
-						else {
-							mkdir "`folder'/`sf'/`sublab'"
-							noi disp "Successful: Folder `sf'/`sublab' created"
-						}
-					}
-					loc ++i
-				}
-			}
-		}
-		
-		loc exp_dir "`folder'"
-			
-		noi disp
-		noi disp "Copying files to `exp_dir' ..."
-		noi disp
-		
-		cap confirm file "`exp_dir'/0_master.do"
-		if _rc == 601 {
-			copy "`url'/`branch'/do/0_master.do" "`exp_dir'/0_master.do"
-			noi disp "0_master.do copied to `exp_dir'"
-		}
-		else {
-			noi disp  "{red:Skipped}: File 0_master.do already exists"
-		}
-		
-		if "`filesonly'" == "" 	loc exp_dir "`folder'/2_dofiles"
-		else 					loc exp_dir "`folder'"
-		
-		foreach file in 1_globals 3_prep 4_hfcs {
-			if `surveys_cnt' > 0 {
-				forval i = 1/`surveys_cnt' {
-					loc exp_file = "`file'_" + word("`surveys'", `i')
-					cap confirm file "`exp_dir'/`exp_file'.do"
-					if _rc == 601 {
-						copy "`url'/`branch'/do/`file'.do" "`exp_dir'/`exp_file'.do"
-						noi disp "`exp_file'.do copied to `exp_dir'"
+			foreach survey in `surveys' {
+				loc sublab = "`i'_`survey'"
+				foreach sf in `sfs' {
+					mata : st_numscalar("exists", direxists("`folder'/`sf'/`sublab'"))
+					if scalar(exists) == 1 {
+						noi disp "{red:Skipped}: Sub-folder `sf' already exists"
 					}
 					else {
-						noi disp  "{red:Skipped}: File `file'.do already exists"
+						mkdir "`folder'/`sf'/`sublab'"
+						noi disp "Successful: Folder `sf'/`sublab' created"
 					}
 				}
+				loc ++i
 			}
-			else {
-				cap confirm file "`exp_dir'/`file'.do"
+		}
+	}
+	
+	loc exp_dir "`folder'"
+		
+	noi disp
+	noi disp "Copying files to `exp_dir' ..."
+	noi disp
+	
+	cap confirm file "`exp_dir'/0_master.do"
+	if _rc == 601 {
+		copy "`url'/`branch'/do/0_master.do" "`exp_dir'/0_master.do"
+		noi disp "0_master.do copied to `exp_dir'"
+	}
+	else {
+		noi disp  "{red:Skipped}: File 0_master.do already exists"
+	}
+	
+	if "`filesonly'" == "" 	loc exp_dir "`folder'/2_dofiles"
+	else 					loc exp_dir "`folder'"
+	
+	foreach file in 1_globals 3_prep 4_hfcs {
+		if `surveys_cnt' > 0 {
+			forval i = 1/`surveys_cnt' {
+				loc exp_file = "`file'_" + word("`surveys'", `i')
+				cap confirm file "`exp_dir'/`exp_file'.do"
 				if _rc == 601 {
-					copy "`url'/`branch'/do/`file'.do" "`exp_dir'/`file'.do"
-					noi disp "`file'.do copied to `exp_dir'"
+					copy "`url'/`branch'/do/`file'.do" "`exp_dir'/`exp_file'.do"
+					noi disp "`exp_file'.do copied to `exp_dir'"
 				}
 				else {
 					noi disp  "{red:Skipped}: File `file'.do already exists"
 				}
 			}
 		}
-		
-		if "`filesonly'" == "" 	loc exp_dir "`folder'/3_checks/1_inputs"
-		else 					loc exp_dir "`folder'"
-		
-		noi disp
-		noi disp "Copying files to `folder'/3_checks/1_inputs ..."
-		noi disp
-		
-		foreach file in hfc_inputs corrections specifyrecode {
-			if `surveys_cnt' > 0 {
-				forval i = 1/`surveys_cnt' {
-					loc exp_file = "`file'_" + word("`surveys'", `i')
-					loc exp_dirmult  = cond("`subfolders'" == "", "`exp_dir'", "`exp_dir'/`i'_" + word("`surveys'", `i'))
-					cap confirm file "`exp_dirmult'/`exp_file'.xlsm"
-					if _rc == 601 {
-						copy "`url'/`branch'/excel/templates/`file'.xlsm" "`exp_dirmult'/`exp_file'.xlsm"
-						noi disp "`exp_file'.xlsm copied to `exp_dirmult'"
-					}
-					else {
-						noi disp "{red:Skipped}: File `file' already exists"
-					}
-				}
+		else {
+			cap confirm file "`exp_dir'/`file'.do"
+			if _rc == 601 {
+				copy "`url'/`branch'/do/`file'.do" "`exp_dir'/`file'.do"
+				noi disp "`file'.do copied to `exp_dir'"
 			}
 			else {
-				cap confirm file "`exp_dir'/`file'.xlsm"
+				noi disp  "{red:Skipped}: File `file'.do already exists"
+			}
+		}
+	}
+	
+	if "`filesonly'" == "" 	loc exp_dir "`folder'/3_checks/1_inputs"
+	else 					loc exp_dir "`folder'"
+	
+	noi disp
+	noi disp "Copying files to `folder'/3_checks/1_inputs ..."
+	noi disp
+	
+	foreach file in hfc_inputs corrections specifyrecode {
+		if `surveys_cnt' > 0 {
+			forval i = 1/`surveys_cnt' {
+				loc exp_file = "`file'_" + word("`surveys'", `i')
+				loc exp_dirmult  = cond("`subfolders'" == "", "`exp_dir'", "`exp_dir'/`i'_" + word("`surveys'", `i'))
+				cap confirm file "`exp_dirmult'/`exp_file'.xlsm"
 				if _rc == 601 {
-					copy "`url'/`branch'/excel/templates/`file'.xlsm" "`exp_dir'/`file'.xlsm"
-					noi disp "`file'.xlsm copied to `exp_dir'"
+					qui copy "`url'/`branch'/excel/templates/`file'.xlsm" "`exp_dirmult'/`exp_file'.xlsm"
+					noi disp "`exp_file'.xlsm copied to `exp_dirmult'"
 				}
 				else {
 					noi disp "{red:Skipped}: File `file' already exists"
 				}
 			}
 		}
-
-		if "`exercise'" ~= "" {
-
-			* copy exercise files
-
-			noi disp
-			noi disp "Copying exercise files ..."
-			noi disp
-
-			foreach file in household_survey.dta household_backcheck.dta household_preloads.xlsx respondent_targets.xlsx {
-				copy "`url'/`branch'/data/`file'" "`folder'/4_data/2_survey/`file'", replace
-				noi disp "`file' copied to 4_data/2_survey/`file'"
-			}
-
-			foreach file in corrections hfc_inputs specifyrecode {
-				copy "`url'/`branch'/excel/exercise/`file'_exercise.xlsm" "`folder'/0_archive/`file'_exercise.xlsm", replace
-				noi disp "`file'_exercise.xlsm copied to 0_archive/`file'_exercise.xlsm"
-			}
-
-			noi disp
-			noi disp "Unpacking text audit and comment files ..."
-			noi disp
-
-			mata: st_numscalar("exists", direxists("`folder'/4_data/2_survey/media"))
-			if scalar(exists) == 1 {
-				cd "`folder'/4_data/2_survey/media"
+		else {
+			cap confirm file "`exp_dir'/`file'.xlsm"
+			if _rc == 601 {
+				qui copy "`url'/`branch'/excel/templates/`file'.xlsm" "`exp_dir'/`file'.xlsm"
+				noi disp "`file'.xlsm copied to `exp_dir'"
 			}
 			else {
-				mkdir "`folder'/4_data/2_survey/media"
-			} 
-
-			* unpack text audits and comment files
-			unzipfile "`url'/branch/data/media.zip", replace
-
-			cd "`folder'"
-
-			noi disp
-			noi disp "Unpacking audio audit files ..."
-			noi disp
-
-			cap frames drop frm_audio_audit
-			frames frm_audio_audit: use aud_audit using "`url'/`branch'/data/household_survey.dta"
-
-			copy "`url'/`branch'/data/m4a_sample_on_&_on.m4a" "`c(tmpdir)'/audio_file_sample.m4a", replace
-
-			frames frm_audio_audit {
-
-				loc import_cnt `c(N)'
-				
-				noi _dots 0, title(Unpacking `import_cnt' audio audit files ...) reps(`import_cnt')
-				
-				forval i = 1/`import_cnt' {
-
-					loc file = substr(aud_audit[`i'], "media\", "", 1)
-
-					copy 	"`c(tmpdir)'/audio_file_sample.m4a" "`file'", replace
-					noi _dots `i' 0
-				}
-
+				noi disp "{red:Skipped}: File `file' already exists"
 			}
+		}
+	}
+
+	if "`exercise'" ~= "" {
+	
+		* copy exercise files
+
+		noi disp
+		noi disp "Copying exercise files ..."
+		noi disp
+
+		foreach file in household_survey.dta household_backcheck.dta household_preloads.xlsx respondent_targets.xlsx {
+			qui copy "`url'/`branch'/data/`file'" "`folder'/4_data/2_survey/`file'", replace
+			noi disp "`file' copied to 4_data/2_survey/`file'"
+		}
+
+		foreach file in corrections hfc_inputs specifyrecode {
+			qui copy "`url'/`branch'/excel/exercise/`file'_exercise.xlsm" "`folder'/0_archive/`file'_exercise.xlsm", replace
+			noi disp "`file'_exercise.xlsm copied to 0_archive/`file'_exercise.xlsm"
+		}
+
+		noi disp
+		noi disp "Unpacking text audit and comment files ..."
+		noi disp
+
+		mata: st_numscalar("exists", direxists("`folder'/4_data/2_survey/media"))
+		if scalar(exists) == 1 {
+			cd "`folder'/4_data/2_survey"
+		}
+		else {
+			mkdir "`folder'/4_data/2_survey/media"
+		} 
+
+		* unpack text audits and comment files
+		unzipfile "`url'/`branch'/data/media.zip", replace
+
+		cd "`folder'"
+
+		noi disp
+		noi disp "Unpacking audio audit files ..."
+		noi disp
+
+		cap frames drop frm_audio_audit
+		frames create frm_audio_audit
+		frames frm_audio_audit: use aud_audit using "`url'/`branch'/data/household_survey.dta"
+
+		qui copy "`url'/`branch'/data/m4a_sample_on_&_on.m4a" "`c(tmpdir)'/audio_file_sample.m4a", replace
+		
+		frames frm_audio_audit {
+			
+			drop if missing(aud_audit)
+
+			loc import_cnt `c(N)'
+			
+			noi _dots 0, title(Unpacking `import_cnt' audio audit files ...) reps(`import_cnt')
+			
+			forval i = 1/`import_cnt' {
+
+				loc file = subinstr("`=aud_audit[`i']'", "media\", "", 1)
+			
+				qui copy 	"`c(tmpdir)'/audio_file_sample.m4a" "`folder'/4_data/2_survey/media/`file'", replace
+				noi _dots `i' 0
+			}
+
 		}
 	}
 
