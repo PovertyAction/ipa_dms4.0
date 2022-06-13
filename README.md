@@ -46,7 +46,7 @@ ipacheck comes with a folder structure for your project including a master do-fi
 
 ```Stata
 * ipacheck may be installed directly from GitHub
-net install ipacheck, from("https://raw.githubusercontent.com/PovertyAction/ipa_dms4.0/master") replace
+net install ipacheck, all replace from("https://raw.githubusercontent.com/PovertyAction/ipa_dms4.0/master")
 ipacheck update
 
 * after initial installation ipacheck can be updated at any time via
