@@ -10,50 +10,53 @@ program define ipaanycount
 	tempvar tmv_gen_check
 	
 	* mark sample
-	marksample touse, strok
-
-	*** check syntax ***
-	if "`numval'`strval'" == "" {
-	    disp as err "must specify options numval() or strval()"
-		ex 198
-	}
-	if "`numval'" ~= "" {
-		foreach val of numlist `numval' {
-			if "`val'" == "." {
-				disp as err `"generic numeric missing value "." not allowed in numval()"'
-				ex 198
-			}
+	marksample touse `if' `in', strok
+	
+	qui {
+		*** check syntax ***
+		if "`numval'`strval'" == "" {
+			disp as err "must specify options numval() or strval()"
+			ex 198
 		}
-	}
-	if "`strval'" ~= "" {
-		loc strval = trim(itrim("`strval'"))
-	}
-
-	* generate count variable
-	gen `generate' = 0 if `touse'
-	gen `tmv_gen_check' = 0 if `touse'
-	foreach var of varlist `varlist' {
-	    cap confirm string var `var'
-		if !_rc & "`strval'" ~= "" {
-			foreach val in `strvals' {
-				 replace `tmv_gen_check' =  1 if 													///
-											!`tmv_gen_check' 			  &							///
-											(trim(itrim(`var')) == "`val'" | 						///
-											regexm(trim(itrim(`var')), "^`val' | `val' | `val'$"))
-			} 
-		   
-		}
-		else if !missing("`numval'") {
+		if "`numval'" ~= "" {
 			foreach val of numlist `numval' {
-				replace `tmv_gen_check' = 	1 if ///
-											!`tmv_gen_check' & ///
-											`var' == `val'
+				if "`val'" == "." {
+					disp as err `"generic numeric missing value "." not allowed in numval()"'
+					ex 198
+				}
 			}
+		}
+		if "`strval'" ~= "" {
+			loc strval = trim(itrim("`strval'"))
+		}
+
+		* generate count variable
+		gen `generate' = 0 if `touse'
+		gen `tmv_gen_check' = 0 if `touse'
+		foreach var of varlist `varlist' {
+			cap confirm string var `var'
+			if !_rc & "`strval'" ~= "" {
+				foreach val in `strvals' {
+					 replace `tmv_gen_check' =  1 if 													///
+												!`tmv_gen_check' 			  &							///
+												(trim(itrim(`var')) == "`val'" | 						///
+												regexm(trim(itrim(`var')), "^`val' | `val' | `val'$"))
+				} 
+			   
+			}
+			else if !missing("`numval'") {
+				foreach val of numlist `numval' {
+					replace `tmv_gen_check' = 	1 if ///
+												!`tmv_gen_check' & ///
+												`var' == `val'
+				}
+			}
+			
+			replace `generate' = `generate' + `tmv_gen_check' if `touse'
 		}
 		
-		replace `generate' = `generate' + `tmv_gen_check' if `touse'
+		drop `touse' `tmv_gen_check'
+		
 	}
-	
-	drop `touse' `tmv_gen_check'
 	
 end

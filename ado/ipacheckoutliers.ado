@@ -298,7 +298,7 @@ program ipacheckoutliers, rclass
 			loc var_cnt `r(r)'
 			
 			* display number of outliers flagged
-			noi disp "Found {cmd:`c(N)'} duplicates in `var_cnt' variable(s)."
+			noi disp "Found {cmd:`c(N)'} outliers in `var_cnt' variable(s)."
 		}
 		else {
 		    loc var_cnt 0
