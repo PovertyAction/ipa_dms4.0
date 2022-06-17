@@ -9,14 +9,14 @@ program ipacheckenumdb, rclass sortpreserve
 	#d;
 	syntax 	[using/],
 			[SHEETname(string)]
-        	DATEvar(varname)
+        	DATE(varname)
         	[PERiod(string)]
         	ENUMerator(varname)
 			[TEAM(varname)]
         	[CONSent(string)]
         	[DONTKnow(string)]
 			[REFuse(string)]
-			[OTHERvars(varlist)]
+			[OTHERspecify(varlist)]
         	[DURation(varname)]
         	FORMVersion(varname)
         	OUTFile(string)
@@ -49,7 +49,7 @@ program ipacheckenumdb, rclass sortpreserve
 		loc _cons 	= "`consent'" 	~= ""
 		loc _dk 	= "`dontknow'" 	~= ""
 		loc _ref 	= "`refuse'" 	~= ""
-		loc _other 	= "`othervars'" ~= ""
+		loc _other 	= "`otherspecify'" ~= ""
 		loc _dur 	= "`duration'" 	~= ""
 		loc _team 	= "`team'"		~= ""
 		
@@ -90,9 +90,9 @@ program ipacheckenumdb, rclass sortpreserve
 		else gen `tmv_ref' = 0
 
 		if `_other' {
-			unab othervars: `othervars'
-			loc other_count = wordcount("`othervars'")
-			egen `tmv_other' = rownonmiss(`othervars'), strok
+			unab otherspecify: `otherspecify'
+			loc other_count = wordcount("`otherspecify'")
+			egen `tmv_other' = rownonmiss(`otherspecify'), strok
 		}
 		else {
 			gen `tmv_other' = 0
@@ -105,7 +105,7 @@ program ipacheckenumdb, rclass sortpreserve
 		}
 		else gen `tmv_team' = ""
 		
-		ipagettd `datevar'
+		ipagettd `date'
 	
 		* period: period(auto | daily | weekly | monthly) 
 		* check : check options in period
@@ -115,7 +115,7 @@ program ipacheckenumdb, rclass sortpreserve
 		}
 		else if "`period'" == "" loc period "auto"
 		if "`period'" == "auto" {
-		    su `datevar'
+		    su `date'
 			loc min_date `r(min)'
 			loc max_date `r(max)'
 			loc days = `max_date' - `min_date'
@@ -185,7 +185,7 @@ program ipacheckenumdb, rclass sortpreserve
 			foreach enum in `enums' {
 				tab `formversion' 						if `enumerator' == "`enum'"
 				replace `tmv_formversion' 	= `r(r)' 	if `enumerator' == "`enum'"
-				tab `datevar'							if `enumerator' == "`enum'"
+				tab `date'								if `enumerator' == "`enum'"
 				replace `tmv_days' 			= `r(r)' 	if `enumerator' == "`enum'"
 			}
 		}
@@ -194,7 +194,7 @@ program ipacheckenumdb, rclass sortpreserve
 			foreach enum in `enums' {
 				tab `formversion' 						if `enumerator' == `enum'
 				replace `tmv_formversion' 	= `r(r)' 	if `enumerator' == `enum'
-				tab `datevar'							if `enumerator' == `enum'
+				tab `date'								if `enumerator' == `enum'
 				replace `tmv_days' 			= `r(r)' 	if `enumerator' == `enum'
 			}
 		}
@@ -214,8 +214,8 @@ program ipacheckenumdb, rclass sortpreserve
 				 (median) 	duration_median = `tmv_dur'
 				 (max)	 	duration_max   	= `tmv_dur'
 				 (first) 	formversion 	= `tmv_formversion'
-				 (min)   	firstdate 		= `datevar'
-				 (max)   	lastdate		= `datevar'
+				 (min)   	firstdate 		= `date'
+				 (max)   	lastdate		= `date'
 				 (first) 	days 			= `tmv_days'
 				 ,
 				 by(`enumerator')
@@ -284,7 +284,7 @@ program ipacheckenumdb, rclass sortpreserve
 				foreach t in `teams' {
 					tab `formversion' 						if `team' == "`t'"
 					replace `tmv_formversion' 	= `r(r)' 	if `team' == "`t'"
-					tab `datevar'							if `team' == "`t'"
+					tab `date'							if `team' == "`t'"
 					replace `tmv_days' 			= `r(r)' 	if `team' == "`t'"
 					tab `enumerator'						if `team' == "`t'"
 					replace `tmv_enum'			= `r(r)'	if `team' == "`t'" 
@@ -295,7 +295,7 @@ program ipacheckenumdb, rclass sortpreserve
 				foreach t in `teams' {
 					tab `formversion' 						if `team' == `t'
 					replace `tmv_formversion' 	= `r(r)' 	if `team' == `t'
-					tab `datevar'							if `team' == `t'
+					tab `date'							if `team' == `t'
 					replace `tmv_days' 			= `r(r)' 	if `team' == `t'
 					tab `enumerator'						if `team' == `t'
 					replace `tmv_enum'			= `r(r)'	if `team' == `t' 
@@ -317,8 +317,8 @@ program ipacheckenumdb, rclass sortpreserve
 					 (median) 	duration_median = `tmv_dur'
 					 (max)	 	duration_max   	= `tmv_dur'
 					 (first) 	formversion 	= `tmv_formversion'
-					 (min)   	firstdate 		= `datevar'
-					 (max)   	lastdate		= `datevar'
+					 (min)   	firstdate 		= `date'
+					 (max)   	lastdate		= `date'
 					 (first) 	days 			= `tmv_days'
 					 ,
 					 by(`team')
@@ -375,9 +375,9 @@ program ipacheckenumdb, rclass sortpreserve
 		
 		* generate a calendar dataset
 		use "`tmf_main_data'", clear
-		ipagetcal `datevar', clear
+		ipagetcal `date', clear
 		
-		merge 1:m `datevar' using "`tmf_main_data'", keepusing(`datevar' `enumerator' `team') gen(datematch)
+		merge 1:m `date' using "`tmf_main_data'", keepusing(`date' `enumerator' `team') gen(datematch)
 		gen weight = cond(datematch == 3, 1, 0)
 		drop datematch
 		
@@ -385,8 +385,8 @@ program ipacheckenumdb, rclass sortpreserve
 		save "`tmf_datecal'"
 			
 		if "`period'" == "daily" {
-			collapse (sum) submissions = weight, by(`enumerator' `datevar')
-			ren `datevar' jvar
+			collapse (sum) submissions = weight, by(`enumerator' `date')
+			ren `date' jvar
 		}
 		else if "`period'" == "weekly" {
 			collapse (sum) submissions = weight, by(`enumerator' year week)
@@ -394,7 +394,7 @@ program ipacheckenumdb, rclass sortpreserve
 			egen jvar = group(year week)
 		}
 		else {
-			collapse `datevar' (sum) submissions = weight, by(`enumerator' year month)
+			collapse `date' (sum) submissions = weight, by(`enumerator' year month)
 			sort month
 			egen jvar = group(year month)
 		}
@@ -445,8 +445,8 @@ program ipacheckenumdb, rclass sortpreserve
 			use "`tmf_datecal'", clear
 		
 			if "`period'" == "daily" {
-				collapse (sum) submissions = weight, by(`team' `datevar')
-				ren `datevar' jvar
+				collapse (sum) submissions = weight, by(`team' `date')
+				ren `date' jvar
 			}
 			else if "`period'" == "weekly" {
 				collapse (sum) submissions = weight, by(`team' year week)
@@ -454,7 +454,7 @@ program ipacheckenumdb, rclass sortpreserve
 				egen jvar = group(year week)
 			}
 			else {
-				collapse `datevar' (sum) submissions = weight, by(`team' year month)
+				collapse `date' (sum) submissions = weight, by(`team' year month)
 				sort month
 				egen jvar = group(year month)
 			}
