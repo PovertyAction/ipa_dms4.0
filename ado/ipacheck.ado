@@ -353,6 +353,7 @@ program define ipacheck_new
 		}
 		else {
 			mkdir "`folder'/4_data/2_survey/media"
+			cd "`folder'/4_data/2_survey"
 		} 
 
 		* unpack text audits and comment files
