@@ -7,10 +7,10 @@ program define ipaanycount
 	syntax varlist [if] [in], GENerate(name) [NUMval(numlist missingokay) STRval(string)]
 	
 	* tempvar
-	tempvar tmv_gen_check
+	tempvar tmv_gen_check touse
 	
 	* mark sample
-	marksample touse `if' `in', strok
+	mark `touse' `if' `in'
 	
 	qui {
 		*** check syntax ***
@@ -36,7 +36,7 @@ program define ipaanycount
 		foreach var of varlist `varlist' {
 			cap confirm string var `var'
 			if !_rc & "`strval'" ~= "" {
-				foreach val in `strvals' {
+				foreach val in `strval' {
 					 replace `tmv_gen_check' =  1 if 													///
 												!`tmv_gen_check' 			  &							///
 												(trim(itrim(`var')) == "`val'" | 						///
@@ -53,6 +53,7 @@ program define ipaanycount
 			}
 			
 			replace `generate' = `generate' + `tmv_gen_check' if `touse'
+			replace `tmv_gen_check' = 0 if `touse'
 		}
 		
 		drop `touse' `tmv_gen_check'
