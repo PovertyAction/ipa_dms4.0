@@ -385,7 +385,7 @@ program ipatracksurvey, rclass
 						foreach var in varlist `keepsurvey' {
 							cap confirm var `var'
 							if !_rc {
-								ren `var' "`var'"
+								lab var `var' "`var'"
 							}
 						}
 					}
@@ -435,7 +435,7 @@ program ipatracksurvey, rclass
 							foreach var in varlist `keepsurvey' `keepmaster' {
 								cap confirm var `var'
 								if !_rc {
-									ren `var' "`var'"
+									lab var `var' "`var'"
 								}
 							}
 						}
@@ -474,7 +474,7 @@ program ipatracksurvey, rclass
 							foreach var in varlist `keepsurvey' `keepmaster' {
 								cap confirm var `var'
 								if !_rc {
-									ren `var' "`var'"
+									lab var `var' "`var'"
 								}
 							}
 						}
