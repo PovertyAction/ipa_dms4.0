@@ -83,7 +83,7 @@ program define ipacheck_update
 	
 	qui {
 		loc branch 	= cond("`branch'" ~= "", "`branch'", "master")
-		net install ipacheck, replace from("`url'/`branch'")
+		noi net install ipacheck, replace from("`url'/`branch'")
 		qui do "`url'/`branch'/mlib/ipacheckmata.do"
 		noi disp "Mata library lipadms installed"
 		noi mata mata mlib index
@@ -116,6 +116,7 @@ program define ipacheck_version
 				ipagettd
 				ipagetcal
 				ipaanycount
+				ipabcstats
 			;
 		#d cr
 
@@ -126,7 +127,7 @@ program define ipacheck_version
 			cap which `prg'
 			if !_rc {
 				mata: get_version("`c(sysdir_plus)'i/`prg'.ado")
-				di regexm("`verdate'", "4\.[0-9]+\.[0-9]+")
+				di regexm("`verdate'", "[1-4]\.[0-9]+\.[0-9]+")
 				loc vers_num 	= regexs(0)
 				di regexm("`verdate'", "[0-9]+[a-zA-Z]+[0-9]+")
 				loc vers_date 	= regexs(0)
