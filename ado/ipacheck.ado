@@ -20,9 +20,9 @@ program ipacheck, rclass
 	qui {
 		if !inlist("`subcmd'", "new", "version", "update") {
 			disp as err "illegal ipacheck sub command. Sub commands are:"
-			di as txt 	"{cmd:ipacheck new}"
-			di as txt 	"{cmd:ipacheck update}"
-			di as txt 	"{cmd:ipacheck version}"
+			noi di as txt 	"{cmd:ipacheck new}"
+			noi di as txt 	"{cmd:ipacheck update}"
+			noi di as txt 	"{cmd:ipacheck version}"
 			ex 198
 		}
 		if inlist("`subcmd'", "update", "version") {
