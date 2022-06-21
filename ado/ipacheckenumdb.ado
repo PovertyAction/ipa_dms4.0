@@ -412,6 +412,8 @@ program ipacheckenumdb, rclass sortpreserve
 		loc add = `=_N' + 1
 		set obs `add'
 		
+		tostring `enumerator', replace format(%15.0f)
+		
 		replace `enumerator' = "Total" in `add'
 		
 		foreach var of varlist vv_* {
