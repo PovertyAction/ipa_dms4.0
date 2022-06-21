@@ -347,11 +347,11 @@ program define ipacheck_new
 			noi disp "`file'_exercise.xlsm copied to 0_archive/`file'_exercise.xlsm"
 		}
 		
-		qui copy "`url'/`branch'/excel/exercise/Household Survey.xlsx" "`folder'/1_instruments/3_scto_xls/Household Survey.xlsx", replace
-		noi disp "Household Survey.xlsx copied to 1_instruments/3_scto_xls/Household Survey.xlsx"
+		qui copy "`url'/`branch'/excel/exercise/Household_Survey.xlsx" "`folder'/1_instruments/3_scto_xls/Household_Survey.xlsx", replace
+		noi disp "Household_Survey.xlsx copied to 1_instruments/3_scto_xls/Household_Survey.xlsx"
 		
-		qui copy "`url'/`branch'/excel/exercise/Household Back Check Survey.xlsx" "`folder'/1_instruments/3_scto_xls/Household Back Check Survey.xlsx", replace
-		noi disp "Household Back Check Survey.xlsx copied to 1_instruments/3_scto_xls/Household Back Check Survey.xlsx"
+		qui copy "`url'/`branch'/excel/exercise/Household_Back_Check_Survey.xlsx" "`folder'/1_instruments/3_scto_xls/Household_Back_Check_Survey.xlsx", replace
+		noi disp "Household_Back_Check_Survey.xlsx copied to 1_instruments/3_scto_xls/Household_Back_Check_Survey.xlsx"
 
 		noi disp
 		noi disp "Unpacking text audit and comment files ..."
