@@ -266,7 +266,7 @@ program define ipacheck_new
 	if "`filesonly'" == "" 	loc exp_dir "`folder'/2_dofiles"
 	else 					loc exp_dir "`folder'"
 	
-	foreach file in 1_globals 3_prep 4_hfcs {
+	foreach file in 1_globals 3_prepsurvey 4_checksurvey 5_prepbc 6_checkbc {
 		if `surveys_cnt' > 0 {
 			forval i = 1/`surveys_cnt' {
 				loc exp_file = "`file'_" + word("`surveys'", `i')
@@ -338,11 +338,20 @@ program define ipacheck_new
 			qui copy "`url'/`branch'/data/`file'" "`folder'/4_data/2_survey/`file'", replace
 			noi disp "`file' copied to 4_data/2_survey/`file'"
 		}
+		
+		qui copy "`url'/`branch'/data/household_backcheck.dta" "`folder'/4_data/3_backcheck/household_backcheck.dta", replace
+		noi disp "household_backcheck.dta copied to 4_data/3_backcheck/household_backcheck.dta"
 
 		foreach file in corrections hfc_inputs specifyrecode {
 			qui copy "`url'/`branch'/excel/exercise/`file'_exercise.xlsm" "`folder'/0_archive/`file'_exercise.xlsm", replace
 			noi disp "`file'_exercise.xlsm copied to 0_archive/`file'_exercise.xlsm"
 		}
+		
+		qui copy "`url'/`branch'/excel/exercise/Household Survey.xlsx" "`folder'/1_instruments/3_scto_xls/Household Survey.xlsx", replace
+		noi disp "Household Survey.xlsx copied to 1_instruments/3_scto_xls/Household Survey.xlsx"
+		
+		qui copy "`url'/`branch'/excel/exercise/Household Back Check Survey.xlsx" "`folder'/1_instruments/3_scto_xls/Household Back Check Survey.xlsx", replace
+		noi disp "Household Back Check Survey.xlsx copied to 1_instruments/3_scto_xls/Household Back Check Survey.xlsx"
 
 		noi disp
 		noi disp "Unpacking text audit and comment files ..."

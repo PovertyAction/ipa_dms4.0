@@ -11,7 +11,21 @@
 **# import data
 *------------------------------------------------------------------------------*
 
-	use "$rawdata", clear
+	use "$rawsurvey", clear
+	
+	* recode extended missing values
+
+	if "$dk_num" ~= "" {
+		loc dk_num = trim(itrim(subinstr("$dk_num", ",", " ", .)))
+		ds, has(type numeric)
+		recode `r(varlist)' (`dk_num' = .d)
+	}
+	
+	if "$ref_num" ~= "" {
+		loc ref_num = trim(itrim(subinstr("$ref_num", ",", " ", .)))
+		ds, has(type numeric)
+		recode `r(varlist)' (`ref_num' = .r)
+	}
 	
 **# drop unwanted variables
 *------------------------------------------------------------------------------*
@@ -34,7 +48,7 @@
 
 	#d;
 	destring ${duration}
-			 			 
+			 ${enum}	 
 			 , 
 			 replace
 		 ;
@@ -96,7 +110,7 @@
 **# check date variables
 	* check that surveycto auto generated date variables have no missing values
 	* check that surveycto auto generated date variables show values before 
-		* Jan 1, 2018 
+		* Jan 1, 2016
 *------------------------------------------------------------------------------*
 	
 	* NB: Edit this section to include other date & datetime variables as needed
@@ -109,13 +123,13 @@
 				exit 459
 			}
 			else {
-				cap assert year(dofc(`var')) >= 2018
+				cap assert year(dofc(`var')) >= 2016
 				if _rc == 9 {
 					preserve
 					keep $key `var'
 					gen row = _n
-					disp as err "variable `var' has dates before 2018. Check that date variable are properly imported"
-					noi list row $key `var' if year(dofc(`var')) < 2018, abbreviate(32) noobs sepby($key)
+					disp as err "variable `var' has dates before 2016. Check that date variable are properly imported"
+					noi list row $key `var' if year(dofc(`var')) < 2016, abbreviate(32) noobs sepby($key)
 					exit 459
 				}
 			}
@@ -137,9 +151,9 @@
 
 	* NB: Edit this section to change the date as needed
 
-	drop if startdate <= date("01jan2021", "DMY")
+	drop if startdate <= date("01jan2016", "DMY")
 	
 **# save data
 *------------------------------------------------------------------------------*
 
-	save "$preppeddata", replace
+	save "$preppedsurvey", replace

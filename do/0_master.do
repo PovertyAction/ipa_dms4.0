@@ -30,8 +30,10 @@
 *------------------------------------------------------------------------------*
 
 	do "2_dofiles/1_globals.do"													// globals do-file
-	do "2_dofiles/2_import_wbnp_hhs_2021.do"									// import do-file
-	do "2_dofiles/3_prep.do"													// prep do-file
-	do "2_dofiles/4_hfc.do"														// hfcs do-file
+	* do "2_dofiles/2_import_wbnp_hhs_2021.do"									// import do-file
+	do "2_dofiles/3_prepsurvey.do"												// prep survey do-file
+	do "2_dofiles/4_checksurvey.do"												// check survey do-file
+	do "2_dofiles/5_prepbc.do"													// prep back check do-file
+	do "2_dofiles/6_checkbc.do"													// check survey do-file
 	
-**END**
+** END **

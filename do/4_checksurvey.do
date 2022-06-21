@@ -15,25 +15,11 @@
    
    *========================= Import Prepped Dataset ==========================* 
 
-	use "$preppeddata", clear
-	
-	* recode extended missing values
-
-	if "$dontknow_num" ~= "" {
-		loc dk_num = trim(itrim(subinstr("$dontknow_num", ",", " ", .)))
-		ds, has(type numeric)
-		recode `r(varlist)' (`dk_num' = .d)
-	}
-	
-	if "$refuse_num" ~= "" {
-		loc ref_num = trim(itrim(subinstr("$refuse_num", ",", " ", .)))
-		ds, has(type numeric)
-		recode `r(varlist)' (`ref_num' = .r)
-	}
+	use "${preppedsurvey}", clear
    
    *======================== Resolve Survey Duplicates =========================* 
    
-	if $run_correction {
+	if $run_corrections {
 		ipacheckcorrections using "${corrfile}",		///
 			sheet("${cr_dupsheet}")						///
 			id(${key}) 									///
@@ -54,29 +40,30 @@
 				outsheet("id duplicates")				///
 				keep(${id_keepvars})	 				///
 				dupfile("${id_dups_output}")			///
-				save("${checkeddata}")					///
+				save("${checkedsurvey}")				///
 				${id_nolabel}							///
+				force									///
 				sheetreplace
 				
-		use "${checkeddata}", clear
+		use "${checkedsurvey}", clear
 		
    }
    else {
 		isid ${id}
-		save "${checkeddata}", replace
+		save "${checkedsurvey}", replace
    }
    
    *========================== Other HFC Corrections ==========================* 
    
    if $run_corrections {		
 		ipacheckcorrections using "${corrfile}", 		///
-			sheet("${corr_othersheet}")					///
+			sheet("${cr_othersheet}")					///
 			id(${id}) 									///
 			logfile("${cr_output}")						///
 			logsheet("${cr_othersheet}")				///
 			${cr_nolabel}
 			
-		save "${checkeddata}", replace
+		save "${checkedsurvey}", replace
 	}
    
     *========================== Recode other specify ==========================* 
@@ -89,7 +76,7 @@
 			logsheet("$rc_logsheet")					///
 			${rc_nolabel}
 			
-		save "${checkeddata}", replace
+		save "${checkedsurvey}", replace
 	}
   
     *============================= Form versions ===============================* 
@@ -109,7 +96,7 @@
    *========================== Variable Duplicates ============================* 
    
    if $run_dups {
-	   ipacheckdups ${dups_vars},						///
+	   ipacheckdups ${dp_vars},							///
 				id(${id})								///
 				enumerator(${enum}) 					///	
 				date(${date})	 						///
@@ -132,7 +119,7 @@
    
    *=============================== Outliers ==================================* 
 
-   if $run_outlier {
+   if $run_outliers {
 		ipacheckoutliers using "${inputfile}",			///
 			id(${id})									///
 			enumerator(${enum}) 						///	
@@ -159,11 +146,13 @@
 			sheetreplace
    }
    
+   return list
+   
    *============================ field comments ================================*
    
     if $run_comments {
 
-		ipaimportsctomedia comments ${fieldcomments}, 	///
+		ipasctocollate comments ${fieldcomments}, 		///
 			folder("${media_folder}")					///
 			save("${commentsdata}")						///
 			replace
@@ -179,18 +168,18 @@
    }
    
    *======================== text audit & time use ============================* 
- 
+
    if $run_textaudit | $run_timeuse {
-       ipaimportsctomedia textaudit ${textaudit}, 		///
+       ipasctocollate textaudit ${textaudit}, 			///
 			folder("${media_folder}")					///
 			save("${textauditdata}")					///
 			replace
    }
-  
+
    if $run_textaudit {
 		ipachecktextaudit ${textaudit},					///
 			enumerator(${enum}) 						///	
-			textauditdata(${ta_save})					///
+			textauditdata("${textauditdata}")			///
         	outfile("${textaudit_output}")				///
 			stats("${ta_stats}")						///
 			${ta_nolabel}								///
@@ -201,15 +190,15 @@
    if $run_timeuse {
 		ipachecktimeuse ${textaudit}, 					///
 			enumerator(${enum})							///	
-			starttime(${tu_timevar})					///
-			textauditdata("${ta_save}")					///
+			starttime(${starttime})						///
+			textauditdata("${textauditdata}")			///
         	outfile("${timeuse_output}")				///
 			${tu_nolabel} 								///
 			sheetreplace
    }
    
    *=========================== Survey Dashboard ==============================* 
-   
+
    if $run_surveydb {
 		ipachecksurveydb,			 					///
 			by(${sv_by})								///
@@ -223,12 +212,12 @@
 			duration(${duration})						///
 			formversion(${formversion})					///
         	outfile("${surveydb_output}")				///
-			${sv_nolabel}
+			${sv_nolabel}								///
 			sheetreplace
    }
    
    *========================= Enumerator Dashboard ============================* 
-   
+  
    if $run_enumdb {
 		ipacheckenumdb using "${inputfile}",			///
 			sheetname("enumstats")						///		
@@ -243,24 +232,24 @@
 			duration(${duration})						///
 			formversion(${formversion})					///
         	outfile("${enumdb_output}")					///
-			${en_nolabel}
+			${en_nolabel}								///
 			sheetreplace
    }
   
    
    *========================= Track Survey Progress ===========================* 
-   
-   if $run_track {
+
+   if $run_tracksurvey {
        ipatracksurvey,									///
-			surveydata("$checkeddata")					///
+			surveydata("$checkedsurvey")				///
 			id(${id})									///
 			date(${date})								///
 			by(${tr_by})								///
 			outcome(${tr_outcome})						///
 			target(${tr_target})						///
-			masterdata("${masterdata}")					///
+			masterdata("${mastersurvey}")				///
 			masterid(${tr_masterid})					///
-			trackingdata("${trackingdata}")				///
+			trackingdata("${trackingsurvey}")			///
 			keepmaster(${tr_keepmaster})				///
 			keeptracking(${tr_keeptracking})			///
 			keepsurvey(${tr_keepsurvey})				///
@@ -269,5 +258,6 @@
 			${tr_nolabel} 								///
 			${tr_summaryonly}							///
 			${tr_workbooks} 							///
-			${tr_surveyok}
+			${tr_surveyok}								///
+			replace
    }
